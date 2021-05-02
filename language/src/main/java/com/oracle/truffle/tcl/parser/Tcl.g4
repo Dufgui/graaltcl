@@ -67,173 +67,249 @@ public static Map<String, RootCallTarget> parseSL( SLLanguage language, Source s
 
 // parser
 
-tcl	:	procs_statement modulo_ppal EOF;
+tcl
+:
+function function* module EOF
+;
 
-procs_statement  : proc_statement* ;
-proc_statement	:
+
+function
+:
 'proc'
 IDENTIFIER
 s='{'
-                                            { factory.startFunction($IDENTIFIER, $s); }
-    args_statement
+                                                { factory.startFunction($IDENTIFIER, $s); }
+(
+    IDENTIFIER                                  { factory.addFormalParameter($IDENTIFIER); }
+    (
+        ','
+        IDENTIFIER                              { factory.addFormalParameter($IDENTIFIER); }
+    )*
+)?
 '}'
-    body=body_statement                     { factory.finishFunction($body.result); }
+body=block[false]                               { factory.finishFunction($body.result); }
 ;
-args_statement	:	'{'
-IDENTIFIER                                  { factory.addFormalParameter($IDENTIFIER); }
- '}' args_statement |  ;
 
-body_statement returns [SLStatementNode result]:
-                                            { factory.startBlock();
-                                            List<SLStatementNode> body = new ArrayList<>(); }
+
+
+block [boolean inLoop] returns [SLStatementNode result]
+:                                               { factory.startBlock();
+                                                  List<SLStatementNode> body = new ArrayList<>(); }
 s='{'
 (
-    statement                               { body.add($statement.result); }
+    statement[inLoop]                           { body.add($statement.result); }
 )*
 e='}'
-                                            { $result = factory.finishBlock(body, $s.getStartIndex(), $e.getStopIndex() - $s.getStartIndex() + 1); }
+                                                { $result = factory.finishBlock(body, $s.getStartIndex(), $e.getStopIndex() - $s.getStartIndex() + 1); }
 ;
 
-statement returns [SLStatementNode result]:
-set                                         { $result = $set.result; }
+module
+:
+(
+    statement[false]                           { factory.addModuleStatement($statement.result); }
+)*
+;
+
+statement [boolean inLoop] returns [SLStatementNode result]
+:
+(
+    while_statement                             { $result = $while_statement.result; }
 |
-puts                                        { $result = $puts.result; }
+    b='break'                                   { if (inLoop) { $result = factory.createBreak($b); } else { SemErr($b, "break used outside of loop"); } }
+    ';'
 |
-gets ';'                                    { $result = $gets.result; }
+    c='continue'                                { if (inLoop) { $result = factory.createContinue($c); } else { SemErr($c, "continue used outside of loop"); } }
+    ';'
 |
-if_statement                                { $result = $if_statement.result; }
+    if_statement[inLoop]                        { $result = $if_statement.result; }
 |
-for_statement                               { $result = $for_statement.result; }
+    return_statement                            { $result = $return_statement.result; }
 |
-while_statement                             { $result = $while_statement.result; }
+    expression ';'                              { $result = $expression.result; }
+)
+;
+
+
+while_statement returns [SLStatementNode result]
+:
+w='while'
+'{'
+condition=expression
+'}'
+body=block[true]                                { $result = factory.createWhile($w, $condition.result, $body.result); }
+;
+
+
+if_statement [boolean inLoop] returns [SLStatementNode result]
+:
+i='if'
+'{'
+condition=expression
+'}' 'then'
+then=block[inLoop]                              { SLStatementNode elsePart = null; }
+(
+    'else'
+    block[inLoop]                               { elsePart = $block.result; }
+)?                                              { $result = factory.createIf($i, $condition.result, $then.result, elsePart); }
+;
+
+
+return_statement returns [SLStatementNode result]
+:
+r='return'                                      { SLExpressionNode value = null; }
+(
+    expression                                  { value = $expression.result; }
+)?                                              { $result = factory.createReturn($r, value); }
+';'
+;
+
+
+expression returns [SLExpressionNode result]
+:
+logic_term                                      { $result = $logic_term.result; }
+(
+    op='||'
+    logic_term                                  { $result = factory.createBinary($op, $result, $logic_term.result); }
+)*
+;
+
+
+logic_term returns [SLExpressionNode result]
+:
+logic_factor                                    { $result = $logic_factor.result; }
+(
+    op='&&'
+    logic_factor                                { $result = factory.createBinary($op, $result, $logic_factor.result); }
+)*
+;
+
+
+logic_factor returns [SLExpressionNode result]
+:
+arithmetic                                      { $result = $arithmetic.result; }
+(
+    op=('<' | '<=' | '>' | '>=' | '==' | '!=' | 'eq' | 'ne' )
+    arithmetic                                  { $result = factory.createBinary($op, $result, $arithmetic.result); }
+)?
+;
+
+
+arithmetic returns [SLExpressionNode result]
+:
+term_add                                        { $result = $term_add.result; }
+(
+    op=('+' | '-')
+    term_add                                    { $result = factory.createBinary($op, $result, $term_add.result); }
+)*
+;
+
+
+term_add returns [SLExpressionNode result]
+:
+term_pot                                        { $result = $term_pot.result; }
+(
+    op=('*' | '/' | '%')
+    term_pot                                    { $result = factory.createBinary($op, $result, $term_pot.result); }
+)*
+;
+
+term_pot returns [SLExpressionNode result]
+:
+term                                            { $result = $term.result; }
+(
+    op='**'
+    term                                        { $result = factory.createBinary($op, $result, $term.result); }
+)*
+;
+
+
+term returns [SLExpressionNode result]
+:
+(
+    IDENTIFIER                                  { SLExpressionNode assignmentName = factory.createStringLiteral($IDENTIFIER, false); }
+    (
+        member_expression[null, null, assignmentName] { $result = $member_expression.result; }
+    |
+                                                { $result = factory.createRead(assignmentName); }
+    )
 |
-switch_statement                            { $result = $switch_statement.result; }
+    STRING_LITERAL                              { $result = factory.createStringLiteral($STRING_LITERAL, true); }
 |
-r_return                                    { $result = $r_return.result; }
+    INTEGER_LITERAL                             { $result = factory.createIntegerLiteral($INTEGER_LITERAL); }
 |
-agroup                                      { $result = $agroup.result; }
-';';
-
-if_statement	:	start_if body_statement '}' elseif_statement  ;
-elseif_statement	:	start_elseif body_statement '}' elseif_statement | else_statement  ;
-else_statement	:	start_else body_statement '}' |  ;
-
-switch_statement	:	start_switch case_statement '}'  ;
-case_statement	:	start_case body_statement '}' case2_statement  ;
-case2_statement	:	start_case body_statement '}' case2_statement | default_statement  ;
-default_statement	:	start_default body_statement '}' |  ;
-
-for_statement	:	start_for body_loop_func '}'  ;
-while_statement	:	start_while body_loop_func '}'  ;
-
-body_loop_func	:	r_break body_loop_func | r_continue body_loop_func | set body_loop_func
-					| gets ';' body_loop_func | puts body_loop_func | r_return body_loop_func
-					| if_loop_func body_loop_func | switch_loop_func body_loop_func | for_statement body_loop_func
-					| while_statement body_loop_func | agroup ';' body_loop_func |  ;
-
-if_loop_func	:	start_if body_loop_func '}' elseif_loop_func  ;
-elseif_loop_func	:	start_elseif body_loop_func '}' elseif_loop_func | else_loop_func  ;
-else_loop_func	:	start_else body_loop_func '}' |  ;
-
-switch_loop_func	:	start_switch case_loop_func '}'  ;
-case_loop_func	:	start_case body_loop_func '}' case2_loop_func  ;
-case2_loop_func	:	start_case body_loop_func '}' case2_loop_func | default_loop_func  ;
-default_loop_func	:	start_default body_loop_func '}' |  ;
-
-modulo_ppal	:	set modulo_ppal | r_for modulo_ppal | gets ';' modulo_ppal | r_if modulo_ppal
-			| puts modulo_ppal | r_while modulo_ppal | r_switch modulo_ppal | agroup ';' modulo_ppal |  ;
-
-r_if	:	start_if body_inst '}' elseif  ;
-elseif	:	start_elseif body_inst '}' elseif | r_else  ;
-r_else	:	start_else body_inst '}' |  ;
-
-r_switch	:	start_switch r_case '}'  ;
-r_case	:	start_case body_inst '}' case2  ;
-case2	:	start_case body_inst '}' case2 | r_default  ;
-r_default	:	start_default body_inst '}' |  ;
-
-body_inst	:	set body_inst | r_for body_inst | gets ';' body_inst | r_if body_inst
-			| puts body_inst | r_while body_inst | r_switch body_inst | agroup ';' body_inst |  ;
-
-r_for	:	start_for body_loop '}'  ;
-r_while	:	start_while body_loop '}'  ;
-
-body_loop	:	set body_loop | r_for body_loop | gets ';' body_loop | if_loop body_loop
-			| puts body_loop | r_while body_loop | switch_loop body_loop | r_break body_loop
-			| r_continue body_loop | agroup ';' body_loop |  ;
-
-if_loop	:	start_if body_loop '}' elseif_loop  ;
-elseif_loop	:	start_elseif body_loop '}' elseif_loop | else_loop  ;
-else_loop	:	start_else body_loop '}' |  ;
-
-switch_loop	:	start_switch case_loop '}'  ;
-case_loop	:	start_case body_loop '}' case2_loop  ;
-case2_loop	:	start_case body_loop '}' case2_loop | default_loop  ;
-default_loop	:	start_default body_loop '}' |  ;
-
-puts	:	'puts' assignment ';'  ;
-gets	:	'gets' 'stdin'  ;
-set	:	'set' IDENTIFIER index assignment ';'  ;
-
-agroup	:	'[' aux_agroup  ;
-aux_agroup	:	expr ']' | IDENTIFIER param_func ']' | gets ']' | 'array' aux_array  ;
-aux_array	:	'size' IDENTIFIER ']' | 'exists' IDENTIFIER ']'  ;
-
-param_func	:	'{' aux_param |  ;
-aux_param	:	assignment '}' param_func | expr '}' param_func  ;
-
-assignment	:	value | '$' IDENTIFIER index | agroup  ;
-
-index	:	'(' val_index ')' |  ;
-val_index	:	value | agroup | '$' IDENTIFIER index ;
-
-value	:	VALUE_STRING | VALUE_INTEGER | VALUE_DOUBLE  ;
-
-increment	:	VALUE_INTEGER |  ;
-
-r_break	:	'break' ';'  ;
-r_continue	:	'continue' ';'  ;
-r_return	:	'return' value_return ';'  ;
-value_return	:	assignment |  ;
-
-expr	:	'expr' '{' expresion '}'  ;
-asig_for	:	VALUE_INTEGER | '$' IDENTIFIER index | expr  ;
-
-start_if	:	'if' '{' expresion '}' 'then' '{'  ;
-start_elseif	:	'elseif' '{' expresion '}' 'then' '{'  ;
-start_else	:	'else' '{'  ;
-start_switch	:	'switch' '$' IDENTIFIER index '{'  ;
-start_case	:	'case' VALUE_INTEGER '{'  ;
-start_default	:	'default' '{'  ;
-
-start_for	:	'for' '{' dec_for '}' '{' expresion '}' '{' 'incr' IDENTIFIER increment '}' '{'  ;
-dec_for : 'set' IDENTIFIER asig_for ;
-
-start_while	:	'while' '{' expresion '}' '{'  ;
-
-expresion	:	exp_or  ;
-exp_or	:	exp_or '||' exp_and | exp_and  ;
-exp_and	:	exp_and '&&' exp_ig | exp_ig  ;
-exp_ig	:	exp_ig op_ig exp_rel | exp_rel  ;
-exp_rel	:	exp_rel op_rel exp_add | exp_add  ;
-exp_add	:	exp_add op_add exp_mul | exp_mul  ;
-exp_mul	:	exp_mul op_mul exp_pot | exp_pot  ;
-exp_pot	:	exp_pot '**' exp_una | exp_una  ;
-exp_una	:	op_una exp_una | term  ;
-term	:	'$' IDENTIFIER index | agroup | value | '(' exp_or ')'  ;
+    DOUBLE_LITERAL                              { $result = factory.createDoubleLiteral($DOUBLE_LITERAL); }
+|
+    s='('
+    expr=expression
+    e=')'                                       { $result = factory.createParenExpression($expr.result, $s.getStartIndex(), $e.getStopIndex() - $s.getStartIndex() + 1); }
+)
+;
 
 
-op_ig	:	'eq' | '==' | 'ne' | '!='  ;
-op_rel	:	'>' | '<' | '>=' | '<='  ;
-op_add	:	'+' | '-'  ;
-op_mul	:	'*' | '/' | '%'  ;
-op_una	:	'-' | '!'  ;
+member_expression [SLExpressionNode r, SLExpressionNode assignmentReceiver, SLExpressionNode assignmentName] returns [SLExpressionNode result]
+:                                               { SLExpressionNode receiver = r;
+                                                  SLExpressionNode nestedAssignmentName = null; }
+(
+    '('                                         { List<SLExpressionNode> parameters = new ArrayList<>();
+                                                  if (receiver == null) {
+                                                      receiver = factory.createRead(assignmentName);
+                                                  } }
+    (
+        expression                              { parameters.add($expression.result); }
+        (
+            ','
+            expression                          { parameters.add($expression.result); }
+        )*
+    )?
+    e=')'
+                                                { $result = factory.createCall(receiver, parameters, $e); }
+|
+    '='
+    expression                                  { if (assignmentName == null) {
+                                                      SemErr($expression.start, "invalid assignment target");
+                                                  } else if (assignmentReceiver == null) {
+                                                      $result = factory.createAssignment(assignmentName, $expression.result);
+                                                  } else {
+                                                      $result = factory.createWriteProperty(assignmentReceiver, assignmentName, $expression.result);
+                                                  } }
+|
+    '.'                                         { if (receiver == null) {
+                                                       receiver = factory.createRead(assignmentName);
+                                                  } }
+    IDENTIFIER
+                                                { nestedAssignmentName = factory.createStringLiteral($IDENTIFIER, false);
+                                                  $result = factory.createReadProperty(receiver, nestedAssignmentName); }
+|
+    '['                                         { if (receiver == null) {
+                                                      receiver = factory.createRead(assignmentName);
+                                                  } }
+    expression
+                                                { nestedAssignmentName = $expression.result;
+                                                  $result = factory.createReadProperty(receiver, nestedAssignmentName); }
+    ']'
+)
+(
+    member_expression[$result, receiver, nestedAssignmentName] { $result = $member_expression.result; }
+)?
+;
 
+// lexer
 
-IDENTIFIER	:	[a-zA-Z_][a-zA-Z0-9_]*  ;
-VALUE_INTEGER	:	'-'?[0-9]+  ;
-VALUE_DOUBLE	:	[0-9]+ '.' [0-9]+  ;
-VALUE_STRING	:	'"' ~[\r\n"]* '"'  ;
-WS	:	[ \t\r\n]+	->	skip  ;
 COMMENT	:	'#' ~[\r\n]*	->	skip  ;
+WS : [ \t\r\n\u000C]+ -> skip;
+
+fragment LETTER : [A-Z] | [a-z] | '_';
+fragment NON_ZERO_DIGIT : [1-9];
+fragment DIGIT : [0-9];
+fragment HEX_DIGIT : [0-9] | [a-f] | [A-F];
+fragment OCT_DIGIT : [0-7];
+fragment BINARY_DIGIT : '0' | '1';
+fragment TAB : '\t';
+fragment STRING_CHAR : ~('"' | '\\' | '\r' | '\n');
+
+IDENTIFIER : LETTER (LETTER | DIGIT)*;
+STRING_LITERAL : '"' STRING_CHAR* '"';
+INTEGER_LITERAL	:	DIGIT+  ;
+DOUBLE_LITERAL	:	DIGIT+ '.' DIGIT+  ;
+
 

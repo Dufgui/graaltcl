@@ -57,7 +57,7 @@ import com.oracle.truffle.tcl.runtime.SLNull;
  * conversion methods for some types. In this class, we only cover types where the automatically
  * generated ones would not be sufficient.
  */
-@TypeSystem({long.class, boolean.class})
+@TypeSystem({long.class, boolean.class, double.class})
 public abstract class SLTypes {
 
     /**

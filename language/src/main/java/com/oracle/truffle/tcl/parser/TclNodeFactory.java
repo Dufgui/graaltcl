@@ -46,6 +46,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.oracle.truffle.tcl.nodes.expression.SLDoubleLiteralNode;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
 
@@ -245,18 +246,6 @@ public class TclNodeFactory
     }
 
     /**
-     * Returns an {@link SLDebuggerNode} for the given token.
-     *
-     * @param debuggerToken The token containing the debugger node's info.
-     * @return A SLDebuggerNode for the given token.
-     */
-    SLStatementNode createDebugger(Token debuggerToken) {
-        final SLDebuggerNode debuggerNode = new SLDebuggerNode();
-        srcFromToken(debuggerNode, debuggerToken);
-        return debuggerNode;
-    }
-
-    /**
      * Returns an {@link SLBreakNode} for the given token.
      *
      * @param breakToken The token containing the break node's info.
@@ -406,6 +395,11 @@ public class TclNodeFactory
 
         return result;
     }
+    
+    
+    public void addModuleStatement( SLStatementNode node )
+    {
+    }
 
     /**
      * Returns an {@link SLInvokeNode} for the given parameters.
@@ -523,11 +517,25 @@ public class TclNodeFactory
         return result;
     }
 
-    public SLExpressionNode createNumericLiteral(Token literalToken) {
+    public SLExpressionNode createIntegerLiteral(Token literalToken) {
         SLExpressionNode result;
         try {
             /* Try if the literal is small enough to fit into a long value. */
             result = new SLLongLiteralNode(Long.parseLong(literalToken.getText()));
+        } catch (NumberFormatException ex) {
+            /* Overflow of long value, so fall back to BigInteger. */
+            result = new SLBigIntegerLiteralNode(new BigInteger(literalToken.getText()));
+        }
+        srcFromToken(result, literalToken);
+        result.addExpressionTag();
+        return result;
+    }
+
+    public SLExpressionNode createDoubleLiteral(Token literalToken) {
+        SLExpressionNode result;
+        try {
+            /* Try if the literal is small enough to fit into a long value. */
+            result = new SLDoubleLiteralNode(Double.parseDouble(literalToken.getText()));
         } catch (NumberFormatException ex) {
             /* Overflow of long value, so fall back to BigInteger. */
             result = new SLBigIntegerLiteralNode(new BigInteger(literalToken.getText()));
