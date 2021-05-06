@@ -1,7 +1,7 @@
 // Generated from language/src/main/java/com/oracle/truffle/tcl/parser/Tcl.g4 by ANTLR 4.7.1
 package com.oracle.truffle.tcl.parser;
 
-// DO NOT MODIFY - generated from SimpleLanguage.g4 using "mx create-sl-parser"
+// DO NOT MODIFY - generated from SimpleLanguage.g4 using "mx create-tcl-parser"
 
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;

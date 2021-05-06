@@ -5,22 +5,22 @@ grammar Tcl;
 
 @parser::header
 {
-// DO NOT MODIFY - generated from SimpleLanguage.g4 using "mx create-sl-parser"
+// DO NOT MODIFY - generated from Tcl.g4 using "mx create-tcl-parser"
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.RootCallTarget;
-import com.oracle.truffle.tcl.SLLanguage;
-import com.oracle.truffle.tcl.nodes.SLExpressionNode;
-import com.oracle.truffle.tcl.nodes.SLRootNode;
-import com.oracle.truffle.tcl.nodes.SLStatementNode;
+import com.oracle.truffle.tcl.TclLanguage;
+import com.oracle.truffle.tcl.nodes.TclExpressionNode;
+import com.oracle.truffle.tcl.nodes.TclRootNode;
+import com.oracle.truffle.tcl.nodes.TclStatementNode;
 import com.oracle.truffle.tcl.parser.TclParseError;
 }
 
 @lexer::header
 {
-// DO NOT MODIFY - generated from SimpleLanguage.g4 using "mx create-sl-parser"
+// DO NOT MODIFY - generated from SimpleLanguage.g4 using "mx create-tcl-parser"
 }
 
 @parser::members
@@ -50,7 +50,7 @@ private static void throwParseError(Source source, int line, int charPositionInL
     throw new TclParseError(source, line, col, length, String.format("Error(s) parsing script:%n" + location + message));
 }
 
-public static Map<String, RootCallTarget> parseSL( SLLanguage language, Source source) {
+public static Map<String, RootCallTarget> parseTcl( TclLanguage language, Source source) {
     TclLexer lexer = new TclLexer(CharStreams.fromString(source.getCharacters().toString()));
     TclParser parser = new TclParser(new CommonTokenStream(lexer));
     lexer.removeErrorListeners();
@@ -92,9 +92,9 @@ body=block[false]                               { factory.finishFunction($body.r
 
 
 
-block [boolean inLoop] returns [SLStatementNode result]
+block [boolean inLoop] returns [TclStatementNode result]
 :                                               { factory.startBlock();
-                                                  List<SLStatementNode> body = new ArrayList<>(); }
+                                                  List<TclStatementNode> body = new ArrayList<>(); }
 s='{'
 (
     statement[inLoop]                           { body.add($statement.result); }
@@ -110,7 +110,7 @@ module
 )*
 ;
 
-statement [boolean inLoop] returns [SLStatementNode result]
+statement [boolean inLoop] returns [TclStatementNode result]
 :
 (
     while_statement                             { $result = $while_statement.result; }
@@ -130,7 +130,7 @@ statement [boolean inLoop] returns [SLStatementNode result]
 ;
 
 
-while_statement returns [SLStatementNode result]
+while_statement returns [TclStatementNode result]
 :
 w='while'
 '{'
@@ -140,13 +140,13 @@ body=block[true]                                { $result = factory.createWhile(
 ;
 
 
-if_statement [boolean inLoop] returns [SLStatementNode result]
+if_statement [boolean inLoop] returns [TclStatementNode result]
 :
 i='if'
 '{'
 condition=expression
 '}' 'then'
-then=block[inLoop]                              { SLStatementNode elsePart = null; }
+then=block[inLoop]                              { TclStatementNode elsePart = null; }
 (
     'else'
     block[inLoop]                               { elsePart = $block.result; }
@@ -154,9 +154,9 @@ then=block[inLoop]                              { SLStatementNode elsePart = nul
 ;
 
 
-return_statement returns [SLStatementNode result]
+return_statement returns [TclStatementNode result]
 :
-r='return'                                      { SLExpressionNode value = null; }
+r='return'                                      { TclExpressionNode value = null; }
 (
     expression                                  { value = $expression.result; }
 )?                                              { $result = factory.createReturn($r, value); }
@@ -164,7 +164,7 @@ r='return'                                      { SLExpressionNode value = null;
 ;
 
 
-expression returns [SLExpressionNode result]
+expression returns [TclExpressionNode result]
 :
 logic_term                                      { $result = $logic_term.result; }
 (
@@ -174,7 +174,7 @@ logic_term                                      { $result = $logic_term.result; 
 ;
 
 
-logic_term returns [SLExpressionNode result]
+logic_term returns [TclExpressionNode result]
 :
 logic_factor                                    { $result = $logic_factor.result; }
 (
@@ -184,7 +184,7 @@ logic_factor                                    { $result = $logic_factor.result
 ;
 
 
-logic_factor returns [SLExpressionNode result]
+logic_factor returns [TclExpressionNode result]
 :
 arithmetic                                      { $result = $arithmetic.result; }
 (
@@ -194,7 +194,7 @@ arithmetic                                      { $result = $arithmetic.result; 
 ;
 
 
-arithmetic returns [SLExpressionNode result]
+arithmetic returns [TclExpressionNode result]
 :
 term_add                                        { $result = $term_add.result; }
 (
@@ -204,7 +204,7 @@ term_add                                        { $result = $term_add.result; }
 ;
 
 
-term_add returns [SLExpressionNode result]
+term_add returns [TclExpressionNode result]
 :
 term_pot                                        { $result = $term_pot.result; }
 (
@@ -213,7 +213,7 @@ term_pot                                        { $result = $term_pot.result; }
 )*
 ;
 
-term_pot returns [SLExpressionNode result]
+term_pot returns [TclExpressionNode result]
 :
 term                                            { $result = $term.result; }
 (
@@ -223,10 +223,10 @@ term                                            { $result = $term.result; }
 ;
 
 
-term returns [SLExpressionNode result]
+term returns [TclExpressionNode result]
 :
 (
-    IDENTIFIER                                  { SLExpressionNode assignmentName = factory.createStringLiteral($IDENTIFIER, false); }
+    IDENTIFIER                                  { TclExpressionNode assignmentName = factory.createStringLiteral($IDENTIFIER, false); }
     (
         member_expression[null, null, assignmentName] { $result = $member_expression.result; }
     |
@@ -246,11 +246,11 @@ term returns [SLExpressionNode result]
 ;
 
 
-member_expression [SLExpressionNode r, SLExpressionNode assignmentReceiver, SLExpressionNode assignmentName] returns [SLExpressionNode result]
-:                                               { SLExpressionNode receiver = r;
-                                                  SLExpressionNode nestedAssignmentName = null; }
+member_expression [TclExpressionNode r, TclExpressionNode assignmentReceiver, TclExpressionNode assignmentName] returns [TclExpressionNode result]
+:                                               { TclExpressionNode receiver = r;
+                                                  TclExpressionNode nestedAssignmentName = null; }
 (
-    '('                                         { List<SLExpressionNode> parameters = new ArrayList<>();
+    '('                                         { List<TclExpressionNode> parameters = new ArrayList<>();
                                                   if (receiver == null) {
                                                       receiver = factory.createRead(assignmentName);
                                                   } }

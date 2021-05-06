@@ -1,16 +1,16 @@
 // Generated from language/src/main/java/com/oracle/truffle/tcl/parser/Tcl.g4 by ANTLR 4.7.1
 package com.oracle.truffle.tcl.parser;
 
-// DO NOT MODIFY - generated from SimpleLanguage.g4 using "mx create-sl-parser"
+// DO NOT MODIFY - generated from Tcl.g4 using "mx create-tcl-parser"
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.RootCallTarget;
-import com.oracle.truffle.tcl.SLLanguage;
-import com.oracle.truffle.tcl.nodes.SLExpressionNode;
-import com.oracle.truffle.tcl.nodes.SLRootNode;
-import com.oracle.truffle.tcl.nodes.SLStatementNode;
+import com.oracle.truffle.tcl.TclLanguage;
+import com.oracle.truffle.tcl.nodes.TclExpressionNode;
+import com.oracle.truffle.tcl.nodes.TclRootNode;
+import com.oracle.truffle.tcl.nodes.TclStatementNode;
 import com.oracle.truffle.tcl.parser.TclParseError;
 
 import org.antlr.v4.runtime.atn.*;
@@ -130,7 +130,7 @@ public class TclParser extends Parser {
 	    throw new TclParseError(source, line, col, length, String.format("Error(s) parsing script:%n" + location + message));
 	}
 
-	public static Map<String, RootCallTarget> parseSL( SLLanguage language, Source source) {
+	public static Map<String, RootCallTarget> parseTcl( TclLanguage language, Source source) {
 	    TclLexer lexer = new TclLexer(CharStreams.fromString(source.getCharacters().toString()));
 	    TclParser parser = new TclParser(new CommonTokenStream(lexer));
 	    lexer.removeErrorListeners();
@@ -284,7 +284,7 @@ public class TclParser extends Parser {
 
 	public static class BlockContext extends ParserRuleContext {
 		public boolean inLoop;
-		public SLStatementNode result;
+		public TclStatementNode result;
 		public Token s;
 		public StatementContext statement;
 		public Token e;
@@ -310,7 +310,7 @@ public class TclParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			 factory.startBlock();
-			                                                  List<SLStatementNode> body = new ArrayList<>(); 
+			                                                  List<TclStatementNode> body = new ArrayList<>(); 
 			setState(63);
 			((BlockContext)_localctx).s = match(T__1);
 			setState(69);
@@ -395,7 +395,7 @@ public class TclParser extends Parser {
 
 	public static class StatementContext extends ParserRuleContext {
 		public boolean inLoop;
-		public SLStatementNode result;
+		public TclStatementNode result;
 		public While_statementContext while_statement;
 		public Token b;
 		public Token c;
@@ -500,7 +500,7 @@ public class TclParser extends Parser {
 	}
 
 	public static class While_statementContext extends ParserRuleContext {
-		public SLStatementNode result;
+		public TclStatementNode result;
 		public Token w;
 		public ExpressionContext condition;
 		public BlockContext body;
@@ -548,7 +548,7 @@ public class TclParser extends Parser {
 
 	public static class If_statementContext extends ParserRuleContext {
 		public boolean inLoop;
-		public SLStatementNode result;
+		public TclStatementNode result;
 		public Token i;
 		public ExpressionContext condition;
 		public BlockContext then;
@@ -589,7 +589,7 @@ public class TclParser extends Parser {
 			match(T__9);
 			setState(116);
 			((If_statementContext)_localctx).then = ((If_statementContext)_localctx).block = block(inLoop);
-			 SLStatementNode elsePart = null; 
+			 TclStatementNode elsePart = null; 
 			setState(122);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
@@ -618,7 +618,7 @@ public class TclParser extends Parser {
 	}
 
 	public static class Return_statementContext extends ParserRuleContext {
-		public SLStatementNode result;
+		public TclStatementNode result;
 		public Token r;
 		public ExpressionContext expression;
 		public ExpressionContext expression() {
@@ -639,7 +639,7 @@ public class TclParser extends Parser {
 			{
 			setState(126);
 			((Return_statementContext)_localctx).r = match(T__11);
-			 SLExpressionNode value = null; 
+			 TclExpressionNode value = null; 
 			setState(131);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
@@ -668,7 +668,7 @@ public class TclParser extends Parser {
 	}
 
 	public static class ExpressionContext extends ParserRuleContext {
-		public SLExpressionNode result;
+		public TclExpressionNode result;
 		public Logic_termContext logic_term;
 		public Token op;
 		public List<Logic_termContext> logic_term() {
@@ -726,7 +726,7 @@ public class TclParser extends Parser {
 	}
 
 	public static class Logic_termContext extends ParserRuleContext {
-		public SLExpressionNode result;
+		public TclExpressionNode result;
 		public Logic_factorContext logic_factor;
 		public Token op;
 		public List<Logic_factorContext> logic_factor() {
@@ -784,7 +784,7 @@ public class TclParser extends Parser {
 	}
 
 	public static class Logic_factorContext extends ParserRuleContext {
-		public SLExpressionNode result;
+		public TclExpressionNode result;
 		public ArithmeticContext arithmetic;
 		public Token op;
 		public List<ArithmeticContext> arithmetic() {
@@ -845,7 +845,7 @@ public class TclParser extends Parser {
 	}
 
 	public static class ArithmeticContext extends ParserRuleContext {
-		public SLExpressionNode result;
+		public TclExpressionNode result;
 		public Term_addContext term_add;
 		public Token op;
 		public List<Term_addContext> term_add() {
@@ -913,7 +913,7 @@ public class TclParser extends Parser {
 	}
 
 	public static class Term_addContext extends ParserRuleContext {
-		public SLExpressionNode result;
+		public TclExpressionNode result;
 		public Term_potContext term_pot;
 		public Token op;
 		public List<Term_potContext> term_pot() {
@@ -981,7 +981,7 @@ public class TclParser extends Parser {
 	}
 
 	public static class Term_potContext extends ParserRuleContext {
-		public SLExpressionNode result;
+		public TclExpressionNode result;
 		public TermContext term;
 		public Token op;
 		public List<TermContext> term() {
@@ -1039,7 +1039,7 @@ public class TclParser extends Parser {
 	}
 
 	public static class TermContext extends ParserRuleContext {
-		public SLExpressionNode result;
+		public TclExpressionNode result;
 		public Token IDENTIFIER;
 		public Member_expressionContext member_expression;
 		public Token STRING_LITERAL;
@@ -1077,7 +1077,7 @@ public class TclParser extends Parser {
 				{
 				setState(199);
 				((TermContext)_localctx).IDENTIFIER = match(IDENTIFIER);
-				 SLExpressionNode assignmentName = factory.createStringLiteral(((TermContext)_localctx).IDENTIFIER, false); 
+				 TclExpressionNode assignmentName = factory.createStringLiteral(((TermContext)_localctx).IDENTIFIER, false); 
 				setState(205);
 				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,14,_ctx) ) {
@@ -1145,10 +1145,10 @@ public class TclParser extends Parser {
 	}
 
 	public static class Member_expressionContext extends ParserRuleContext {
-		public SLExpressionNode r;
-		public SLExpressionNode assignmentReceiver;
-		public SLExpressionNode assignmentName;
-		public SLExpressionNode result;
+		public TclExpressionNode r;
+		public TclExpressionNode assignmentReceiver;
+		public TclExpressionNode assignmentName;
+		public TclExpressionNode result;
 		public ExpressionContext expression;
 		public Token e;
 		public Token IDENTIFIER;
@@ -1164,7 +1164,7 @@ public class TclParser extends Parser {
 			return getRuleContext(Member_expressionContext.class,0);
 		}
 		public Member_expressionContext(ParserRuleContext parent, int invokingState) { super(parent, invokingState); }
-		public Member_expressionContext(ParserRuleContext parent, int invokingState, SLExpressionNode r, SLExpressionNode assignmentReceiver, SLExpressionNode assignmentName) {
+		public Member_expressionContext(ParserRuleContext parent, int invokingState, TclExpressionNode r, TclExpressionNode assignmentReceiver, TclExpressionNode assignmentName) {
 			super(parent, invokingState);
 			this.r = r;
 			this.assignmentReceiver = assignmentReceiver;
@@ -1173,15 +1173,15 @@ public class TclParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_member_expression; }
 	}
 
-	public final Member_expressionContext member_expression(SLExpressionNode r,SLExpressionNode assignmentReceiver,SLExpressionNode assignmentName) throws RecognitionException {
+	public final Member_expressionContext member_expression(TclExpressionNode r,TclExpressionNode assignmentReceiver,TclExpressionNode assignmentName) throws RecognitionException {
 		Member_expressionContext _localctx = new Member_expressionContext(_ctx, getState(), r, assignmentReceiver, assignmentName);
 		enterRule(_localctx, 30, RULE_member_expression);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			 SLExpressionNode receiver = r;
-			                                                  SLExpressionNode nestedAssignmentName = null; 
+			 TclExpressionNode receiver = r;
+			                                                  TclExpressionNode nestedAssignmentName = null; 
 			setState(252);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
@@ -1189,7 +1189,7 @@ public class TclParser extends Parser {
 				{
 				setState(221);
 				match(T__28);
-				 List<SLExpressionNode> parameters = new ArrayList<>();
+				 List<TclExpressionNode> parameters = new ArrayList<>();
 				                                                  if (receiver == null) {
 				                                                      receiver = factory.createRead(assignmentName);
 				                                                  } 

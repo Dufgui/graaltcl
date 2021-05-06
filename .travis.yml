@@ -11,7 +11,7 @@ jdk:
 env:
     - GRAALVM_VERSION="20.3.0" GRAALVM_JAVA_VERSION="8"
     - GRAALVM_VERSION="20.3.0" GRAALVM_JAVA_VERSION="11"
-    - GRAALVM_VERSION="NONE" SL_BUILD_NATIVE="false"
+    - GRAALVM_VERSION="NONE" TCL_BUILD_NATIVE="false"
 
 matrix:
     exclude:
@@ -27,7 +27,7 @@ matrix:
           # There seems to be an issue with this setup where maven runs on java 10
         - jdk: openjdk11
           os: osx
-          env: GRAALVM_VERSION="NONE" SL_BUILD_NATIVE="false"
+          env: GRAALVM_VERSION="NONE" TCL_BUILD_NATIVE="false"
 
 install:
     - cd .. && mv simplelanguage "simple language" && cd "simple language"
@@ -46,15 +46,15 @@ install:
 
 script:
     - mvn package
-    - ./sl language/tests/Add.sl
-    - if [[ "$GRAALVM_VERSION" != "NONE" ]]; then ./native/slnative language/tests/Add.sl; fi
-    - if [[ "$GRAALVM_VERSION" != "NONE" ]]; then "$JAVA_HOME/bin/gu" install -L component/sl-component.jar ; fi
-    - if [[ "$GRAALVM_VERSION" != "NONE" ]]; then "$JAVA_HOME/bin/sl" language/tests/Add.sl; fi
-    - if [[ "$GRAALVM_VERSION" != "NONE" ]]; then "$JAVA_HOME/bin/slnative" language/tests/Add.sl; fi
-    - if [[ "$GRAALVM_VERSION" != "NONE" ]]; then "$JAVA_HOME/bin/polyglot" --jvm --language sl --file language/tests/Add.sl; fi
-    - if [[ "$GRAALVM_VERSION" != "NONE" ]]; then "$JAVA_HOME/bin/gu" remove sl; fi
+    - ./tcl language/tests/Add.tcl
+    - if [[ "$GRAALVM_VERSION" != "NONE" ]]; then ./native/tclnative language/tests/Add.tcl; fi
+    - if [[ "$GRAALVM_VERSION" != "NONE" ]]; then "$JAVA_HOME/bin/gu" install -L component/tcl-component.jar ; fi
+    - if [[ "$GRAALVM_VERSION" != "NONE" ]]; then "$JAVA_HOME/bin/tcl" language/tests/Add.tcl; fi
+    - if [[ "$GRAALVM_VERSION" != "NONE" ]]; then "$JAVA_HOME/bin/tclnative" language/tests/Add.tcl; fi
+    - if [[ "$GRAALVM_VERSION" != "NONE" ]]; then "$JAVA_HOME/bin/polyglot" --jvm --language tcl --file language/tests/Add.tcl; fi
+    - if [[ "$GRAALVM_VERSION" != "NONE" ]]; then "$JAVA_HOME/bin/gu" remove tcl; fi
     - ./generate_parser.sh
     - mvn package
-    - ./sl language/tests/Add.sl
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then shellcheck sl; fi
+    - ./tcl language/tests/Add.tcl
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then shellcheck tcl; fi
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then (find . -name '*.sh' | grep -v graalvm | xargs shellcheck); fi

@@ -47,7 +47,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <m2e.apt.activation>jdt_apt</m2e.apt.activation>
-    <!-- If you update this number make sure the VERSION value in ./sl matches -->
+    <!-- If you update this number make sure the VERSION value in ./tcl matches -->
     <graalvm.version>20.3.0</graalvm.version>
   </properties>
   <packaging>pom</packaging>
