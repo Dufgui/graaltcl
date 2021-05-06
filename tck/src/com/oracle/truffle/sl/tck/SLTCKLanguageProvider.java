@@ -57,8 +57,8 @@ import org.graalvm.polyglot.tck.Snippet;
 import org.graalvm.polyglot.tck.TypeDescriptor;
 import org.junit.Assert;
 
-public class SLTCKLanguageProvider implements LanguageProvider {
-    private static final String ID = "sl";
+public class TclTCKLanguageProvider implements LanguageProvider {
+    private static final String ID = "tcl";
     private static final String PATTERN_VALUE_FNC = "function %s() {return %s;}";
     private static final String PATTERN_BIN_OP_FNC = "function %s(a,b) {return a %s b;}";
     private static final String PATTERN_POST_OP_FNC = "function %s(a) {a %s;}";
@@ -222,8 +222,8 @@ public class SLTCKLanguageProvider implements LanguageProvider {
     @Override
     public Collection<? extends Snippet> createScripts(Context context) {
         final Collection<Snippet> res = new ArrayList<>();
-        res.add(loadScript(context, "resources/Ackermann.sl", TypeDescriptor.NULL, null));
-        res.add(loadScript(context, "resources/Fibonacci.sl", TypeDescriptor.NULL, null));
+        res.add(loadScript(context, "resources/Ackermann.tcl", TypeDescriptor.NULL, null));
+        res.add(loadScript(context, "resources/Fibonacci.tcl", TypeDescriptor.NULL, null));
         return Collections.unmodifiableCollection(res);
     }
 
@@ -231,8 +231,8 @@ public class SLTCKLanguageProvider implements LanguageProvider {
     public Collection<? extends Source> createInvalidSyntaxScripts(Context context) {
         try {
             final Collection<Source> res = new ArrayList<>();
-            res.add(createSource("resources/InvalidSyntax01.sl"));
-            res.add(createSource("resources/InvalidSyntax02.sl"));
+            res.add(createSource("resources/InvalidSyntax01.tcl"));
+            res.add(createSource("resources/InvalidSyntax02.tcl"));
             return Collections.unmodifiableCollection(res);
         } catch (IOException ioe) {
             throw new AssertionError("IOException while creating a test script.", ioe);
@@ -334,7 +334,7 @@ public class SLTCKLanguageProvider implements LanguageProvider {
     private static Source createSource(final String resourceName) throws IOException {
         int slashIndex = resourceName.lastIndexOf('/');
         String scriptName = slashIndex >= 0 ? resourceName.substring(slashIndex + 1) : resourceName;
-        try (Reader in = new InputStreamReader(SLTCKLanguageProvider.class.getResourceAsStream(resourceName), "UTF-8")) {
+        try (Reader in = new InputStreamReader(TclTCKLanguageProvider.class.getResourceAsStream(resourceName), "UTF-8")) {
             return Source.newBuilder(ID, in, scriptName).build();
         }
     }

@@ -40,4 +40,4 @@
 # SOFTWARE.
 #
 
-[[ -f sl-component.jar ]] && rm sl-component.jar || echo "sl-component.jar not found"
+[[ -f tcl-component.jar ]] && rm tcl-component.jar || echo "tcl-component.jar not found"

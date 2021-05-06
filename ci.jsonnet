@@ -5,11 +5,11 @@
     run: [
       ['mvn', 'clean'],
       ['mvn', 'package'],
-      ['./sl', 'language/tests/Add.sl'],
+      ['./tcl', 'language/tests/Add.tcl'],
     ],
 
     environment+: {
-      SL_BUILD_NATIVE: 'false'
+      TCL_BUILD_NATIVE: 'false'
     },
   },
 
@@ -20,16 +20,16 @@
       ["$JAVA_HOME/bin/gu", 'install', 'native-image'],
       ['mvn', 'clean'],
       ['mvn', 'package'],
-      ['./sl', 'language/tests/Add.sl'],
-      ['./native/slnative', 'language/tests/Add.sl'],
-      ["$JAVA_HOME/bin/gu", 'install', '-L', 'component/sl-component.jar'],
-      ["$JAVA_HOME/bin/sl", 'language/tests/Add.sl'],
-      ["$JAVA_HOME/bin/slnative", 'language/tests/Add.sl'],
-      ["$JAVA_HOME/bin/polyglot", '--jvm', '--language', 'sl', '--file', 'language/tests/Add.sl'],
-      ["$JAVA_HOME/bin/gu", 'remove', 'sl'],
+      ['./tcl', 'language/tests/Add.tcl'],
+      ['./native/tclnative', 'language/tests/Add.tcl'],
+      ["$JAVA_HOME/bin/gu", 'install', '-L', 'component/tcl-component.jar'],
+      ["$JAVA_HOME/bin/tcl", 'language/tests/Add.tcl'],
+      ["$JAVA_HOME/bin/tclnative", 'language/tests/Add.tcl'],
+      ["$JAVA_HOME/bin/polyglot", '--jvm', '--language', 'tcl', '--file', 'language/tests/Add.tcl'],
+      ["$JAVA_HOME/bin/gu", 'remove', 'tcl'],
       ['./generate_parser.sh'],
       ['mvn', 'package'],
-      ['./sl', 'language/tests/Add.sl'],
+      ['./tcl', 'language/tests/Add.tcl'],
     ]
   },
 
@@ -84,7 +84,7 @@
     graalvmBuild + darwin + fixDarwinJavaHome + graalvm8  + { name: 'darwin-graalvm8' },
     graalvmBuild + darwin + fixDarwinJavaHome + graalvm11 + { name: 'darwin-graalvm11' },
 
-    # Blocked by the sl script being unable to find maven repo
+    # Blocked by the tcl script being unable to find maven repo
     # javaBuild + linux + java8  + { name: 'linux-java8' },
     # javaBuild + linux + java11 + { name: 'linux-java11' },
 

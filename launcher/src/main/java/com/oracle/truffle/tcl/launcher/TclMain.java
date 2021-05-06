@@ -100,7 +100,7 @@ public final class TclMain
         try {
             Value result = context.eval(source);
             if (context.getBindings( TCL ).getMember("main") == null) {
-                err.println("No function main() defined in SL source file.");
+                err.println("No function main() defined in tcl source file.");
                 return 1;
             }
             if (!result.isNull()) {

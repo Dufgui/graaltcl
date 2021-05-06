@@ -53,13 +53,13 @@ import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.profiles.BranchProfile;
-import com.oracle.truffle.tcl.SLLanguage;
+import com.oracle.truffle.tcl.TclLanguage;
 
 @ExportLibrary(InteropLibrary.class)
 @SuppressWarnings("static-method")
 final class FunctionsObject implements TruffleObject {
 
-    final Map<String, SLFunction> functions = new HashMap<>();
+    final Map<String, TclFunction> functions = new HashMap<>();
 
     FunctionsObject() {
     }
@@ -71,7 +71,7 @@ final class FunctionsObject implements TruffleObject {
 
     @ExportMessage
     Class<? extends TruffleLanguage<?>> getLanguage() {
-        return SLLanguage.class;
+        return TclLanguage.class;
     }
 
     @ExportMessage
@@ -108,7 +108,7 @@ final class FunctionsObject implements TruffleObject {
 
     @ExportMessage
     Object getMetaObject() {
-        return SLType.OBJECT;
+        return TclType.OBJECT;
     }
 
     @ExportMessage
