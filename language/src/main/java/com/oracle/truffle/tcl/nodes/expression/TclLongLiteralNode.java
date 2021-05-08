@@ -51,21 +51,27 @@ import com.oracle.truffle.tcl.nodes.TclExpressionNode;
  * the primitive value is automatically boxed by Java.
  */
 @NodeInfo(shortName = "const")
-public final class TclLongLiteralNode extends TclExpressionNode {
+public final class TclLongLiteralNode
+        extends
+        TclExpressionNode {
 
     private final long value;
 
-    public TclLongLiteralNode(long value) {
+    public TclLongLiteralNode(
+            long value) {
         this.value = value;
     }
 
     @Override
-    public long executeLong(VirtualFrame frame) throws UnexpectedResultException {
+    public long executeLong(
+            VirtualFrame frame)
+            throws UnexpectedResultException {
         return value;
     }
 
     @Override
-    public Object executeGeneric(VirtualFrame frame) {
+    public Object executeGeneric(
+            VirtualFrame frame) {
         return value;
     }
 }

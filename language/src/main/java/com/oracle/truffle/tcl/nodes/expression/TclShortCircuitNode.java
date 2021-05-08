@@ -51,58 +51,88 @@ import com.oracle.truffle.tcl.nodes.TclExpressionNode;
  * already decides the result of the operation, the right operand must not be executed. This is
  * expressed in using this base class for {@link TclLogicalAndNode} and {@link TclLogicalOrNode}.
  */
-public abstract class TclShortCircuitNode extends TclExpressionNode {
+public abstract class TclShortCircuitNode
+        extends
+        TclExpressionNode {
 
-    @Child private TclExpressionNode left;
-    @Child private TclExpressionNode right;
+    @Child
+    private TclExpressionNode left;
+    @Child
+    private TclExpressionNode right;
 
     /**
      * Short circuits might be used just like a conditional statement it makes sense to profile the
      * branch probability.
      */
-    private final ConditionProfile evaluateRightProfile = ConditionProfile.createCountingProfile();
+    private final ConditionProfile evaluateRightProfile = ConditionProfile
+            .createCountingProfile();
 
-    public TclShortCircuitNode(TclExpressionNode left, TclExpressionNode right) {
+    public TclShortCircuitNode(
+            TclExpressionNode left,
+            TclExpressionNode right) {
         this.left = left;
         this.right = right;
     }
 
     @Override
-    public final Object executeGeneric(VirtualFrame frame) {
-        return executeBoolean(frame);
+    public final Object executeGeneric(
+            VirtualFrame frame) {
+        return executeBoolean(
+                frame);
     }
 
     @Override
-    public final boolean executeBoolean(VirtualFrame frame) {
+    public final boolean executeBoolean(
+            VirtualFrame frame) {
         boolean leftValue;
         try {
-            leftValue = left.executeBoolean(frame);
+            leftValue = left
+                    .executeBoolean(
+                            frame);
         } catch (UnexpectedResultException e) {
-            throw TclException.typeError(this, e.getResult(), null);
+            throw TclException
+                    .typeError(
+                            this,
+                            e.getResult(),
+                            null);
         }
         boolean rightValue;
         try {
-            if (evaluateRightProfile.profile(isEvaluateRight(leftValue))) {
-                rightValue = right.executeBoolean(frame);
+            if (evaluateRightProfile
+                    .profile(
+                            isEvaluateRight(
+                                    leftValue))) {
+                rightValue = right
+                        .executeBoolean(
+                                frame);
             } else {
                 rightValue = false;
             }
         } catch (UnexpectedResultException e) {
-            throw TclException.typeError(this, leftValue, e.getResult());
+            throw TclException
+                    .typeError(
+                            this,
+                            leftValue,
+                            e.getResult());
         }
-        return execute(leftValue, rightValue);
+        return execute(
+                leftValue,
+                rightValue);
     }
 
     /**
      * This method is called after the left child was evaluated, but before the right child is
      * evaluated. The right child is only evaluated when the return value is {code true}.
      */
-    protected abstract boolean isEvaluateRight(boolean leftValue);
+    protected abstract boolean isEvaluateRight(
+            boolean leftValue);
 
     /**
      * Calculates the result of the short circuit operation. If the right node is not evaluated then
      * <code>false</code> is provided.
      */
-    protected abstract boolean execute(boolean leftValue, boolean rightValue);
+    protected abstract boolean execute(
+            boolean leftValue,
+            boolean rightValue);
 
 }

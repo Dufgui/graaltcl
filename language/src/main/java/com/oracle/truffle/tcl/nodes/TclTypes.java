@@ -57,7 +57,10 @@ import com.oracle.truffle.tcl.runtime.TclNull;
  * conversion methods for some types. In this class, we only cover types where the automatically
  * generated ones would not be sufficient.
  */
-@TypeSystem({long.class, boolean.class, double.class})
+@TypeSystem({
+        long.class,
+        boolean.class,
+        double.class })
 public abstract class TclTypes {
 
     /**
@@ -67,7 +70,8 @@ public abstract class TclTypes {
      * singleton} instance.
      */
     @TypeCheck(TclNull.class)
-    public static boolean isTclNull(Object value) {
+    public static boolean isTclNull(
+            Object value) {
         return value == TclNull.SINGLETON;
     }
 
@@ -77,8 +81,10 @@ public abstract class TclTypes {
      * because we know that there is only a {@link TclNull#SINGLETON singleton} instance.
      */
     @TypeCast(TclNull.class)
-    public static TclNull asTclNull(Object value) {
-        assert isTclNull(value);
+    public static TclNull asTclNull(
+            Object value) {
+        assert isTclNull(
+                value);
         return TclNull.SINGLETON;
     }
 
@@ -91,7 +97,11 @@ public abstract class TclTypes {
      */
     @ImplicitCast
     @TruffleBoundary
-    public static TclBigNumber castBigNumber(long value) {
-        return new TclBigNumber(BigInteger.valueOf(value));
+    public static TclBigNumber castBigNumber(
+            long value) {
+        return new TclBigNumber(
+                BigInteger
+                        .valueOf(
+                                value));
     }
 }

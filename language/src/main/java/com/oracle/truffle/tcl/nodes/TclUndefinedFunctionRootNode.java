@@ -51,13 +51,26 @@ import com.oracle.truffle.tcl.runtime.TclUndefinedNameException;
  * they are still undefined. Executing it throws an
  * {@link TclUndefinedNameException#undefinedFunction exception}.
  */
-public class TclUndefinedFunctionRootNode extends TclRootNode {
-    public TclUndefinedFunctionRootNode(TclLanguage language, String name) {
-        super(language, null, null, null, name);
+public class TclUndefinedFunctionRootNode
+        extends
+        TclRootNode {
+
+    public TclUndefinedFunctionRootNode(
+            TclLanguage language,
+            String name) {
+        super(language,
+                null,
+                null,
+                null,
+                name);
     }
 
     @Override
-    public Object execute(VirtualFrame frame) {
-        throw TclUndefinedNameException.undefinedFunction(null, getName());
+    public Object execute(
+            VirtualFrame frame) {
+        throw TclUndefinedNameException
+                .undefinedFunction(
+                        null,
+                        getName());
     }
 }

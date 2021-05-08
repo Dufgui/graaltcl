@@ -60,32 +60,57 @@ import com.oracle.truffle.tcl.runtime.TclContext;
  */
 @NodeInfo(shortName = "eval")
 @SuppressWarnings("unused")
-public abstract class TclEvalBuiltin extends TclBuiltinNode {
+public abstract class TclEvalBuiltin
+        extends
+        TclBuiltinNode {
 
     static final int LIMIT = 2;
 
-    @Specialization(guards = {"stringsEqual(cachedId, id)", "stringsEqual(cachedCode, code)"}, limit = "LIMIT")
-    public Object evalCached(String id, String code,
-                    @Cached("id") String cachedId,
-                    @Cached("code") String cachedCode,
-                    @CachedContext(TclLanguage.class) TclContext context,
-                    @Cached("create(parse(id, code, context))") DirectCallNode callNode) {
-        return callNode.call(new Object[]{});
+    @Specialization(guards = {
+            "stringsEqual(cachedId, id)",
+            "stringsEqual(cachedCode, code)" }, limit = "LIMIT")
+    public Object evalCached(
+            String id,
+            String code,
+            @Cached("id") String cachedId,
+            @Cached("code") String cachedCode,
+            @CachedContext(TclLanguage.class) TclContext context,
+            @Cached("create(parse(id, code, context))") DirectCallNode callNode) {
+        return callNode
+                .call(new Object[] {});
     }
 
     @TruffleBoundary
     @Specialization(replaces = "evalCached")
-    public Object evalUncached(String id, String code, @CachedContext(TclLanguage.class) TclContext context) {
-        return parse(id, code, context).call();
+    public Object evalUncached(
+            String id,
+            String code,
+            @CachedContext(TclLanguage.class) TclContext context) {
+        return parse(
+                id,
+                code,
+                context).call();
     }
 
-    protected CallTarget parse(String id, String code, TclContext context) {
-        final Source source = Source.newBuilder(id, code, "(eval)").build();
-        return context.parse(source);
+    protected CallTarget parse(
+            String id,
+            String code,
+            TclContext context) {
+        final Source source = Source
+                .newBuilder(
+                        id,
+                        code,
+                        "(eval)")
+                .build();
+        return context
+                .parse(source);
     }
 
     /* Work around findbugs warning in generate code. */
-    protected static boolean stringsEqual(String a, String b) {
-        return a.equals(b);
+    protected static boolean stringsEqual(
+            String a,
+            String b) {
+        return a.equals(
+                b);
     }
 }

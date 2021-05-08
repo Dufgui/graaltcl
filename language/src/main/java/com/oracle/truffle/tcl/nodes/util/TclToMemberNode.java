@@ -60,64 +60,104 @@ import com.oracle.truffle.tcl.runtime.TclBigNumber;
  */
 @TypeSystemReference(TclTypes.class)
 @GenerateUncached
-public abstract class TclToMemberNode extends Node {
+public abstract class TclToMemberNode
+        extends
+        Node {
 
     static final int LIMIT = 5;
 
-    public abstract String execute(Object value) throws UnknownIdentifierException;
+    public abstract String execute(
+            Object value)
+            throws UnknownIdentifierException;
 
     @Specialization
-    protected static String fromString(String value) {
+    protected static String fromString(
+            String value) {
         return value;
     }
 
     @Specialization
-    protected static String fromBoolean(boolean value) {
-        return String.valueOf(value);
+    protected static String fromBoolean(
+            boolean value) {
+        return String
+                .valueOf(
+                        value);
     }
 
     @Specialization
     @TruffleBoundary
-    protected static String fromLong(long value) {
-        return String.valueOf(value);
+    protected static String fromLong(
+            long value) {
+        return String
+                .valueOf(
+                        value);
     }
 
     @Specialization
     @TruffleBoundary
-    protected static String fromBigNumber(TclBigNumber value) {
-        return value.toString();
+    protected static String fromBigNumber(
+            TclBigNumber value) {
+        return value
+                .toString();
     }
 
     @Specialization(limit = "LIMIT")
-    protected static String fromInterop(Object value, @CachedLibrary("value") InteropLibrary interop) throws UnknownIdentifierException {
+    protected static String fromInterop(
+            Object value,
+            @CachedLibrary("value") InteropLibrary interop)
+            throws UnknownIdentifierException {
         try {
-            if (interop.fitsInLong(value)) {
-                return longToString(interop.asLong(value));
-            } else if (interop.isString(value)) {
-                return interop.asString(value);
-            } else if (interop.isNumber(value) && value instanceof TclBigNumber) {
-                return bigNumberToString((TclBigNumber) value);
-            } else {
-                throw error(value);
-            }
+            if (interop
+                    .fitsInLong(
+                            value)) {
+                return longToString(
+                        interop.asLong(
+                                value));
+            } else
+                if (interop
+                        .isString(
+                                value)) {
+                                    return interop
+                                            .asString(
+                                                    value);
+                                } else
+                    if (interop
+                            .isNumber(
+                                    value)
+                            && value instanceof TclBigNumber) {
+                                return bigNumberToString(
+                                        (TclBigNumber) value);
+                            } else {
+                                throw error(
+                                        value);
+                            }
         } catch (UnsupportedMessageException e) {
-            throw shouldNotReachHere(e);
+            throw shouldNotReachHere(
+                    e);
         }
     }
 
     @TruffleBoundary
-    private static UnknownIdentifierException error(Object value) {
-        return UnknownIdentifierException.create(value.toString());
+    private static UnknownIdentifierException error(
+            Object value) {
+        return UnknownIdentifierException
+                .create(value
+                        .toString());
     }
 
     @TruffleBoundary
-    private static String bigNumberToString(TclBigNumber value) {
-        return value.toString();
+    private static String bigNumberToString(
+            TclBigNumber value) {
+        return value
+                .toString();
     }
 
     @TruffleBoundary
-    private static String longToString(long longValue) {
-        return String.valueOf(longValue);
+    private static String longToString(
+            long longValue) {
+        return String
+                .valueOf(
+                        longValue);
     }
 
 }

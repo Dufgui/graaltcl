@@ -60,14 +60,22 @@ import com.oracle.truffle.tcl.runtime.TclLanguageView;
  * {@link TruffleBoundary} annotations.
  */
 @NodeInfo(shortName = "println")
-public abstract class TclPrintlnBuiltin extends TclBuiltinNode {
+public abstract class TclPrintlnBuiltin
+        extends
+        TclBuiltinNode {
 
     @Specialization
     @TruffleBoundary
-    public Object println(Object value,
-                    @CachedLibrary(limit = "3") InteropLibrary interop,
-                    @CachedContext(TclLanguage.class) TclContext context) {
-        context.getOutput().println(interop.toDisplayString(TclLanguageView.forValue(value)));
+    public Object println(
+            Object value,
+            @CachedLibrary(limit = "3") InteropLibrary interop,
+            @CachedContext(TclLanguage.class) TclContext context) {
+        context.getOutput()
+                .println(
+                        interop.toDisplayString(
+                                TclLanguageView
+                                        .forValue(
+                                                value)));
         return value;
     }
 

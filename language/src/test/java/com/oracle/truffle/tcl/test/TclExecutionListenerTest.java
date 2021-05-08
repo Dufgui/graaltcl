@@ -66,97 +66,222 @@ public class TclExecutionListenerTest {
 
     @Before
     public void setUp() {
-        context = Context.create("tcl");
+        context = Context
+                .create("tcl");
     }
 
     @After
     public void tearDown() {
-        assertTrue(events.isEmpty());
+        assertTrue(
+                events.isEmpty());
         context.close();
         context = null;
     }
 
-    private void add(ExecutionEvent e) {
-        events.add(e);
+    private void add(
+            ExecutionEvent e) {
+        events.add(
+                e);
     }
 
     @Test
     public void testRootsAndStatements() {
-        ExecutionListener.newBuilder().onEnter(this::add).onReturn(this::add).//
-                        roots(true).statements(true).//
-                        collectExceptions(true).collectInputValues(true).collectReturnValue(true).//
-                        attach(context.getEngine());
+        ExecutionListener
+                .newBuilder()
+                .onEnter(
+                        this::add)
+                .onReturn(
+                        this::add)
+                .//
+                roots(true)
+                .statements(
+                        true)
+                .//
+                collectExceptions(
+                        true)
+                .collectInputValues(
+                        true)
+                .collectReturnValue(
+                        true)
+                .//
+                attach(context
+                        .getEngine());
 
         eval("return 2;");
 
-        enterRoot(rootSourceSection("return 2;"));
-        enterStatement("return 2");
-        leaveStatement("return 2", null);
-        leaveRoot(rootSourceSection("return 2;"), 2);
+        enterRoot(
+                rootSourceSection(
+                        "return 2;"));
+        enterStatement(
+                "return 2");
+        leaveStatement(
+                "return 2",
+                null);
+        leaveRoot(
+                rootSourceSection(
+                        "return 2;"),
+                2);
     }
 
     @Test
     public void testStatements() {
-        ExecutionListener.newBuilder().onEnter(this::add).onReturn(this::add).//
-                        statements(true).//
-                        collectExceptions(true).collectInputValues(true).collectReturnValue(true).//
-                        attach(context.getEngine());
+        ExecutionListener
+                .newBuilder()
+                .onEnter(
+                        this::add)
+                .onReturn(
+                        this::add)
+                .//
+                statements(
+                        true)
+                .//
+                collectExceptions(
+                        true)
+                .collectInputValues(
+                        true)
+                .collectReturnValue(
+                        true)
+                .//
+                attach(context
+                        .getEngine());
 
         eval("2 + 3;");
-        enterStatement("2 + 3");
-        leaveStatement("2 + 3", 5);
+        enterStatement(
+                "2 + 3");
+        leaveStatement(
+                "2 + 3",
+                5);
 
         eval("2 + 3; 3 + 6;");
-        enterStatement("2 + 3");
-        leaveStatement("2 + 3", 5);
-        enterStatement("3 + 6");
-        leaveStatement("3 + 6", 9);
+        enterStatement(
+                "2 + 3");
+        leaveStatement(
+                "2 + 3",
+                5);
+        enterStatement(
+                "3 + 6");
+        leaveStatement(
+                "3 + 6",
+                9);
     }
 
     @Test
     public void testExpressions() {
-        ExecutionListener.newBuilder().onEnter(this::add).onReturn(this::add).//
-                        expressions(true).//
-                        collectExceptions(true).collectInputValues(true).collectReturnValue(true).//
-                        attach(context.getEngine());
+        ExecutionListener
+                .newBuilder()
+                .onEnter(
+                        this::add)
+                .onReturn(
+                        this::add)
+                .//
+                expressions(
+                        true)
+                .//
+                collectExceptions(
+                        true)
+                .collectInputValues(
+                        true)
+                .collectReturnValue(
+                        true)
+                .//
+                attach(context
+                        .getEngine());
         eval("2 + 3;");
 
-        enterStatement("2 + 3");
-        enterExpression("2");
-        leaveExpression("2", 2);
-        enterExpression("3");
-        leaveExpression("3", 3);
-        leaveStatement("2 + 3", 5, 2, 3);
+        enterStatement(
+                "2 + 3");
+        enterExpression(
+                "2");
+        leaveExpression(
+                "2",
+                2);
+        enterExpression(
+                "3");
+        leaveExpression(
+                "3",
+                3);
+        leaveStatement(
+                "2 + 3",
+                5,
+                2,
+                3);
     }
 
     @Test
     public void testRoots() {
-        ExecutionListener.newBuilder().onEnter(this::add).onReturn(this::add).//
-                        roots(true).//
-                        collectExceptions(true).collectInputValues(true).collectReturnValue(true).//
-                        attach(context.getEngine());
+        ExecutionListener
+                .newBuilder()
+                .onEnter(
+                        this::add)
+                .onReturn(
+                        this::add)
+                .//
+                roots(true)
+                .//
+                collectExceptions(
+                        true)
+                .collectInputValues(
+                        true)
+                .collectReturnValue(
+                        true)
+                .//
+                attach(context
+                        .getEngine());
 
         eval("return 2;");
 
-        enterRoot(rootSourceSection("return 2;"));
-        leaveRoot(rootSourceSection("return 2;"), 2);
+        enterRoot(
+                rootSourceSection(
+                        "return 2;"));
+        leaveRoot(
+                rootSourceSection(
+                        "return 2;"),
+                2);
     }
 
     @Test
     public void testExpressionsStatementsAndRoots() {
-        ExecutionListener.newBuilder().onEnter(this::add).onReturn(this::add).//
-                        expressions(true).statements(true).//
-                        collectExceptions(true).collectInputValues(true).collectReturnValue(true).//
-                        attach(context.getEngine());
+        ExecutionListener
+                .newBuilder()
+                .onEnter(
+                        this::add)
+                .onReturn(
+                        this::add)
+                .//
+                expressions(
+                        true)
+                .statements(
+                        true)
+                .//
+                collectExceptions(
+                        true)
+                .collectInputValues(
+                        true)
+                .collectReturnValue(
+                        true)
+                .//
+                attach(context
+                        .getEngine());
 
         eval("2 + 3;");
 
-        enterStatement("2 + 3");
-        enterExpression("2");
-        leaveExpression("2", 2);
-        enterExpression("3");
-        leaveExpression("3", 3);
-        leaveStatement("2 + 3", 5, 2, 3);
+        enterStatement(
+                "2 + 3");
+        enterExpression(
+                "2");
+        leaveExpression(
+                "2",
+                2);
+        enterExpression(
+                "3");
+        leaveExpression(
+                "3",
+                3);
+        leaveStatement(
+                "2 + 3",
+                5,
+                2,
+                3);
     }
 
     @Test
@@ -170,174 +295,412 @@ public class TclExecutionListenerTest {
                         "  return fac(n - 1) * n;" +
                         "}";
         // @formatter:on
-        context.eval("tcl", "function " + characters);
-        Value factorial = context.getBindings("tcl").getMember("fac");
-        ExecutionListener.newBuilder().onReturn(this::add).onEnter(this::add).//
-                        expressions(true).statements(true).roots(true).//
-                        collectExceptions(true).collectInputValues(true).collectReturnValue(true).//
-                        attach(context.getEngine());
+        context.eval(
+                "tcl",
+                "function "
+                        + characters);
+        Value factorial = context
+                .getBindings(
+                        "tcl")
+                .getMember(
+                        "fac");
+        ExecutionListener
+                .newBuilder()
+                .onReturn(
+                        this::add)
+                .onEnter(
+                        this::add)
+                .//
+                expressions(
+                        true)
+                .statements(
+                        true)
+                .roots(true)
+                .//
+                collectExceptions(
+                        true)
+                .collectInputValues(
+                        true)
+                .collectReturnValue(
+                        true)
+                .//
+                attach(context
+                        .getEngine());
         expectedRootName = "fac";
-        assertEquals(0, events.size());
+        assertEquals(
+                0,
+                events.size());
         for (int i = 0; i < 10; i++) {
-            testFactorial(characters, factorial);
+            testFactorial(
+                    characters,
+                    factorial);
         }
     }
 
-    private Value eval(String s) {
+    private Value eval(
+            String s) {
         expectedRootName = "wrapper";
-        context.eval("tcl", wrapInFunction(s));
-        return context.getBindings("tcl").getMember("wrapper").execute();
+        context.eval(
+                "tcl",
+                wrapInFunction(
+                        s));
+        return context
+                .getBindings(
+                        "tcl")
+                .getMember(
+                        "wrapper")
+                .execute();
     }
 
-    private static String wrapInFunction(String s) {
-        return "function " + rootSourceSection(s);
+    private static String wrapInFunction(
+            String s) {
+        return "function "
+                + rootSourceSection(
+                        s);
     }
 
-    private static String rootSourceSection(String s) {
-        return "wrapper() {\n  " + s + " \n}";
+    private static String rootSourceSection(
+            String s) {
+        return "wrapper() {\n  "
+                + s
+                + " \n}";
     }
 
-    private void testFactorial(String characters, Value factorial) {
-        factorial.execute(3);
-        enterRoot(characters);
-        enterStatement("n <= 1");
-        enterExpression("n");
-        leaveExpression("n", 3);
-        enterExpression("1");
-        leaveExpression("1", 1);
-        leaveStatement("n <= 1", false, 3, 1);
-        enterStatement("return fac(n - 1) * n");
-        enterExpression("fac(n - 1) * n");
-        enterExpression("fac(n - 1)");
-        enterExpression("fac");
-        leaveExpression("fac", factorial);
-        enterExpression("n - 1");
-        enterExpression("n");
-        leaveExpression("n", 3);
-        enterExpression("1");
-        leaveExpression("1", 1);
-        leaveExpression("n - 1", 2, 3, 1);
+    private void testFactorial(
+            String characters,
+            Value factorial) {
+        factorial
+                .execute(
+                        3);
+        enterRoot(
+                characters);
+        enterStatement(
+                "n <= 1");
+        enterExpression(
+                "n");
+        leaveExpression(
+                "n",
+                3);
+        enterExpression(
+                "1");
+        leaveExpression(
+                "1",
+                1);
+        leaveStatement(
+                "n <= 1",
+                false,
+                3,
+                1);
+        enterStatement(
+                "return fac(n - 1) * n");
+        enterExpression(
+                "fac(n - 1) * n");
+        enterExpression(
+                "fac(n - 1)");
+        enterExpression(
+                "fac");
+        leaveExpression(
+                "fac",
+                factorial);
+        enterExpression(
+                "n - 1");
+        enterExpression(
+                "n");
+        leaveExpression(
+                "n",
+                3);
+        enterExpression(
+                "1");
+        leaveExpression(
+                "1",
+                1);
+        leaveExpression(
+                "n - 1",
+                2,
+                3,
+                1);
 
-        enterRoot(characters);
-        enterStatement("n <= 1");
-        enterExpression("n");
-        leaveExpression("n", 2);
-        enterExpression("1");
-        leaveExpression("1", 1);
-        leaveStatement("n <= 1", false, 2, 1);
-        enterStatement("return fac(n - 1) * n");
-        enterExpression("fac(n - 1) * n");
-        enterExpression("fac(n - 1)");
-        enterExpression("fac");
-        leaveExpression("fac", factorial);
-        enterExpression("n - 1");
-        enterExpression("n");
-        leaveExpression("n", 2);
-        enterExpression("1");
-        leaveExpression("1", 1);
-        leaveExpression("n - 1", 1, 2, 1);
+        enterRoot(
+                characters);
+        enterStatement(
+                "n <= 1");
+        enterExpression(
+                "n");
+        leaveExpression(
+                "n",
+                2);
+        enterExpression(
+                "1");
+        leaveExpression(
+                "1",
+                1);
+        leaveStatement(
+                "n <= 1",
+                false,
+                2,
+                1);
+        enterStatement(
+                "return fac(n - 1) * n");
+        enterExpression(
+                "fac(n - 1) * n");
+        enterExpression(
+                "fac(n - 1)");
+        enterExpression(
+                "fac");
+        leaveExpression(
+                "fac",
+                factorial);
+        enterExpression(
+                "n - 1");
+        enterExpression(
+                "n");
+        leaveExpression(
+                "n",
+                2);
+        enterExpression(
+                "1");
+        leaveExpression(
+                "1",
+                1);
+        leaveExpression(
+                "n - 1",
+                1,
+                2,
+                1);
 
-        enterRoot(characters);
-        enterStatement("n <= 1");
-        enterExpression("n");
-        leaveExpression("n", 1);
-        enterExpression("1");
-        leaveExpression("1", 1);
-        leaveStatement("n <= 1", true, 1, 1);
-        enterStatement("return 1");
-        enterExpression("1");
-        leaveExpression("1", 1);
-        leaveStatement("return 1", null, 1);
-        leaveRoot(characters, 1);
+        enterRoot(
+                characters);
+        enterStatement(
+                "n <= 1");
+        enterExpression(
+                "n");
+        leaveExpression(
+                "n",
+                1);
+        enterExpression(
+                "1");
+        leaveExpression(
+                "1",
+                1);
+        leaveStatement(
+                "n <= 1",
+                true,
+                1,
+                1);
+        enterStatement(
+                "return 1");
+        enterExpression(
+                "1");
+        leaveExpression(
+                "1",
+                1);
+        leaveStatement(
+                "return 1",
+                null,
+                1);
+        leaveRoot(
+                characters,
+                1);
 
-        leaveExpression("fac(n - 1)", 1, factorial, 1);
-        enterExpression("n");
-        leaveExpression("n", 2);
-        leaveExpression("fac(n - 1) * n", 2, 1, 2);
-        leaveStatement("return fac(n - 1) * n", null, 2);
-        leaveRoot(characters, 2);
+        leaveExpression(
+                "fac(n - 1)",
+                1,
+                factorial,
+                1);
+        enterExpression(
+                "n");
+        leaveExpression(
+                "n",
+                2);
+        leaveExpression(
+                "fac(n - 1) * n",
+                2,
+                1,
+                2);
+        leaveStatement(
+                "return fac(n - 1) * n",
+                null,
+                2);
+        leaveRoot(
+                characters,
+                2);
 
-        leaveExpression("fac(n - 1)", 2, factorial, 2);
-        enterExpression("n");
-        leaveExpression("n", 3);
-        leaveExpression("fac(n - 1) * n", 6, 2, 3);
-        leaveStatement("return fac(n - 1) * n", null, 6);
-        leaveRoot(characters, 6);
+        leaveExpression(
+                "fac(n - 1)",
+                2,
+                factorial,
+                2);
+        enterExpression(
+                "n");
+        leaveExpression(
+                "n",
+                3);
+        leaveExpression(
+                "fac(n - 1) * n",
+                6,
+                2,
+                3);
+        leaveStatement(
+                "return fac(n - 1) * n",
+                null,
+                6);
+        leaveRoot(
+                characters,
+                6);
 
-        assertTrue(events.isEmpty());
+        assertTrue(
+                events.isEmpty());
     }
 
-    private void enterExpression(String characters) {
-        ExecutionEvent event = assertEvent(characters, null);
-        assertTrue(event.isExpression());
-        assertFalse(event.isStatement());
-        assertFalse(event.isRoot());
+    private void enterExpression(
+            String characters) {
+        ExecutionEvent event = assertEvent(
+                characters,
+                null);
+        assertTrue(
+                event.isExpression());
+        assertFalse(
+                event.isStatement());
+        assertFalse(
+                event.isRoot());
     }
 
-    private void enterStatement(String characters) {
-        ExecutionEvent event = assertEvent(characters, null);
-        assertTrue(event.isStatement());
+    private void enterStatement(
+            String characters) {
+        ExecutionEvent event = assertEvent(
+                characters,
+                null);
+        assertTrue(
+                event.isStatement());
         // statements are sometimes expressions
-        assertFalse(event.isRoot());
+        assertFalse(
+                event.isRoot());
     }
 
-    private void enterRoot(String characters) {
-        ExecutionEvent event = assertEvent(characters, null);
-        assertTrue(event.isRoot());
-        assertFalse(event.isStatement());
-        assertFalse(event.isExpression());
+    private void enterRoot(
+            String characters) {
+        ExecutionEvent event = assertEvent(
+                characters,
+                null);
+        assertTrue(
+                event.isRoot());
+        assertFalse(
+                event.isStatement());
+        assertFalse(
+                event.isExpression());
     }
 
-    private void leaveExpression(String characters, Object returnValue, Object... inputs) {
-        ExecutionEvent event = assertEvent(characters, returnValue, inputs);
-        assertTrue(event.isExpression());
-        assertFalse(event.isStatement());
-        assertFalse(event.isRoot());
+    private void leaveExpression(
+            String characters,
+            Object returnValue,
+            Object... inputs) {
+        ExecutionEvent event = assertEvent(
+                characters,
+                returnValue,
+                inputs);
+        assertTrue(
+                event.isExpression());
+        assertFalse(
+                event.isStatement());
+        assertFalse(
+                event.isRoot());
     }
 
-    private void leaveStatement(String characters, Object returnValue, Object... inputs) {
-        ExecutionEvent event = assertEvent(characters, returnValue, inputs);
-        assertTrue(event.isStatement());
+    private void leaveStatement(
+            String characters,
+            Object returnValue,
+            Object... inputs) {
+        ExecutionEvent event = assertEvent(
+                characters,
+                returnValue,
+                inputs);
+        assertTrue(
+                event.isStatement());
         // statements are sometimes expressions
-        assertFalse(event.isRoot());
+        assertFalse(
+                event.isRoot());
     }
 
-    private void leaveRoot(String characters, Object returnValue, Object... inputs) {
-        ExecutionEvent event = assertEvent(characters, returnValue, inputs);
-        assertTrue(event.isRoot());
-        assertFalse(event.isStatement());
-        assertFalse(event.isExpression());
+    private void leaveRoot(
+            String characters,
+            Object returnValue,
+            Object... inputs) {
+        ExecutionEvent event = assertEvent(
+                characters,
+                returnValue,
+                inputs);
+        assertTrue(
+                event.isRoot());
+        assertFalse(
+                event.isStatement());
+        assertFalse(
+                event.isExpression());
     }
 
-    private ExecutionEvent assertEvent(String characters, Object returnValue, Object... inputs) {
-        ExecutionEvent event = events.pop();
-        assertEquals(expectedRootName, event.getRootName());
-        assertEquals(characters, event.getLocation().getCharacters());
-        assertEquals(inputs.length, event.getInputValues().size());
+    private ExecutionEvent assertEvent(
+            String characters,
+            Object returnValue,
+            Object... inputs) {
+        ExecutionEvent event = events
+                .pop();
+        assertEquals(
+                expectedRootName,
+                event.getRootName());
+        assertEquals(
+                characters,
+                event.getLocation()
+                        .getCharacters());
+        assertEquals(
+                inputs.length,
+                event.getInputValues()
+                        .size());
         for (int i = 0; i < inputs.length; i++) {
-            assertValue(inputs[i], event.getInputValues().get(i));
+            assertValue(
+                    inputs[i],
+                    event.getInputValues()
+                            .get(i));
         }
 
         if (returnValue == null) {
-            assertNull(event.getReturnValue());
+            assertNull(
+                    event.getReturnValue());
         } else {
-            assertValue(returnValue, event.getReturnValue());
+            assertValue(
+                    returnValue,
+                    event.getReturnValue());
         }
 
-        assertNotNull(event.toString());
+        assertNotNull(
+                event.toString());
         return event;
     }
 
-    private static void assertValue(Object expected, Value actual) throws AssertionError {
-        if (actual.isNumber()) {
-            assertEquals(expected, actual.asInt());
-        } else if (actual.isBoolean()) {
-            assertEquals(expected, actual.asBoolean());
-        } else if (actual.canExecute()) {
-            assertEquals(((Value) expected).getSourceLocation(), actual.getSourceLocation());
-        } else {
-            throw new AssertionError(expected.toString());
-        }
+    private static void assertValue(
+            Object expected,
+            Value actual)
+            throws AssertionError {
+        if (actual
+                .isNumber()) {
+            assertEquals(
+                    expected,
+                    actual.asInt());
+        } else
+            if (actual
+                    .isBoolean()) {
+                        assertEquals(
+                                expected,
+                                actual.asBoolean());
+                    } else
+                if (actual
+                        .canExecute()) {
+                            assertEquals(
+                                    ((Value) expected)
+                                            .getSourceLocation(),
+                                    actual.getSourceLocation());
+                        } else {
+                            throw new AssertionError(
+                                    expected.toString());
+                        }
     }
 
 }

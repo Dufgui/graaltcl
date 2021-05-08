@@ -47,10 +47,15 @@ import com.oracle.truffle.tcl.nodes.TclExpressionNode;
  * Logical conjunction node with short circuit evaluation.
  */
 @NodeInfo(shortName = "&&")
-public final class TclLogicalAndNode extends TclShortCircuitNode {
+public final class TclLogicalAndNode
+        extends
+        TclShortCircuitNode {
 
-    public TclLogicalAndNode(TclExpressionNode left, TclExpressionNode right) {
-        super(left, right);
+    public TclLogicalAndNode(
+            TclExpressionNode left,
+            TclExpressionNode right) {
+        super(left,
+                right);
     }
 
     /**
@@ -58,7 +63,8 @@ public final class TclLogicalAndNode extends TclShortCircuitNode {
      * .
      */
     @Override
-    protected boolean isEvaluateRight(boolean left) {
+    protected boolean isEvaluateRight(
+            boolean left) {
         return left;
     }
 
@@ -67,8 +73,11 @@ public final class TclLogicalAndNode extends TclShortCircuitNode {
      * the second parameter is not evaluated, <code>false</code> is provided.
      */
     @Override
-    protected boolean execute(boolean left, boolean right) {
-        return left && right;
+    protected boolean execute(
+            boolean left,
+            boolean right) {
+        return left
+                && right;
     }
 
 }

@@ -57,6 +57,7 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 
 public class PassItselfBackViaContextTest {
+
     private Context context;
     private MyObj myObj;
     private Value myObjWrapped;
@@ -64,37 +65,74 @@ public class PassItselfBackViaContextTest {
 
     @Test
     public void callbackWithParamTen() {
-        myObjWrapped.execute(10);
-        assertEquals("Assigned to ten", 10, myObj.value);
+        myObjWrapped
+                .execute(
+                        10);
+        assertEquals(
+                "Assigned to ten",
+                10,
+                myObj.value);
     }
 
     @Test
     public void callbackWithParamTruffleObject() {
-        myObjWrapped.execute(myObjWrapped);
-        assertEquals("Assigned to itself", myObj, myObj.value);
+        myObjWrapped
+                .execute(
+                        myObjWrapped);
+        assertEquals(
+                "Assigned to itself",
+                myObj,
+                myObj.value);
     }
 
     @Test
     public void callbackWithValueTen() {
-        myObjCall.call(10);
-        assertEquals("Assigned to ten", 10, myObj.value);
+        myObjCall
+                .call(10);
+        assertEquals(
+                "Assigned to ten",
+                10,
+                myObj.value);
     }
 
     @Test
     public void callbackWithValueTruffleObject() {
-        myObjCall.call(myObjWrapped);
-        assertEquals("Assigned to itself", myObj, myObj.value);
+        myObjCall
+                .call(myObjWrapped);
+        assertEquals(
+                "Assigned to itself",
+                myObj,
+                myObj.value);
     }
 
     @Before
     public void prepareSystem() {
         myObj = new MyObj();
-        context = Context.newBuilder().allowPolyglotAccess(PolyglotAccess.ALL).build();
-        context.getPolyglotBindings().putMember("myObj", myObj);
-        context.eval("tcl", "function main() {\n" + "  return import(\"myObj\");\n" + "}\n");
-        myObjWrapped = context.getBindings("tcl").getMember("main").execute();
-        assertFalse(myObjWrapped.isNull());
-        myObjCall = myObjWrapped.as(CallWithValue.class);
+        context = Context
+                .newBuilder()
+                .allowPolyglotAccess(
+                        PolyglotAccess.ALL)
+                .build();
+        context.getPolyglotBindings()
+                .putMember(
+                        "myObj",
+                        myObj);
+        context.eval(
+                "tcl",
+                "function main() {\n"
+                        + "  return import(\"myObj\");\n"
+                        + "}\n");
+        myObjWrapped = context
+                .getBindings(
+                        "tcl")
+                .getMember(
+                        "main")
+                .execute();
+        assertFalse(
+                myObjWrapped
+                        .isNull());
+        myObjCall = myObjWrapped
+                .as(CallWithValue.class);
     }
 
     @After
@@ -103,11 +141,15 @@ public class PassItselfBackViaContextTest {
     }
 
     @ExportLibrary(InteropLibrary.class)
-    static final class MyObj implements TruffleObject {
+    static final class MyObj
+            implements
+            TruffleObject {
+
         private Object value;
 
         @ExportMessage
-        Object execute(Object[] arguments) {
+        Object execute(
+                Object[] arguments) {
             value = arguments[0];
             return "";
         }
@@ -120,11 +162,15 @@ public class PassItselfBackViaContextTest {
 
     }
 
-    abstract static class MyLang extends TruffleLanguage<Object> {
+    abstract static class MyLang
+            extends
+            TruffleLanguage<Object> {
     }
 
     @FunctionalInterface
     interface CallWithValue {
-        void call(Object value);
+
+        void call(
+                Object value);
     }
 }

@@ -58,13 +58,17 @@ import com.oracle.truffle.tcl.TclLanguage;
  */
 @ExportLibrary(InteropLibrary.class)
 @SuppressWarnings("static-method")
-public final class TclNull implements TruffleObject {
+public final class TclNull
+        implements
+        TruffleObject {
 
     /**
      * The canonical value to represent {@code null} in tcl.
      */
     public static final TclNull SINGLETON = new TclNull();
-    private static final int IDENTITY_HASH = System.identityHashCode(SINGLETON);
+    private static final int IDENTITY_HASH = System
+            .identityHashCode(
+                    SINGLETON);
 
     /**
      * Disallow instantiation from outside to ensure that the {@link #SINGLETON} is the only
@@ -111,15 +115,20 @@ public final class TclNull implements TruffleObject {
     }
 
     @ExportMessage
-    static TriState isIdenticalOrUndefined(@SuppressWarnings("unused") TclNull receiver, Object other) {
+    static TriState isIdenticalOrUndefined(
+            @SuppressWarnings("unused") TclNull receiver,
+            Object other) {
         /*
          * TclNull values are identical to other TclNull values.
          */
-        return TriState.valueOf(TclNull.SINGLETON == other);
+        return TriState
+                .valueOf(
+                        TclNull.SINGLETON == other);
     }
 
     @ExportMessage
-    static int identityHashCode(@SuppressWarnings("unused") TclNull receiver) {
+    static int identityHashCode(
+            @SuppressWarnings("unused") TclNull receiver) {
         /*
          * We do not use 0, as we want consistency with System.identityHashCode(receiver).
          */
@@ -127,7 +136,8 @@ public final class TclNull implements TruffleObject {
     }
 
     @ExportMessage
-    Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
+    Object toDisplayString(
+            @SuppressWarnings("unused") boolean allowSideEffects) {
         return "NULL";
     }
 }

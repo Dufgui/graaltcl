@@ -62,37 +62,53 @@ import com.oracle.truffle.tcl.runtime.TclNull;
  * {@link TclLogicalNotNode negate} the {@code ==} operator.
  */
 @NodeInfo(shortName = "==")
-public abstract class TclEqualNode extends TclBinaryNode {
+public abstract class TclEqualNode
+        extends
+        TclBinaryNode {
 
     @Specialization
-    protected boolean doLong(long left, long right) {
+    protected boolean doLong(
+            long left,
+            long right) {
         return left == right;
     }
 
     @Specialization
     @TruffleBoundary
-    protected boolean doBigNumber(TclBigNumber left, TclBigNumber right) {
-        return left.equals(right);
+    protected boolean doBigNumber(
+            TclBigNumber left,
+            TclBigNumber right) {
+        return left
+                .equals(right);
     }
 
     @Specialization
-    protected boolean doBoolean(boolean left, boolean right) {
+    protected boolean doBoolean(
+            boolean left,
+            boolean right) {
         return left == right;
     }
 
     @Specialization
-    protected boolean doString(String left, String right) {
-        return left.equals(right);
+    protected boolean doString(
+            String left,
+            String right) {
+        return left
+                .equals(right);
     }
 
     @Specialization
-    protected boolean doNull(TclNull left, TclNull right) {
+    protected boolean doNull(
+            TclNull left,
+            TclNull right) {
         /* There is only the singleton instance of TclNull, so we do not need equals(). */
         return left == right;
     }
 
     @Specialization
-    protected boolean doFunction(TclFunction left, Object right) {
+    protected boolean doFunction(
+            TclFunction left,
+            Object right) {
         /*
          * Our function registry maintains one canonical TclFunction object per function name, so we
          * do not need equals().
@@ -115,9 +131,11 @@ public abstract class TclEqualNode extends TclBinaryNode {
      * replace the previous specializations, as they are still more efficient in the interpeter.
      */
     @Specialization(limit = "4")
-    public boolean doGeneric(Object left, Object right,
-                    @CachedLibrary("left") InteropLibrary leftInterop,
-                    @CachedLibrary("right") InteropLibrary rightInterop) {
+    public boolean doGeneric(
+            Object left,
+            Object right,
+            @CachedLibrary("left") InteropLibrary leftInterop,
+            @CachedLibrary("right") InteropLibrary rightInterop) {
         /*
          * This method looks very inefficient. In practice most of these branches fold as the
          * interop type checks typically return a constant when using a cached library.
@@ -127,28 +145,81 @@ public abstract class TclEqualNode extends TclBinaryNode {
          * activate this specialization.
          */
         try {
-            if (leftInterop.isBoolean(left) && rightInterop.isBoolean(right)) {
-                return doBoolean(leftInterop.asBoolean(left), rightInterop.asBoolean(right));
-            } else if (leftInterop.isString(left) && rightInterop.isString(right)) {
-                return doString(leftInterop.asString(left), (rightInterop.asString(right)));
-            } else if (leftInterop.isNull(left) && rightInterop.isNull(right)) {
-                return true;
-            } else if (leftInterop.fitsInLong(left) && rightInterop.fitsInLong(right)) {
-                return doLong(leftInterop.asLong(left), (rightInterop.asLong(right)));
-            } else if (left instanceof TclBigNumber && right instanceof TclBigNumber) {
-                return doBigNumber((TclBigNumber) left, (TclBigNumber) right);
-            } else if (leftInterop.hasIdentity(left) && rightInterop.hasIdentity(right)) {
-                return leftInterop.isIdentical(left, right, rightInterop);
-            } else {
-                /*
-                 * We return false in good dynamic language manner. Stricter languages might throw
-                 * an error here.
-                 */
-                return false;
-            }
+            if (leftInterop
+                    .isBoolean(
+                            left)
+                    && rightInterop
+                            .isBoolean(
+                                    right)) {
+                return doBoolean(
+                        leftInterop
+                                .asBoolean(
+                                        left),
+                        rightInterop
+                                .asBoolean(
+                                        right));
+            } else
+                if (leftInterop
+                        .isString(
+                                left)
+                        && rightInterop
+                                .isString(
+                                        right)) {
+                                            return doString(
+                                                    leftInterop
+                                                            .asString(
+                                                                    left),
+                                                    (rightInterop
+                                                            .asString(
+                                                                    right)));
+                                        } else
+                    if (leftInterop
+                            .isNull(left)
+                            && rightInterop
+                                    .isNull(right)) {
+                                        return true;
+                                    } else
+                        if (leftInterop
+                                .fitsInLong(
+                                        left)
+                                && rightInterop
+                                        .fitsInLong(
+                                                right)) {
+                                                    return doLong(
+                                                            leftInterop
+                                                                    .asLong(left),
+                                                            (rightInterop
+                                                                    .asLong(right)));
+                                                } else
+                            if (left instanceof TclBigNumber
+                                    && right instanceof TclBigNumber) {
+                                        return doBigNumber(
+                                                (TclBigNumber) left,
+                                                (TclBigNumber) right);
+                                    } else
+                                if (leftInterop
+                                        .hasIdentity(
+                                                left)
+                                        && rightInterop
+                                                .hasIdentity(
+                                                        right)) {
+                                                            return leftInterop
+                                                                    .isIdentical(
+                                                                            left,
+                                                                            right,
+                                                                            rightInterop);
+                                                        } else {
+                                                            /*
+                                                             * We return false in good dynamic language manner. Stricter
+                                                             * languages might throw
+                                                             * an error here.
+                                                             */
+                                                            return false;
+                                                        }
         } catch (UnsupportedMessageException e) {
             // this case must not happen as we always check interop types before converting
-            throw shouldNotReachHere(e);
+            throw shouldNotReachHere(
+                    e);
         }
     }
 

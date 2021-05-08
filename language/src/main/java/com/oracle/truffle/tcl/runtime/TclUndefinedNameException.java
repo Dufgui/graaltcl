@@ -44,21 +44,36 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.tcl.TclException;
 
-public final class TclUndefinedNameException extends TclException {
+public final class TclUndefinedNameException
+        extends
+        TclException {
 
     private static final long serialVersionUID = 1L;
 
     @TruffleBoundary
-    public static TclUndefinedNameException undefinedFunction(Node location, Object name) {
-        throw new TclUndefinedNameException("Undefined function: " + name, location);
+    public static TclUndefinedNameException undefinedFunction(
+            Node location,
+            Object name) {
+        throw new TclUndefinedNameException(
+                "Undefined function: "
+                        + name,
+                location);
     }
 
     @TruffleBoundary
-    public static TclUndefinedNameException undefinedProperty(Node location, Object name) {
-        throw new TclUndefinedNameException("Undefined property: " + name, location);
+    public static TclUndefinedNameException undefinedProperty(
+            Node location,
+            Object name) {
+        throw new TclUndefinedNameException(
+                "Undefined property: "
+                        + name,
+                location);
     }
 
-    private TclUndefinedNameException(String message, Node node) {
-        super(message, node);
+    private TclUndefinedNameException(
+            String message,
+            Node node) {
+        super(message,
+                node);
     }
 }

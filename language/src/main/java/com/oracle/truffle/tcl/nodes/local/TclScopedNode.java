@@ -62,7 +62,6 @@ import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.source.SourceSection;
-
 import com.oracle.truffle.tcl.TclLanguage;
 import com.oracle.truffle.tcl.nodes.TclExpressionNode;
 import com.oracle.truffle.tcl.nodes.TclRootNode;
@@ -76,25 +75,30 @@ import com.oracle.truffle.tcl.runtime.TclNull;
  * that declare variables and use them in the interop contract.
  */
 @ExportLibrary(value = NodeLibrary.class)
-public abstract class TclScopedNode extends Node {
+public abstract class TclScopedNode
+        extends
+        Node {
 
     /**
      * Index to the the {@link TclBlockNode#getDeclaredLocalVariables() block's variables} that
      * determine variables belonging into this scope (excluding parent scopes) on node enter. The
      * scope variables are in the interval &lt;0, visibleVariablesIndexOnEnter).
      */
-    @CompilationFinal private volatile int visibleVariablesIndexOnEnter = -1;
+    @CompilationFinal
+    private volatile int visibleVariablesIndexOnEnter = -1;
     /**
      * Similar to {@link #visibleVariablesIndexOnEnter}, but determines variables on node exit. The
      * scope variables are in the interval &lt;0, visibleVariablesIndexOnExit).
      */
-    @CompilationFinal private volatile int visibleVariablesIndexOnExit = -1;
+    @CompilationFinal
+    private volatile int visibleVariablesIndexOnExit = -1;
 
     /**
      * For performance reasons, fix the library implementation for the particular node.
      */
     @ExportMessage
-    boolean accepts(@Shared("node") @Cached(value = "this", adopt = false) TclScopedNode cachedNode) {
+    boolean accepts(
+            @Shared("node") @Cached(value = "this", adopt = false) TclScopedNode cachedNode) {
         return this == cachedNode;
     }
 
@@ -103,7 +107,8 @@ public abstract class TclScopedNode extends Node {
      */
     @ExportMessage
     @SuppressWarnings("static-method")
-    public boolean hasScope(@SuppressWarnings("unused") Frame frame) {
+    public boolean hasScope(
+            @SuppressWarnings("unused") Frame frame) {
         return true;
     }
 
@@ -114,12 +119,21 @@ public abstract class TclScopedNode extends Node {
      */
     @ExportMessage
     @SuppressWarnings("static-method")
-    final Object getScope(Frame frame, boolean nodeEnter, @Shared("node") @Cached(value = "this", adopt = false) TclScopedNode cachedNode,
-                    @Cached(value = "this.findBlock()", adopt = false, allowUncached = true) Node blockNode) {
+    final Object getScope(
+            Frame frame,
+            boolean nodeEnter,
+            @Shared("node") @Cached(value = "this", adopt = false) TclScopedNode cachedNode,
+            @Cached(value = "this.findBlock()", adopt = false, allowUncached = true) Node blockNode) {
         if (blockNode instanceof TclBlockNode) {
-            return new VariablesObject(frame, cachedNode, nodeEnter, (TclBlockNode) blockNode);
+            return new VariablesObject(
+                    frame,
+                    cachedNode,
+                    nodeEnter,
+                    (TclBlockNode) blockNode);
         } else {
-            return new ArgumentsObject(frame, (TclRootNode) blockNode);
+            return new ArgumentsObject(
+                    frame,
+                    (TclRootNode) blockNode);
         }
     }
 
@@ -129,11 +143,18 @@ public abstract class TclScopedNode extends Node {
      */
     @ExportMessage
     @TruffleBoundary
-    final boolean hasRootInstance(@SuppressWarnings("unused") Frame frame, @CachedContext(TclLanguage.class) ContextReference<TclContext> contextRef) {
-        String functionName = getRootNode().getName();
-        TclContext context = contextRef.get();
+    final boolean hasRootInstance(
+            @SuppressWarnings("unused") Frame frame,
+            @CachedContext(TclLanguage.class) ContextReference<TclContext> contextRef) {
+        String functionName = getRootNode()
+                .getName();
+        TclContext context = contextRef
+                .get();
         // The instance of the current RootNode is a function of the same name.
-        return context.getFunctionRegistry().getFunction(functionName) != null;
+        return context
+                .getFunctionRegistry()
+                .getFunction(
+                        functionName) != null;
     }
 
     /**
@@ -142,15 +163,24 @@ public abstract class TclScopedNode extends Node {
      */
     @ExportMessage
     @TruffleBoundary
-    final Object getRootInstance(@SuppressWarnings("unused") Frame frame, @CachedContext(TclLanguage.class) ContextReference<TclContext> contextRef) throws UnsupportedMessageException {
-        String functionName = getRootNode().getName();
-        TclContext context = contextRef.get();
+    final Object getRootInstance(
+            @SuppressWarnings("unused") Frame frame,
+            @CachedContext(TclLanguage.class) ContextReference<TclContext> contextRef)
+            throws UnsupportedMessageException {
+        String functionName = getRootNode()
+                .getName();
+        TclContext context = contextRef
+                .get();
         // The instance of the current RootNode is a function of the same name.
-        Object function = context.getFunctionRegistry().getFunction(functionName);
+        Object function = context
+                .getFunctionRegistry()
+                .getFunction(
+                        functionName);
         if (function != null) {
             return function;
         } else {
-            throw UnsupportedMessageException.create();
+            throw UnsupportedMessageException
+                    .create();
         }
     }
 
@@ -166,9 +196,13 @@ public abstract class TclScopedNode extends Node {
             if (parent instanceof TclBlockNode) {
                 break;
             }
-            Node p = parent.getParent();
+            Node p = parent
+                    .getParent();
             if (p == null) {
-                assert parent instanceof RootNode : String.format("Not adopted node under %s.", parent);
+                assert parent instanceof RootNode
+                        : String.format(
+                                "Not adopted node under %s.",
+                                parent);
                 return parent;
             }
             parent = p;
@@ -180,8 +214,10 @@ public abstract class TclScopedNode extends Node {
      * Set the index to the the {@link TclBlockNode#getDeclaredLocalVariables() block's variables}
      * that determine variables belonging into this scope (excluding parent scopes) on node enter.
      */
-    public final void setVisibleVariablesIndexOnEnter(int index) {
-        assert visibleVariablesIndexOnEnter == -1 : "The index is set just once";
+    public final void setVisibleVariablesIndexOnEnter(
+            int index) {
+        assert visibleVariablesIndexOnEnter == -1
+                : "The index is set just once";
         assert 0 <= index;
         visibleVariablesIndexOnEnter = index;
     }
@@ -190,8 +226,10 @@ public abstract class TclScopedNode extends Node {
      * Similar to {@link #setVisibleVariablesIndexOnEnter(int)}, but determines variables on node
      * exit.
      */
-    public final void setVisibleVariablesIndexOnExit(int index) {
-        assert visibleVariablesIndexOnExit == -1 : "The index is set just once";
+    public final void setVisibleVariablesIndexOnExit(
+            int index) {
+        assert visibleVariablesIndexOnExit == -1
+                : "The index is set just once";
         assert 0 <= index;
         visibleVariablesIndexOnExit = index;
     }
@@ -211,7 +249,9 @@ public abstract class TclScopedNode extends Node {
      * scope members.
      */
     @ExportLibrary(InteropLibrary.class)
-    static final class ArgumentsObject implements TruffleObject {
+    static final class ArgumentsObject
+            implements
+            TruffleObject {
 
         /**
          * The member caching limit.
@@ -224,7 +264,9 @@ public abstract class TclScopedNode extends Node {
         /**
          * The arguments depend on the current frame and root node.
          */
-        ArgumentsObject(Frame frame, TclRootNode root) {
+        ArgumentsObject(
+                Frame frame,
+                TclRootNode root) {
             this.frame = frame;
             this.root = root;
         }
@@ -233,7 +275,8 @@ public abstract class TclScopedNode extends Node {
          * For performance reasons, fix the library implementation for the particular root node.
          */
         @ExportMessage
-        boolean accepts(@Cached(value = "this.root", adopt = false) TclRootNode cachedRoot) {
+        boolean accepts(
+                @Cached(value = "this.root", adopt = false) TclRootNode cachedRoot) {
             return this.root == cachedRoot;
         }
 
@@ -265,8 +308,10 @@ public abstract class TclScopedNode extends Node {
          * Provide the function name as the scope's display string.
          */
         @ExportMessage
-        Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
-            return root.getName();
+        Object toDisplayString(
+                @SuppressWarnings("unused") boolean allowSideEffects) {
+            return root
+                    .getName();
         }
 
         /**
@@ -283,7 +328,8 @@ public abstract class TclScopedNode extends Node {
          */
         @ExportMessage
         SourceSection getSourceLocation() {
-            return root.getSourceSection();
+            return root
+                    .getSourceSection();
         }
 
         /**
@@ -299,9 +345,14 @@ public abstract class TclScopedNode extends Node {
          * We return an array of argument objects as scope members.
          */
         @ExportMessage
-        Object getMembers(@SuppressWarnings("unused") boolean includeInternal) {
-            TclWriteLocalVariableNode[] writeNodes = root.getDeclaredArguments();
-            return new KeysArray(writeNodes, writeNodes.length, writeNodes.length);
+        Object getMembers(
+                @SuppressWarnings("unused") boolean includeInternal) {
+            TclWriteLocalVariableNode[] writeNodes = root
+                    .getDeclaredArguments();
+            return new KeysArray(
+                    writeNodes,
+                    writeNodes.length,
+                    writeNodes.length);
         }
 
         /**
@@ -314,13 +365,18 @@ public abstract class TclScopedNode extends Node {
              * If the member is cached, provide the cached result. Call
              * {@link #doGeneric(ArgumentsObject, String)} otherwise.
              */
-            @Specialization(limit = "LIMIT", guards = {"cachedMember.equals(member)"})
+            @Specialization(limit = "LIMIT", guards = {
+                    "cachedMember.equals(member)" })
             @SuppressWarnings("unused")
-            static boolean doCached(ArgumentsObject receiver, String member,
-                            @Cached("member") String cachedMember,
-                            // We cache the member existence for fast-path access
-                            @Cached("doGeneric(receiver, member)") boolean cachedResult) {
-                assert cachedResult == doGeneric(receiver, member);
+            static boolean doCached(
+                    ArgumentsObject receiver,
+                    String member,
+                    @Cached("member") String cachedMember,
+                    // We cache the member existence for fast-path access
+                    @Cached("doGeneric(receiver, member)") boolean cachedResult) {
+                assert cachedResult == doGeneric(
+                        receiver,
+                        member);
                 return cachedResult;
             }
 
@@ -329,8 +385,12 @@ public abstract class TclScopedNode extends Node {
              */
             @Specialization(replaces = "doCached")
             @TruffleBoundary
-            static boolean doGeneric(ArgumentsObject receiver, String member) {
-                return receiver.hasArgumentIndex(member);
+            static boolean doGeneric(
+                    ArgumentsObject receiver,
+                    String member) {
+                return receiver
+                        .hasArgumentIndex(
+                                member);
             }
         }
 
@@ -340,13 +400,17 @@ public abstract class TclScopedNode extends Node {
         @ExportMessage(name = "isMemberModifiable")
         static final class ModifiableMember {
 
-            @Specialization(limit = "LIMIT", guards = {"cachedMember.equals(member)"})
+            @Specialization(limit = "LIMIT", guards = {
+                    "cachedMember.equals(member)" })
             @SuppressWarnings("unused")
-            static boolean doCached(ArgumentsObject receiver, String member,
-                            @Cached("member") String cachedMember,
-                            // We cache the member existence for fast-path access
-                            @Cached("receiver.hasArgumentIndex(member)") boolean cachedResult) {
-                return cachedResult && receiver.frame != null;
+            static boolean doCached(
+                    ArgumentsObject receiver,
+                    String member,
+                    @Cached("member") String cachedMember,
+                    // We cache the member existence for fast-path access
+                    @Cached("receiver.hasArgumentIndex(member)") boolean cachedResult) {
+                return cachedResult
+                        && receiver.frame != null;
             }
 
             /**
@@ -354,8 +418,13 @@ public abstract class TclScopedNode extends Node {
              */
             @Specialization(replaces = "doCached")
             @TruffleBoundary
-            static boolean doGeneric(ArgumentsObject receiver, String member) {
-                return receiver.findArgumentIndex(member) >= 0 && receiver.frame != null;
+            static boolean doGeneric(
+                    ArgumentsObject receiver,
+                    String member) {
+                return receiver
+                        .findArgumentIndex(
+                                member) >= 0
+                        && receiver.frame != null;
             }
         }
 
@@ -364,7 +433,8 @@ public abstract class TclScopedNode extends Node {
          */
         @ExportMessage
         @SuppressWarnings("static-method")
-        boolean isMemberInsertable(@SuppressWarnings("unused") String member) {
+        boolean isMemberInsertable(
+                @SuppressWarnings("unused") String member) {
             return false;
         }
 
@@ -378,13 +448,20 @@ public abstract class TclScopedNode extends Node {
              * If the member is cached, use the cached index and read the value at that index. Call
              * {@link #doGeneric(ArgumentsObject, String)} otherwise.
              */
-            @Specialization(limit = "LIMIT", guards = {"cachedMember.equals(member)"})
+            @Specialization(limit = "LIMIT", guards = {
+                    "cachedMember.equals(member)" })
             @SuppressWarnings("unused")
-            static Object doCached(ArgumentsObject receiver, String member,
-                            @Cached("member") String cachedMember,
-                            // We cache the member's index for fast-path access
-                            @Cached("receiver.findArgumentIndex(member)") int index) throws UnknownIdentifierException {
-                return doRead(receiver, cachedMember, index);
+            static Object doCached(
+                    ArgumentsObject receiver,
+                    String member,
+                    @Cached("member") String cachedMember,
+                    // We cache the member's index for fast-path access
+                    @Cached("receiver.findArgumentIndex(member)") int index)
+                    throws UnknownIdentifierException {
+                return doRead(
+                        receiver,
+                        cachedMember,
+                        index);
             }
 
             /**
@@ -392,20 +469,34 @@ public abstract class TclScopedNode extends Node {
              */
             @Specialization(replaces = "doCached")
             @TruffleBoundary
-            static Object doGeneric(ArgumentsObject receiver, String member) throws UnknownIdentifierException {
-                int index = receiver.findArgumentIndex(member);
-                return doRead(receiver, member, index);
+            static Object doGeneric(
+                    ArgumentsObject receiver,
+                    String member)
+                    throws UnknownIdentifierException {
+                int index = receiver
+                        .findArgumentIndex(
+                                member);
+                return doRead(
+                        receiver,
+                        member,
+                        index);
             }
 
             /**
              * Read the argument at the provided index from {@link Frame#getArguments()} array.
              */
-            private static Object doRead(ArgumentsObject receiver, String member, int index) throws UnknownIdentifierException {
+            private static Object doRead(
+                    ArgumentsObject receiver,
+                    String member,
+                    int index)
+                    throws UnknownIdentifierException {
                 if (index < 0) {
-                    throw UnknownIdentifierException.create(member);
+                    throw UnknownIdentifierException
+                            .create(member);
                 }
                 if (receiver.frame != null) {
-                    return receiver.frame.getArguments()[index];
+                    return receiver.frame
+                            .getArguments()[index];
                 } else {
                     return TclNull.SINGLETON;
                 }
@@ -422,13 +513,22 @@ public abstract class TclScopedNode extends Node {
              * If the member is cached, use the cached index and write the value at that index. Call
              * {@link #doGeneric(ArgumentsObject, String, Object)} otherwise.
              */
-            @Specialization(limit = "LIMIT", guards = {"cachedMember.equals(member)"})
+            @Specialization(limit = "LIMIT", guards = {
+                    "cachedMember.equals(member)" })
             @SuppressWarnings("unused")
-            static void doCached(ArgumentsObject receiver, String member, Object value,
-                            @Cached("member") String cachedMember,
-                            // We cache the member's index for fast-path access
-                            @Cached("receiver.findArgumentIndex(member)") int index) throws UnknownIdentifierException, UnsupportedMessageException {
-                doWrite(receiver, member, index, value);
+            static void doCached(
+                    ArgumentsObject receiver,
+                    String member,
+                    Object value,
+                    @Cached("member") String cachedMember,
+                    // We cache the member's index for fast-path access
+                    @Cached("receiver.findArgumentIndex(member)") int index)
+                    throws UnknownIdentifierException,
+                    UnsupportedMessageException {
+                doWrite(receiver,
+                        member,
+                        index,
+                        value);
             }
 
             /**
@@ -436,36 +536,62 @@ public abstract class TclScopedNode extends Node {
              */
             @Specialization(replaces = "doCached")
             @TruffleBoundary
-            static void doGeneric(ArgumentsObject receiver, String member, Object value) throws UnknownIdentifierException, UnsupportedMessageException {
-                int index = receiver.findArgumentIndex(member);
-                doWrite(receiver, member, index, value);
+            static void doGeneric(
+                    ArgumentsObject receiver,
+                    String member,
+                    Object value)
+                    throws UnknownIdentifierException,
+                    UnsupportedMessageException {
+                int index = receiver
+                        .findArgumentIndex(
+                                member);
+                doWrite(receiver,
+                        member,
+                        index,
+                        value);
             }
 
             /**
              * Write the argument value at the provided index into {@link Frame#getArguments()}
              * array.
              */
-            private static void doWrite(ArgumentsObject receiver, String member, int index, Object value) throws UnknownIdentifierException, UnsupportedMessageException {
+            private static void doWrite(
+                    ArgumentsObject receiver,
+                    String member,
+                    int index,
+                    Object value)
+                    throws UnknownIdentifierException,
+                    UnsupportedMessageException {
                 if (index < 0) {
-                    throw UnknownIdentifierException.create(member);
+                    throw UnknownIdentifierException
+                            .create(member);
                 }
                 if (receiver.frame != null) {
-                    receiver.frame.getArguments()[index] = value;
+                    receiver.frame
+                            .getArguments()[index] = value;
                 } else {
-                    throw UnsupportedMessageException.create();
+                    throw UnsupportedMessageException
+                            .create();
                 }
             }
         }
 
-        boolean hasArgumentIndex(String member) {
-            return findArgumentIndex(member) >= 0;
+        boolean hasArgumentIndex(
+                String member) {
+            return findArgumentIndex(
+                    member) >= 0;
         }
 
-        int findArgumentIndex(String member) {
-            TclWriteLocalVariableNode[] writeNodes = root.getDeclaredArguments();
+        int findArgumentIndex(
+                String member) {
+            TclWriteLocalVariableNode[] writeNodes = root
+                    .getDeclaredArguments();
             for (int i = 0; i < writeNodes.length; i++) {
                 TclWriteLocalVariableNode writeNode = writeNodes[i];
-                if (member.equals(writeNode.getSlot().getIdentifier())) {
+                if (member
+                        .equals(writeNode
+                                .getSlot()
+                                .getIdentifier())) {
                     return i;
                 }
             }
@@ -478,19 +604,25 @@ public abstract class TclScopedNode extends Node {
      * Scope of all variables accessible in the scope from the entered or exited node.
      */
     @ExportLibrary(InteropLibrary.class)
-    static final class VariablesObject implements TruffleObject {
+    static final class VariablesObject
+            implements
+            TruffleObject {
 
         /**
          * The member caching limit.
          */
         static int LIMIT = 4;
 
-        private final Frame frame;          // the current frame
-        protected final TclScopedNode node;  // the current node
-        final boolean nodeEnter;            // whether the node was entered or is about to be exited
-        protected final TclBlockNode block;  // the inner-most block of the current node
+        private final Frame frame; // the current frame
+        protected final TclScopedNode node; // the current node
+        final boolean nodeEnter; // whether the node was entered or is about to be exited
+        protected final TclBlockNode block; // the inner-most block of the current node
 
-        VariablesObject(Frame frame, TclScopedNode node, boolean nodeEnter, TclBlockNode blockNode) {
+        VariablesObject(
+                Frame frame,
+                TclScopedNode node,
+                boolean nodeEnter,
+                TclBlockNode blockNode) {
             this.frame = frame;
             this.node = node;
             this.nodeEnter = nodeEnter;
@@ -502,9 +634,11 @@ public abstract class TclScopedNode extends Node {
          * flag.
          */
         @ExportMessage
-        boolean accepts(@Cached(value = "this.node", adopt = false) TclScopedNode cachedNode,
-                        @Cached(value = "this.nodeEnter") boolean cachedNodeEnter) {
-            return this.node == cachedNode && this.nodeEnter == cachedNodeEnter;
+        boolean accepts(
+                @Cached(value = "this.node", adopt = false) TclScopedNode cachedNode,
+                @Cached(value = "this.nodeEnter") boolean cachedNodeEnter) {
+            return this.node == cachedNode
+                    && this.nodeEnter == cachedNodeEnter;
         }
 
         /**
@@ -535,14 +669,19 @@ public abstract class TclScopedNode extends Node {
          * Provide either "block", or the function name as the scope's display string.
          */
         @ExportMessage
-        @SuppressWarnings({"static-method", "unused"})
-        Object toDisplayString(boolean allowSideEffects, @Shared("block") @Cached(value = "this.block", adopt = false) TclBlockNode cachedBlock,
-                        @Shared("parentBlock") @Cached(value = "this.block.findBlock()", adopt = false, allowUncached = true) Node parentBlock) {
+        @SuppressWarnings({
+                "static-method",
+                "unused" })
+        Object toDisplayString(
+                boolean allowSideEffects,
+                @Shared("block") @Cached(value = "this.block", adopt = false) TclBlockNode cachedBlock,
+                @Shared("parentBlock") @Cached(value = "this.block.findBlock()", adopt = false, allowUncached = true) Node parentBlock) {
             // Cache the parent block for the fast-path access
             if (parentBlock instanceof TclBlockNode) {
                 return "block";
             } else {
-                return ((TclRootNode) parentBlock).getName();
+                return ((TclRootNode) parentBlock)
+                        .getName();
             }
         }
 
@@ -550,10 +689,12 @@ public abstract class TclScopedNode extends Node {
          * There is a parent scope if we're in a block.
          */
         @ExportMessage
-        @SuppressWarnings({"static-method", "unused"})
+        @SuppressWarnings({
+                "static-method",
+                "unused" })
         boolean hasScopeParent(
-                        @Shared("block") @Cached(value = "this.block", adopt = false) TclBlockNode cachedBlock,
-                        @Shared("parentBlock") @Cached(value = "this.block.findBlock()", adopt = false, allowUncached = true) Node parentBlock) {
+                @Shared("block") @Cached(value = "this.block", adopt = false) TclBlockNode cachedBlock,
+                @Shared("parentBlock") @Cached(value = "this.block.findBlock()", adopt = false, allowUncached = true) Node parentBlock) {
             // Cache the parent block for the fast-path access
             return parentBlock instanceof TclBlockNode;
         }
@@ -564,13 +705,19 @@ public abstract class TclScopedNode extends Node {
         @ExportMessage
         @SuppressWarnings("unused")
         Object getScopeParent(
-                        @Shared("block") @Cached(value = "this.block", adopt = false) TclBlockNode cachedBlock,
-                        @Shared("parentBlock") @Cached(value = "this.block.findBlock()", adopt = false, allowUncached = true) Node parentBlock) throws UnsupportedMessageException {
+                @Shared("block") @Cached(value = "this.block", adopt = false) TclBlockNode cachedBlock,
+                @Shared("parentBlock") @Cached(value = "this.block.findBlock()", adopt = false, allowUncached = true) Node parentBlock)
+                throws UnsupportedMessageException {
             // Cache the parent block for the fast-path access
             if (!(parentBlock instanceof TclBlockNode)) {
-                throw UnsupportedMessageException.create();
+                throw UnsupportedMessageException
+                        .create();
             }
-            return new VariablesObject(frame, cachedBlock, true, (TclBlockNode) parentBlock);
+            return new VariablesObject(
+                    frame,
+                    cachedBlock,
+                    true,
+                    (TclBlockNode) parentBlock);
         }
 
         /**
@@ -588,13 +735,20 @@ public abstract class TclScopedNode extends Node {
         @ExportMessage
         @TruffleBoundary
         SourceSection getSourceLocation() {
-            Node parentBlock = block.findBlock();
+            Node parentBlock = block
+                    .findBlock();
             if (parentBlock instanceof RootNode) {
                 // We're in the function block
-                assert parentBlock instanceof TclRootNode : String.format("In TclLanguage we expect TclRootNode, not %s", parentBlock.getClass());
-                return ((TclRootNode) parentBlock).getSourceSection();
+                assert parentBlock instanceof TclRootNode
+                        : String.format(
+                                "In TclLanguage we expect TclRootNode, not %s",
+                                parentBlock
+                                        .getClass());
+                return ((TclRootNode) parentBlock)
+                        .getSourceSection();
             } else {
-                return block.getSourceSection();
+                return block
+                        .getSourceSection();
             }
         }
 
@@ -617,13 +771,18 @@ public abstract class TclScopedNode extends Node {
              * If the member is cached, provide the cached result. Call
              * {@link #doGeneric(VariablesObject, String)} otherwise.
              */
-            @Specialization(limit = "LIMIT", guards = {"cachedMember.equals(member)"})
+            @Specialization(limit = "LIMIT", guards = {
+                    "cachedMember.equals(member)" })
             @SuppressWarnings("unused")
-            static boolean doCached(VariablesObject receiver, String member,
-                            @Cached("member") String cachedMember,
-                            // We cache the member existence for fast-path access
-                            @Cached("doGeneric(receiver, member)") boolean cachedResult) {
-                assert cachedResult == doGeneric(receiver, member);
+            static boolean doCached(
+                    VariablesObject receiver,
+                    String member,
+                    @Cached("member") String cachedMember,
+                    // We cache the member existence for fast-path access
+                    @Cached("doGeneric(receiver, member)") boolean cachedResult) {
+                assert cachedResult == doGeneric(
+                        receiver,
+                        member);
                 return cachedResult;
             }
 
@@ -633,8 +792,12 @@ public abstract class TclScopedNode extends Node {
              */
             @Specialization(replaces = "doCached")
             @TruffleBoundary
-            static boolean doGeneric(VariablesObject receiver, String member) {
-                return receiver.hasWriteNode(member);
+            static boolean doGeneric(
+                    VariablesObject receiver,
+                    String member) {
+                return receiver
+                        .hasWriteNode(
+                                member);
             }
         }
 
@@ -644,13 +807,17 @@ public abstract class TclScopedNode extends Node {
         @ExportMessage(name = "isMemberModifiable")
         static final class ModifiableMember {
 
-            @Specialization(limit = "LIMIT", guards = {"cachedMember.equals(member)"})
+            @Specialization(limit = "LIMIT", guards = {
+                    "cachedMember.equals(member)" })
             @SuppressWarnings("unused")
-            static boolean doCached(VariablesObject receiver, String member,
-                            @Cached("member") String cachedMember,
-                            // We cache the member existence for fast-path access
-                            @Cached("receiver.hasWriteNode(member)") boolean cachedResult) {
-                return cachedResult && receiver.frame != null;
+            static boolean doCached(
+                    VariablesObject receiver,
+                    String member,
+                    @Cached("member") String cachedMember,
+                    // We cache the member existence for fast-path access
+                    @Cached("receiver.hasWriteNode(member)") boolean cachedResult) {
+                return cachedResult
+                        && receiver.frame != null;
             }
 
             /**
@@ -658,8 +825,13 @@ public abstract class TclScopedNode extends Node {
              */
             @Specialization(replaces = "doCached")
             @TruffleBoundary
-            static boolean doGeneric(VariablesObject receiver, String member) {
-                return receiver.hasWriteNode(member) && receiver.frame != null;
+            static boolean doGeneric(
+                    VariablesObject receiver,
+                    String member) {
+                return receiver
+                        .hasWriteNode(
+                                member)
+                        && receiver.frame != null;
             }
         }
 
@@ -668,7 +840,8 @@ public abstract class TclScopedNode extends Node {
          */
         @ExportMessage
         @SuppressWarnings("static-method")
-        boolean isMemberInsertable(@SuppressWarnings("unused") String member) {
+        boolean isMemberInsertable(
+                @SuppressWarnings("unused") String member) {
             return false;
         }
 
@@ -682,13 +855,20 @@ public abstract class TclScopedNode extends Node {
              * If the member is cached, use the cached frame slot and read the value from it. Call
              * {@link #doGeneric(VariablesObject, String)} otherwise.
              */
-            @Specialization(limit = "LIMIT", guards = {"cachedMember.equals(member)"})
+            @Specialization(limit = "LIMIT", guards = {
+                    "cachedMember.equals(member)" })
             @SuppressWarnings("unused")
-            static Object doCached(VariablesObject receiver, String member,
-                            @Cached("member") String cachedMember,
-                            // We cache the member's frame slot for fast-path access
-                            @Cached("receiver.findSlot(member)") FrameSlot slot) throws UnknownIdentifierException {
-                return doRead(receiver, cachedMember, slot);
+            static Object doCached(
+                    VariablesObject receiver,
+                    String member,
+                    @Cached("member") String cachedMember,
+                    // We cache the member's frame slot for fast-path access
+                    @Cached("receiver.findSlot(member)") FrameSlot slot)
+                    throws UnknownIdentifierException {
+                return doRead(
+                        receiver,
+                        cachedMember,
+                        slot);
             }
 
             /**
@@ -696,17 +876,32 @@ public abstract class TclScopedNode extends Node {
              */
             @Specialization(replaces = "doCached")
             @TruffleBoundary
-            static Object doGeneric(VariablesObject receiver, String member) throws UnknownIdentifierException {
-                FrameSlot slot = receiver.findSlot(member);
-                return doRead(receiver, member, slot);
+            static Object doGeneric(
+                    VariablesObject receiver,
+                    String member)
+                    throws UnknownIdentifierException {
+                FrameSlot slot = receiver
+                        .findSlot(
+                                member);
+                return doRead(
+                        receiver,
+                        member,
+                        slot);
             }
 
-            private static Object doRead(VariablesObject receiver, String member, FrameSlot slot) throws UnknownIdentifierException {
+            private static Object doRead(
+                    VariablesObject receiver,
+                    String member,
+                    FrameSlot slot)
+                    throws UnknownIdentifierException {
                 if (slot == null) {
-                    throw UnknownIdentifierException.create(member);
+                    throw UnknownIdentifierException
+                            .create(member);
                 }
                 if (receiver.frame != null) {
-                    return receiver.frame.getValue(slot);
+                    return receiver.frame
+                            .getValue(
+                                    slot);
                 } else {
                     return TclNull.SINGLETON;
                 }
@@ -723,13 +918,22 @@ public abstract class TclScopedNode extends Node {
              * If the member is cached, use the cached write node and use it to write the value.
              * Call {@link #doGeneric(VariablesObject, String, Object)} otherwise.
              */
-            @Specialization(limit = "LIMIT", guards = {"cachedMember.equals(member)"})
+            @Specialization(limit = "LIMIT", guards = {
+                    "cachedMember.equals(member)" })
             @SuppressWarnings("unused")
-            static void doCached(VariablesObject receiver, String member, Object value,
-                            @Cached("member") String cachedMember,
-                            // We cache the member's write node for fast-path access
-                            @Cached(value = "receiver.findWriteNode(member)", adopt = false) TclWriteLocalVariableNode writeNode) throws UnknownIdentifierException, UnsupportedMessageException {
-                doWrite(receiver, cachedMember, writeNode, value);
+            static void doCached(
+                    VariablesObject receiver,
+                    String member,
+                    Object value,
+                    @Cached("member") String cachedMember,
+                    // We cache the member's write node for fast-path access
+                    @Cached(value = "receiver.findWriteNode(member)", adopt = false) TclWriteLocalVariableNode writeNode)
+                    throws UnknownIdentifierException,
+                    UnsupportedMessageException {
+                doWrite(receiver,
+                        cachedMember,
+                        writeNode,
+                        value);
             }
 
             /**
@@ -737,19 +941,40 @@ public abstract class TclScopedNode extends Node {
              */
             @Specialization(replaces = "doCached")
             @TruffleBoundary
-            static void doGeneric(VariablesObject receiver, String member, Object value) throws UnknownIdentifierException, UnsupportedMessageException {
-                TclWriteLocalVariableNode writeNode = receiver.findWriteNode(member);
-                doWrite(receiver, member, writeNode, value);
+            static void doGeneric(
+                    VariablesObject receiver,
+                    String member,
+                    Object value)
+                    throws UnknownIdentifierException,
+                    UnsupportedMessageException {
+                TclWriteLocalVariableNode writeNode = receiver
+                        .findWriteNode(
+                                member);
+                doWrite(receiver,
+                        member,
+                        writeNode,
+                        value);
             }
 
-            private static void doWrite(VariablesObject receiver, String member, TclWriteLocalVariableNode writeNode, Object value) throws UnknownIdentifierException, UnsupportedMessageException {
+            private static void doWrite(
+                    VariablesObject receiver,
+                    String member,
+                    TclWriteLocalVariableNode writeNode,
+                    Object value)
+                    throws UnknownIdentifierException,
+                    UnsupportedMessageException {
                 if (writeNode == null) {
-                    throw UnknownIdentifierException.create(member);
+                    throw UnknownIdentifierException
+                            .create(member);
                 }
                 if (receiver.frame == null) {
-                    throw UnsupportedMessageException.create();
+                    throw UnsupportedMessageException
+                            .create();
                 }
-                writeNode.executeWrite((VirtualFrame) receiver.frame, value);
+                writeNode
+                        .executeWrite(
+                                (VirtualFrame) receiver.frame,
+                                value);
             }
         }
 
@@ -759,27 +984,38 @@ public abstract class TclScopedNode extends Node {
          */
         @ExportMessage
         @SuppressWarnings("static-method")
-        Object getMembers(@SuppressWarnings("unused") boolean includeInternal,
-                        @Cached(value = "this.block.getDeclaredLocalVariables()", adopt = false, dimensions = 1, allowUncached = true) TclWriteLocalVariableNode[] writeNodes,
-                        @Cached(value = "this.getVisibleVariablesIndex()", allowUncached = true) int visibleVariablesIndex,
-                        @Cached(value = "this.block.getParentBlockIndex()", allowUncached = true) int parentBlockIndex) {
-            return new KeysArray(writeNodes, visibleVariablesIndex, parentBlockIndex);
+        Object getMembers(
+                @SuppressWarnings("unused") boolean includeInternal,
+                @Cached(value = "this.block.getDeclaredLocalVariables()", adopt = false, dimensions = 1, allowUncached = true) TclWriteLocalVariableNode[] writeNodes,
+                @Cached(value = "this.getVisibleVariablesIndex()", allowUncached = true) int visibleVariablesIndex,
+                @Cached(value = "this.block.getParentBlockIndex()", allowUncached = true) int parentBlockIndex) {
+            return new KeysArray(
+                    writeNodes,
+                    visibleVariablesIndex,
+                    parentBlockIndex);
         }
 
         int getVisibleVariablesIndex() {
             assert node.visibleVariablesIndexOnEnter >= 0;
             assert node.visibleVariablesIndexOnExit >= 0;
-            return nodeEnter ? node.visibleVariablesIndexOnEnter : node.visibleVariablesIndexOnExit;
+            return nodeEnter
+                    ? node.visibleVariablesIndexOnEnter
+                    : node.visibleVariablesIndexOnExit;
         }
 
-        boolean hasWriteNode(String member) {
-            return findWriteNode(member) != null;
+        boolean hasWriteNode(
+                String member) {
+            return findWriteNode(
+                    member) != null;
         }
 
-        FrameSlot findSlot(String member) {
-            TclWriteLocalVariableNode writeNode = findWriteNode(member);
+        FrameSlot findSlot(
+                String member) {
+            TclWriteLocalVariableNode writeNode = findWriteNode(
+                    member);
             if (writeNode != null) {
-                return writeNode.getSlot();
+                return writeNode
+                        .getSlot();
             } else {
                 return null;
             }
@@ -791,19 +1027,28 @@ public abstract class TclScopedNode extends Node {
          * 
          * @param member the variable name
          */
-        TclWriteLocalVariableNode findWriteNode(String member) {
-            TclWriteLocalVariableNode[] writeNodes = block.getDeclaredLocalVariables();
-            int parentBlockIndex = block.getParentBlockIndex();
+        TclWriteLocalVariableNode findWriteNode(
+                String member) {
+            TclWriteLocalVariableNode[] writeNodes = block
+                    .getDeclaredLocalVariables();
+            int parentBlockIndex = block
+                    .getParentBlockIndex();
             int index = getVisibleVariablesIndex();
             for (int i = 0; i < index; i++) {
                 TclWriteLocalVariableNode writeNode = writeNodes[i];
-                if (member.equals(writeNode.getSlot().getIdentifier())) {
+                if (member
+                        .equals(writeNode
+                                .getSlot()
+                                .getIdentifier())) {
                     return writeNode;
                 }
             }
             for (int i = parentBlockIndex; i < writeNodes.length; i++) {
                 TclWriteLocalVariableNode writeNode = writeNodes[i];
-                if (member.equals(writeNode.getSlot().getIdentifier())) {
+                if (member
+                        .equals(writeNode
+                                .getSlot()
+                                .getIdentifier())) {
                     return writeNode;
                 }
             }
@@ -816,9 +1061,12 @@ public abstract class TclScopedNode extends Node {
      * represented as {@link Key} objects.
      */
     @ExportLibrary(InteropLibrary.class)
-    static final class KeysArray implements TruffleObject {
+    static final class KeysArray
+            implements
+            TruffleObject {
 
-        @CompilationFinal(dimensions = 1) private final TclWriteLocalVariableNode[] writeNodes;
+        @CompilationFinal(dimensions = 1)
+        private final TclWriteLocalVariableNode[] writeNodes;
         private final int variableIndex;
         private final int parentBlockIndex;
 
@@ -827,13 +1075,16 @@ public abstract class TclScopedNode extends Node {
          * 
          * @param writeNodes all variables declarations in the scope, including parent scopes.
          * @param variableIndex index to the variables array, determining variables in the
-         *            inner-most scope (from zero index up to the <code>variableIndex</code>,
-         *            exclusive).
+         *        inner-most scope (from zero index up to the <code>variableIndex</code>,
+         *        exclusive).
          * @param parentBlockIndex index to the variables array, determining variables in the parent
-         *            block's scope (from <code>parentBlockIndex</code> to the end of the
-         *            <code>writeNodes</code> array).
+         *        block's scope (from <code>parentBlockIndex</code> to the end of the
+         *        <code>writeNodes</code> array).
          */
-        KeysArray(TclWriteLocalVariableNode[] writeNodes, int variableIndex, int parentBlockIndex) {
+        KeysArray(
+                TclWriteLocalVariableNode[] writeNodes,
+                int variableIndex,
+                int parentBlockIndex) {
             this.writeNodes = writeNodes;
             this.variableIndex = variableIndex;
             this.parentBlockIndex = parentBlockIndex;
@@ -849,25 +1100,39 @@ public abstract class TclScopedNode extends Node {
         long getArraySize() {
             // We see all parent's variables (writeNodes.length - parentBlockIndex) plus the
             // variables in the inner-most scope visible by the current node (variableIndex).
-            return writeNodes.length - parentBlockIndex + variableIndex;
+            return writeNodes.length
+                    - parentBlockIndex
+                    + variableIndex;
         }
 
         @ExportMessage
-        boolean isArrayElementReadable(long index) {
-            return index >= 0 && index < (writeNodes.length - parentBlockIndex + variableIndex);
+        boolean isArrayElementReadable(
+                long index) {
+            return index >= 0
+                    && index < (writeNodes.length
+                            - parentBlockIndex
+                            + variableIndex);
         }
 
         @ExportMessage
-        Object readArrayElement(long index) throws InvalidArrayIndexException {
-            if (!isArrayElementReadable(index)) {
-                throw InvalidArrayIndexException.create(index);
+        Object readArrayElement(
+                long index)
+                throws InvalidArrayIndexException {
+            if (!isArrayElementReadable(
+                    index)) {
+                throw InvalidArrayIndexException
+                        .create(index);
             }
             if (index < variableIndex) {
                 // if we're in the inner-most scope, it's simply the variable on the index
-                return new Key(writeNodes[(int) index]);
+                return new Key(
+                        writeNodes[(int) index]);
             } else {
                 // else it's a variable declared in the parent's scope, we start at parentBlockIndex
-                return new Key(writeNodes[(int) index - variableIndex + parentBlockIndex]);
+                return new Key(
+                        writeNodes[(int) index
+                                - variableIndex
+                                + parentBlockIndex]);
             }
         }
 
@@ -880,7 +1145,9 @@ public abstract class TclScopedNode extends Node {
      * source location}.
      */
     @ExportLibrary(InteropLibrary.class)
-    static final class Key implements TruffleObject {
+    static final class Key
+            implements
+            TruffleObject {
 
         private final TclWriteLocalVariableNode writeNode;
 
@@ -898,22 +1165,36 @@ public abstract class TclScopedNode extends Node {
         @TruffleBoundary
         String asString() {
             // FrameSlot's identifier object is not safe to convert to String on fast-path.
-            return writeNode.getSlot().getIdentifier().toString();
+            return writeNode
+                    .getSlot()
+                    .getIdentifier()
+                    .toString();
         }
 
         @ExportMessage
         boolean hasSourceLocation() {
-            return writeNode.getNameNode().getSourceCharIndex() >= 0;
+            return writeNode
+                    .getNameNode()
+                    .getSourceCharIndex() >= 0;
         }
 
         @ExportMessage
         @TruffleBoundary
-        SourceSection getSourceLocation() throws UnsupportedMessageException {
+        SourceSection getSourceLocation()
+                throws UnsupportedMessageException {
             if (!hasSourceLocation()) {
-                throw UnsupportedMessageException.create();
+                throw UnsupportedMessageException
+                        .create();
             }
-            TclExpressionNode nameNode = writeNode.getNameNode();
-            return writeNode.getRootNode().getSourceSection().getSource().createSection(nameNode.getSourceCharIndex(), nameNode.getSourceLength());
+            TclExpressionNode nameNode = writeNode
+                    .getNameNode();
+            return writeNode
+                    .getRootNode()
+                    .getSourceSection()
+                    .getSource()
+                    .createSection(
+                            nameNode.getSourceCharIndex(),
+                            nameNode.getSourceLength());
         }
     }
 }

@@ -47,7 +47,9 @@ import com.oracle.truffle.api.nodes.ControlFlowException;
  * loop statement}. Since the exception is stateless, i.e., has no instance fields, we can use a
  * {@link #SINGLETON} to avoid memory allocation during interpretation.
  */
-public final class TclBreakException extends ControlFlowException {
+public final class TclBreakException
+        extends
+        ControlFlowException {
 
     public static final TclBreakException SINGLETON = new TclBreakException();
 

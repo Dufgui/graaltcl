@@ -56,7 +56,6 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.NodeUtil;
 import com.oracle.truffle.api.nodes.NodeVisitor;
-
 import com.oracle.truffle.tcl.nodes.TclStatementNode;
 import com.oracle.truffle.tcl.nodes.local.TclScopedNode;
 import com.oracle.truffle.tcl.nodes.local.TclWriteLocalVariableNode;
@@ -65,7 +64,11 @@ import com.oracle.truffle.tcl.nodes.local.TclWriteLocalVariableNode;
  * A statement node that just executes a list of other statements.
  */
 @NodeInfo(shortName = "block", description = "The node implementing a source code block")
-public final class TclBlockNode extends TclStatementNode implements BlockNode.ElementExecutor<TclStatementNode> {
+public final class TclBlockNode
+        extends
+        TclStatementNode
+        implements
+        BlockNode.ElementExecutor<TclStatementNode> {
 
     /**
      * The block of child nodes. Using the block node allows Truffle to split the block into
@@ -75,25 +78,33 @@ public final class TclBlockNode extends TclStatementNode implements BlockNode.El
      * Truffle from compiling big methods, so these methods might fail to compile with a compilation
      * bailout.
      */
-    @Child private BlockNode<TclStatementNode> block;
+    @Child
+    private BlockNode<TclStatementNode> block;
 
     /**
      * All declared variables visible from this block (including all parent blocks). Variables
      * declared in this block only are from zero index up to {@link #parentBlockIndex} (exclusive).
      */
-    @CompilationFinal(dimensions = 1) private TclWriteLocalVariableNode[] writeNodesCache;
+    @CompilationFinal(dimensions = 1)
+    private TclWriteLocalVariableNode[] writeNodesCache;
 
     /**
      * Index of the parent block's variables in the {@link #writeNodesCache list of variables}.
      */
-    @CompilationFinal private int parentBlockIndex = -1;
+    @CompilationFinal
+    private int parentBlockIndex = -1;
 
-    public TclBlockNode(TclStatementNode[] bodyNodes) {
+    public TclBlockNode(
+            TclStatementNode[] bodyNodes) {
         /*
          * Truffle block nodes cannot be empty, that is why we just set the entire block to null if
          * there are no elements. This is good practice as it safes memory.
          */
-        this.block = bodyNodes.length > 0 ? BlockNode.create(bodyNodes, this) : null;
+        this.block = bodyNodes.length > 0
+                ? BlockNode
+                        .create(bodyNodes,
+                                this)
+                : null;
     }
 
     /**
@@ -102,17 +113,25 @@ public final class TclBlockNode extends TclStatementNode implements BlockNode.El
      * {@link TclStatementNode#executeVoid} method of all children to be inlined.
      */
     @Override
-    public void executeVoid(VirtualFrame frame) {
+    public void executeVoid(
+            VirtualFrame frame) {
         if (this.block != null) {
-            this.block.executeVoid(frame, BlockNode.NO_ARGUMENT);
+            this.block
+                    .executeVoid(
+                            frame,
+                            BlockNode.NO_ARGUMENT);
         }
     }
 
     public List<TclStatementNode> getStatements() {
         if (block == null) {
-            return Collections.emptyList();
+            return Collections
+                    .emptyList();
         }
-        return Collections.unmodifiableList(Arrays.asList(block.getElements()));
+        return Collections
+                .unmodifiableList(
+                        Arrays.asList(
+                                block.getElements()));
     }
 
     /**
@@ -125,8 +144,13 @@ public final class TclBlockNode extends TclStatementNode implements BlockNode.El
      * does not need to remember any state so we reuse a singleton instance.
      */
     @Override
-    public void executeVoid(VirtualFrame frame, TclStatementNode node, int index, int argument) {
-        node.executeVoid(frame);
+    public void executeVoid(
+            VirtualFrame frame,
+            TclStatementNode node,
+            int index,
+            int argument) {
+        node.executeVoid(
+                frame);
     }
 
     /**
@@ -136,7 +160,8 @@ public final class TclBlockNode extends TclStatementNode implements BlockNode.El
     public TclWriteLocalVariableNode[] getDeclaredLocalVariables() {
         TclWriteLocalVariableNode[] writeNodes = writeNodesCache;
         if (writeNodes == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
+            CompilerDirectives
+                    .transferToInterpreterAndInvalidate();
             writeNodesCache = writeNodes = findDeclaredLocalVariables();
         }
         return writeNodes;
@@ -148,57 +173,95 @@ public final class TclBlockNode extends TclStatementNode implements BlockNode.El
 
     private TclWriteLocalVariableNode[] findDeclaredLocalVariables() {
         if (block == null) {
-            return new TclWriteLocalVariableNode[]{};
+            return new TclWriteLocalVariableNode[] {};
         }
         // Search for those write nodes, which declare variables
-        List<TclWriteLocalVariableNode> writeNodes = new ArrayList<>(4);
-        int[] varsIndex = new int[]{0};
-        NodeUtil.forEachChild(block, new NodeVisitor() {
-            @Override
-            public boolean visit(Node node) {
-                if (node instanceof WrapperNode) {
-                    NodeUtil.forEachChild(node, this);
-                    return true;
-                }
-                if (node instanceof TclScopedNode) {
-                    TclScopedNode scopedNode = (TclScopedNode) node;
-                    scopedNode.setVisibleVariablesIndexOnEnter(varsIndex[0]);
-                }
-                // Do not enter any nested blocks.
-                if (!(node instanceof TclBlockNode)) {
-                    NodeUtil.forEachChild(node, this);
-                }
-                // Write to a variable is a declaration unless it exists already in a parent scope.
-                if (node instanceof TclWriteLocalVariableNode) {
-                    TclWriteLocalVariableNode wn = (TclWriteLocalVariableNode) node;
-                    if (wn.isDeclaration()) {
-                        writeNodes.add(wn);
-                        varsIndex[0]++;
+        List<TclWriteLocalVariableNode> writeNodes = new ArrayList<>(
+                4);
+        int[] varsIndex = new int[] {
+                0 };
+        NodeUtil.forEachChild(
+                block,
+                new NodeVisitor() {
+
+                    @Override
+                    public boolean visit(
+                            Node node) {
+                        if (node instanceof WrapperNode) {
+                            NodeUtil.forEachChild(
+                                    node,
+                                    this);
+                            return true;
+                        }
+                        if (node instanceof TclScopedNode) {
+                            TclScopedNode scopedNode = (TclScopedNode) node;
+                            scopedNode
+                                    .setVisibleVariablesIndexOnEnter(
+                                            varsIndex[0]);
+                        }
+                        // Do not enter any nested blocks.
+                        if (!(node instanceof TclBlockNode)) {
+                            NodeUtil.forEachChild(
+                                    node,
+                                    this);
+                        }
+                        // Write to a variable is a declaration unless it exists already in a parent scope.
+                        if (node instanceof TclWriteLocalVariableNode) {
+                            TclWriteLocalVariableNode wn = (TclWriteLocalVariableNode) node;
+                            if (wn.isDeclaration()) {
+                                writeNodes
+                                        .add(wn);
+                                varsIndex[0]++;
+                            }
+                        }
+                        if (node instanceof TclScopedNode) {
+                            TclScopedNode scopedNode = (TclScopedNode) node;
+                            scopedNode
+                                    .setVisibleVariablesIndexOnExit(
+                                            varsIndex[0]);
+                        }
+                        return true;
                     }
-                }
-                if (node instanceof TclScopedNode) {
-                    TclScopedNode scopedNode = (TclScopedNode) node;
-                    scopedNode.setVisibleVariablesIndexOnExit(varsIndex[0]);
-                }
-                return true;
-            }
-        });
+                });
         Node parentBlock = findBlock();
         TclWriteLocalVariableNode[] parentVariables = null;
         if (parentBlock instanceof TclBlockNode) {
-            parentVariables = ((TclBlockNode) parentBlock).getDeclaredLocalVariables();
+            parentVariables = ((TclBlockNode) parentBlock)
+                    .getDeclaredLocalVariables();
         }
-        TclWriteLocalVariableNode[] variables = writeNodes.toArray(new TclWriteLocalVariableNode[writeNodes.size()]);
+        TclWriteLocalVariableNode[] variables = writeNodes
+                .toArray(
+                        new TclWriteLocalVariableNode[writeNodes
+                                .size()]);
         parentBlockIndex = variables.length;
-        if (parentVariables == null || parentVariables.length == 0) {
+        if (parentVariables == null
+                || parentVariables.length == 0) {
             return variables;
         } else {
-            int parentVariablesIndex = ((TclBlockNode) parentBlock).getParentBlockIndex();
+            int parentVariablesIndex = ((TclBlockNode) parentBlock)
+                    .getParentBlockIndex();
             int visibleVarsIndex = getVisibleVariablesIndexOnEnter();
-            int allVarsLength = variables.length + visibleVarsIndex + parentVariables.length - parentVariablesIndex;
-            TclWriteLocalVariableNode[] allVariables = Arrays.copyOf(variables, allVarsLength);
-            System.arraycopy(parentVariables, 0, allVariables, variables.length, visibleVarsIndex);
-            System.arraycopy(parentVariables, parentVariablesIndex, allVariables, variables.length + visibleVarsIndex, parentVariables.length - parentVariablesIndex);
+            int allVarsLength = variables.length
+                    + visibleVarsIndex
+                    + parentVariables.length
+                    - parentVariablesIndex;
+            TclWriteLocalVariableNode[] allVariables = Arrays
+                    .copyOf(variables,
+                            allVarsLength);
+            System.arraycopy(
+                    parentVariables,
+                    0,
+                    allVariables,
+                    variables.length,
+                    visibleVarsIndex);
+            System.arraycopy(
+                    parentVariables,
+                    parentVariablesIndex,
+                    allVariables,
+                    variables.length
+                            + visibleVarsIndex,
+                    parentVariables.length
+                            - parentVariablesIndex);
             return allVariables;
         }
     }

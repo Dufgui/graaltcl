@@ -56,18 +56,28 @@ import com.oracle.truffle.tcl.runtime.TclNull;
  * Built-in function that goes through to import a symbol from the polyglot bindings.
  */
 @NodeInfo(shortName = "import")
-public abstract class TclImportBuiltin extends TclBuiltinNode {
+public abstract class TclImportBuiltin
+        extends
+        TclBuiltinNode {
 
     @Specialization
-    public Object importSymbol(String symbol,
-                    @CachedLibrary(limit = "3") InteropLibrary arrays,
-                    @CachedContext(TclLanguage.class) TclContext context) {
+    public Object importSymbol(
+            String symbol,
+            @CachedLibrary(limit = "3") InteropLibrary arrays,
+            @CachedContext(TclLanguage.class) TclContext context) {
         try {
-            return arrays.readMember(context.getPolyglotBindings(), symbol);
-        } catch (UnsupportedMessageException | UnknownIdentifierException e) {
+            return arrays
+                    .readMember(
+                            context.getPolyglotBindings(),
+                            symbol);
+        } catch (
+                UnsupportedMessageException
+                | UnknownIdentifierException e) {
             return TclNull.SINGLETON;
         } catch (SecurityException e) {
-            throw new TclException("No polyglot access allowed.", this);
+            throw new TclException(
+                    "No polyglot access allowed.",
+                    this);
         }
     }
 

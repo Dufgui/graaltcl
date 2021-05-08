@@ -51,11 +51,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TclInteropObjectTest {
+
     private Context context;
 
     @Before
     public void setUp() {
-        context = Context.create("tcl");
+        context = Context
+                .create("tcl");
     }
 
     @After
@@ -66,56 +68,108 @@ public class TclInteropObjectTest {
 
     @Test
     public void testObject() {
-        final Source src = Source.newBuilder("tcl", "function main() {o = new(); o.a = 10; o.b = \"B\"; return o;}", "testObject.tcl").buildLiteral();
-        final Value obj = context.eval(src);
-        Assert.assertTrue(obj.hasMembers());
+        final Source src = Source
+                .newBuilder(
+                        "tcl",
+                        "function main() {o = new(); o.a = 10; o.b = \"B\"; return o;}",
+                        "testObject.tcl")
+                .buildLiteral();
+        final Value obj = context
+                .eval(src);
+        Assert.assertTrue(
+                obj.hasMembers());
 
-        Value a = obj.getMember("a");
-        Assert.assertNotNull(a);
-        Assert.assertTrue(a.isNumber());
-        Assert.assertEquals(10, a.asInt());
+        Value a = obj
+                .getMember(
+                        "a");
+        Assert.assertNotNull(
+                a);
+        Assert.assertTrue(
+                a.isNumber());
+        Assert.assertEquals(
+                10,
+                a.asInt());
 
-        Value b = obj.getMember("b");
-        Assert.assertNotNull(b);
-        Assert.assertTrue(b.isString());
-        Assert.assertEquals("B", b.asString());
+        Value b = obj
+                .getMember(
+                        "b");
+        Assert.assertNotNull(
+                b);
+        Assert.assertTrue(
+                b.isString());
+        Assert.assertEquals(
+                "B",
+                b.asString());
 
-        obj.putMember("a", b);
-        a = obj.getMember("a");
-        Assert.assertTrue(a.isString());
-        Assert.assertEquals("B", a.asString());
+        obj.putMember(
+                "a",
+                b);
+        a = obj.getMember(
+                "a");
+        Assert.assertTrue(
+                a.isString());
+        Assert.assertEquals(
+                "B",
+                a.asString());
 
-        obj.removeMember("a");
-        Assert.assertFalse(obj.hasMember("a"));
+        obj.removeMember(
+                "a");
+        Assert.assertFalse(
+                obj.hasMember(
+                        "a"));
 
-        Assert.assertEquals("[b]", obj.getMemberKeys().toString());
+        Assert.assertEquals(
+                "[b]",
+                obj.getMemberKeys()
+                        .toString());
     }
 
     @Test
     public void testNewForeign() {
-        final Source src = Source.newBuilder("tcl", "function getValue(type) {o = new(type); o.a = 10; return o.value;}", "testObject.tcl").buildLiteral();
-        context.eval(src);
-        Value getValue = context.getBindings("tcl").getMember("getValue");
-        Value ret = getValue.execute(new TestType());
-        Assert.assertEquals(20, ret.asLong());
+        final Source src = Source
+                .newBuilder(
+                        "tcl",
+                        "function getValue(type) {o = new(type); o.a = 10; return o.value;}",
+                        "testObject.tcl")
+                .buildLiteral();
+        context.eval(
+                src);
+        Value getValue = context
+                .getBindings(
+                        "tcl")
+                .getMember(
+                        "getValue");
+        Value ret = getValue
+                .execute(
+                        new TestType());
+        Assert.assertEquals(
+                20,
+                ret.asLong());
     }
 
-    private static class TestType implements ProxyInstantiable {
+    private static class TestType
+            implements
+            ProxyInstantiable {
 
         @Override
-        public Object newInstance(Value... arguments) {
+        public Object newInstance(
+                Value... arguments) {
             return new TestObject();
         }
 
     }
 
-    private static class TestObject implements ProxyObject {
+    private static class TestObject
+            implements
+            ProxyObject {
 
         private long value;
 
         @Override
-        public Object getMember(String key) {
-            if ("value".equals(key)) {
+        public Object getMember(
+                String key) {
+            if ("value"
+                    .equals(key)) {
                 return 2 * value;
             }
             return 0;
@@ -123,11 +177,14 @@ public class TclInteropObjectTest {
 
         @Override
         public Object getMemberKeys() {
-            return new String[]{"a", "value"};
+            return new String[] {
+                    "a",
+                    "value" };
         }
 
         @Override
-        public boolean hasMember(String key) {
+        public boolean hasMember(
+                String key) {
             switch (key) {
                 case "a":
                 case "value":
@@ -138,8 +195,11 @@ public class TclInteropObjectTest {
         }
 
         @Override
-        public void putMember(String key, Value v) {
-            value += v.asLong();
+        public void putMember(
+                String key,
+                Value v) {
+            value += v
+                    .asLong();
         }
 
     }

@@ -47,13 +47,16 @@ import com.oracle.truffle.api.nodes.ControlFlowException;
  * {@link TclFunctionBodyNode function body}. The exception transports the return value in its
  * {@link #result} field.
  */
-public final class TclReturnException extends ControlFlowException {
+public final class TclReturnException
+        extends
+        ControlFlowException {
 
     private static final long serialVersionUID = 4073191346281369231L;
 
     private final Object result;
 
-    public TclReturnException(Object result) {
+    public TclReturnException(
+            Object result) {
         this.result = result;
     }
 

@@ -50,10 +50,15 @@ import com.oracle.truffle.api.nodes.NodeInfo;
  * <link>Messages.IS_NULL</link>.
  */
 @NodeInfo(shortName = "isNull")
-public abstract class TclIsNullBuiltin extends TclBuiltinNode {
+public abstract class TclIsNullBuiltin
+        extends
+        TclBuiltinNode {
 
     @Specialization(limit = "3")
-    public boolean isExecutable(Object obj, @CachedLibrary("obj") InteropLibrary values) {
-        return values.isNull(obj);
+    public boolean isExecutable(
+            Object obj,
+            @CachedLibrary("obj") InteropLibrary values) {
+        return values
+                .isNull(obj);
     }
 }

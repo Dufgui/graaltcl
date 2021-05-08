@@ -49,5 +49,7 @@ import com.oracle.truffle.api.dsl.NodeChild;
  */
 @NodeChild("leftNode")
 @NodeChild("rightNode")
-public abstract class TclBinaryNode extends TclExpressionNode {
+public abstract class TclBinaryNode
+        extends
+        TclExpressionNode {
 }

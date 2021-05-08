@@ -50,10 +50,16 @@ import com.oracle.truffle.api.nodes.NodeInfo;
  * <link>Messages.IS_EXECUTABLE</link>.
  */
 @NodeInfo(shortName = "isExecutable")
-public abstract class TclIsExecutableBuiltin extends TclBuiltinNode {
+public abstract class TclIsExecutableBuiltin
+        extends
+        TclBuiltinNode {
 
     @Specialization(limit = "3")
-    public boolean isExecutable(Object obj, @CachedLibrary("obj") InteropLibrary executables) {
-        return executables.isExecutable(obj);
+    public boolean isExecutable(
+            Object obj,
+            @CachedLibrary("obj") InteropLibrary executables) {
+        return executables
+                .isExecutable(
+                        obj);
     }
 }

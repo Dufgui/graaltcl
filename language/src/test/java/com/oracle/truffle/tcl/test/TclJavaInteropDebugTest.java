@@ -40,15 +40,20 @@
  */
 package com.oracle.truffle.tcl.test;
 
+import static com.oracle.truffle.tck.DebuggerTester.getSourceImpl;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
+import java.util.function.Function;
+
+import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.Source;
+import org.graalvm.polyglot.Value;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.function.Function;
 
 import com.oracle.truffle.api.debug.Breakpoint;
 import com.oracle.truffle.api.debug.DebugException;
@@ -57,11 +62,6 @@ import com.oracle.truffle.api.debug.DebugStackTraceElement;
 import com.oracle.truffle.api.debug.DebuggerSession;
 import com.oracle.truffle.api.debug.SuspendedEvent;
 import com.oracle.truffle.tck.DebuggerTester;
-import static com.oracle.truffle.tck.DebuggerTester.getSourceImpl;
-
-import org.graalvm.polyglot.Context;
-import org.graalvm.polyglot.Source;
-import org.graalvm.polyglot.Value;
 
 /**
  * Test of host interop in debugger: {@link DebuggerSession#setShowHostStackFrames(boolean)}.
@@ -72,7 +72,10 @@ public class TclJavaInteropDebugTest {
 
     @Before
     public void before() {
-        tester = new DebuggerTester(Context.newBuilder().allowAllAccess(true));
+        tester = new DebuggerTester(
+                Context.newBuilder()
+                        .allowAllAccess(
+                                true));
     }
 
     @After
@@ -80,171 +83,411 @@ public class TclJavaInteropDebugTest {
         tester.close();
     }
 
-    private static Source tclCode(String code) {
-        return Source.create("tcl", code);
+    private static Source tclCode(
+            String code) {
+        return Source
+                .create("tcl",
+                        code);
     }
 
-    public static final class HostCalls implements Function<Function<Object, ?>, Object> {
+    public static final class HostCalls
+            implements
+            Function<Function<Object, ?>, Object> {
 
         private int n = 0;
 
-        public HostCalls(int n) {
+        public HostCalls(
+                int n) {
             this.n = n;
         }
 
         @Override
-        public Object apply(Function<Object, ?> f) {
+        public Object apply(
+                Function<Object, ?> f) {
             if (--n == 0) {
-                return f.apply(0);
+                return f.apply(
+                        0);
             } else {
-                return f.apply(this);
+                return f.apply(
+                        this);
             }
         }
     }
 
     @Test
     public void testStackAtGuest() {
-        doTestStackAtGuest(false);
+        doTestStackAtGuest(
+                false);
     }
 
     @Test
     public void testInteropStackAtGuest() {
-        doTestStackAtGuest(true);
+        doTestStackAtGuest(
+                true);
     }
 
-    private void doTestStackAtGuest(boolean javaInterop) {
-        Source sourceCode = tclCode("function callback(hostCalls) {\n" +
-                        "    if (hostCalls == 0) {\n" +
-                        "        return done();\n" +
-                        "    }\n" +
-                        "    doCall(hostCalls);\n" +
-                        "}\n" +
-                        "function done() {\n" +
-                        "    return 42;\n" +
-                        "}\n" +
-                        "function doCall(hostCalls) {\n" +
-                        "    hostCalls(callback);\n" +
-                        "}");
-        try (DebuggerSession session = tester.startSession()) {
-            session.setShowHostStackFrames(javaInterop);
-            session.install(Breakpoint.newBuilder(getSourceImpl(sourceCode)).lineIs(8).build());
+    private void doTestStackAtGuest(
+            boolean javaInterop) {
+        Source sourceCode = tclCode(
+                "function callback(hostCalls) {\n"
+                        + "    if (hostCalls == 0) {\n"
+                        + "        return done();\n"
+                        + "    }\n"
+                        + "    doCall(hostCalls);\n"
+                        + "}\n"
+                        + "function done() {\n"
+                        + "    return 42;\n"
+                        + "}\n"
+                        + "function doCall(hostCalls) {\n"
+                        + "    hostCalls(callback);\n"
+                        + "}");
+        try (DebuggerSession session = tester
+                .startSession()) {
+            session.setShowHostStackFrames(
+                    javaInterop);
+            session.install(
+                    Breakpoint
+                            .newBuilder(
+                                    getSourceImpl(
+                                            sourceCode))
+                            .lineIs(8)
+                            .build());
 
-            tester.startEval(sourceCode);
+            tester.startEval(
+                    sourceCode);
             tester.expectDone();
-            tester.startExecute(context -> context.getBindings("tcl").getMember("doCall").execute(new HostCalls(3)));
-            tester.expectSuspended((SuspendedEvent event) -> {
-                assertEquals(8, event.getSourceSection().getStartLine());
-                if (javaInterop) {
-                    checkFrames(event, "done", "tcl", 8, false, //
-                                    "callback", "tcl", 3, false, //
-                                    "com.oracle.truffle.polyglot.PolyglotFunction.apply", null, null, true, //
-                                    HostCalls.class.getName() + ".apply", null, null, true, //
-                                    HostCalls.class.getName() + ".apply", null, null, true, //
-                                    "doCall", "tcl", 11, false, //
-                                    "callback", "tcl", 5, false, //
-                                    "com.oracle.truffle.polyglot.PolyglotFunction.apply", null, null, true, //
-                                    HostCalls.class.getName() + ".apply", null, null, true, //
-                                    HostCalls.class.getName() + ".apply", null, null, true, //
-                                    "doCall", "tcl", 11, false, //
-                                    "callback", "tcl", 5, false, //
-                                    "com.oracle.truffle.polyglot.PolyglotFunction.apply", null, null, true, //
-                                    HostCalls.class.getName() + ".apply", null, null, true, //
-                                    HostCalls.class.getName() + ".apply", null, null, true, //
-                                    "doCall", "tcl", 11, false, //
-                                    Value.class.getName() + ".execute", null, null, true);
-                } else {
-                    checkFrames(event, "done", "tcl", 8, false, //
-                                    "callback", "tcl", 3, false, //
-                                    "doCall", "tcl", 11, false, //
-                                    "callback", "tcl", 5, false, //
-                                    "doCall", "tcl", 11, false, //
-                                    "callback", "tcl", 5, false, //
-                                    "doCall", "tcl", 11, false);
-                }
-            });
+            tester.startExecute(
+                    context -> context
+                            .getBindings(
+                                    "tcl")
+                            .getMember(
+                                    "doCall")
+                            .execute(
+                                    new HostCalls(
+                                            3)));
+            tester.expectSuspended(
+                    (SuspendedEvent event) -> {
+                        assertEquals(
+                                8,
+                                event.getSourceSection()
+                                        .getStartLine());
+                        if (javaInterop) {
+                            checkFrames(
+                                    event,
+                                    "done",
+                                    "tcl",
+                                    8,
+                                    false, //
+                                    "callback",
+                                    "tcl",
+                                    3,
+                                    false, //
+                                    "com.oracle.truffle.polyglot.PolyglotFunction.apply",
+                                    null,
+                                    null,
+                                    true, //
+                                    HostCalls.class
+                                            .getName()
+                                            + ".apply",
+                                    null,
+                                    null,
+                                    true, //
+                                    HostCalls.class
+                                            .getName()
+                                            + ".apply",
+                                    null,
+                                    null,
+                                    true, //
+                                    "doCall",
+                                    "tcl",
+                                    11,
+                                    false, //
+                                    "callback",
+                                    "tcl",
+                                    5,
+                                    false, //
+                                    "com.oracle.truffle.polyglot.PolyglotFunction.apply",
+                                    null,
+                                    null,
+                                    true, //
+                                    HostCalls.class
+                                            .getName()
+                                            + ".apply",
+                                    null,
+                                    null,
+                                    true, //
+                                    HostCalls.class
+                                            .getName()
+                                            + ".apply",
+                                    null,
+                                    null,
+                                    true, //
+                                    "doCall",
+                                    "tcl",
+                                    11,
+                                    false, //
+                                    "callback",
+                                    "tcl",
+                                    5,
+                                    false, //
+                                    "com.oracle.truffle.polyglot.PolyglotFunction.apply",
+                                    null,
+                                    null,
+                                    true, //
+                                    HostCalls.class
+                                            .getName()
+                                            + ".apply",
+                                    null,
+                                    null,
+                                    true, //
+                                    HostCalls.class
+                                            .getName()
+                                            + ".apply",
+                                    null,
+                                    null,
+                                    true, //
+                                    "doCall",
+                                    "tcl",
+                                    11,
+                                    false, //
+                                    Value.class
+                                            .getName()
+                                            + ".execute",
+                                    null,
+                                    null,
+                                    true);
+                        } else {
+                            checkFrames(
+                                    event,
+                                    "done",
+                                    "tcl",
+                                    8,
+                                    false, //
+                                    "callback",
+                                    "tcl",
+                                    3,
+                                    false, //
+                                    "doCall",
+                                    "tcl",
+                                    11,
+                                    false, //
+                                    "callback",
+                                    "tcl",
+                                    5,
+                                    false, //
+                                    "doCall",
+                                    "tcl",
+                                    11,
+                                    false, //
+                                    "callback",
+                                    "tcl",
+                                    5,
+                                    false, //
+                                    "doCall",
+                                    "tcl",
+                                    11,
+                                    false);
+                        }
+                    });
             tester.expectDone();
-            tester.startExecute(context -> context.getBindings("tcl").getMember("doCall").execute(new HostCalls(1)));
-            tester.expectSuspended((SuspendedEvent event) -> {
-                assertEquals(8, event.getSourceSection().getStartLine());
-                if (javaInterop) {
-                    checkFrames(event, "done", "tcl", 8, false, //
-                                    "callback", "tcl", 3, false, //
-                                    "com.oracle.truffle.polyglot.PolyglotFunction.apply", null, null, true, //
-                                    HostCalls.class.getName() + ".apply", null, null, true, //
-                                    HostCalls.class.getName() + ".apply", null, null, true, //
-                                    "doCall", "tcl", 11, false, //
-                                    Value.class.getName() + ".execute", null, null, true);
-                } else {
-                    checkFrames(event, "done", "tcl", 8, false, //
-                                    "callback", "tcl", 3, false, //
-                                    "doCall", "tcl", 11, false);
-                }
-            });
+            tester.startExecute(
+                    context -> context
+                            .getBindings(
+                                    "tcl")
+                            .getMember(
+                                    "doCall")
+                            .execute(
+                                    new HostCalls(
+                                            1)));
+            tester.expectSuspended(
+                    (SuspendedEvent event) -> {
+                        assertEquals(
+                                8,
+                                event.getSourceSection()
+                                        .getStartLine());
+                        if (javaInterop) {
+                            checkFrames(
+                                    event,
+                                    "done",
+                                    "tcl",
+                                    8,
+                                    false, //
+                                    "callback",
+                                    "tcl",
+                                    3,
+                                    false, //
+                                    "com.oracle.truffle.polyglot.PolyglotFunction.apply",
+                                    null,
+                                    null,
+                                    true, //
+                                    HostCalls.class
+                                            .getName()
+                                            + ".apply",
+                                    null,
+                                    null,
+                                    true, //
+                                    HostCalls.class
+                                            .getName()
+                                            + ".apply",
+                                    null,
+                                    null,
+                                    true, //
+                                    "doCall",
+                                    "tcl",
+                                    11,
+                                    false, //
+                                    Value.class
+                                            .getName()
+                                            + ".execute",
+                                    null,
+                                    null,
+                                    true);
+                        } else {
+                            checkFrames(
+                                    event,
+                                    "done",
+                                    "tcl",
+                                    8,
+                                    false, //
+                                    "callback",
+                                    "tcl",
+                                    3,
+                                    false, //
+                                    "doCall",
+                                    "tcl",
+                                    11,
+                                    false);
+                        }
+                    });
             tester.expectDone();
-            tester.startExecute(context -> context.getBindings("tcl").getMember("callback").execute(0));
-            tester.expectSuspended((SuspendedEvent event) -> {
-                assertEquals(8, event.getSourceSection().getStartLine());
-                checkFrames(event, "done", "tcl", 8, false, //
-                                "callback", "tcl", 3, false);
-            });
+            tester.startExecute(
+                    context -> context
+                            .getBindings(
+                                    "tcl")
+                            .getMember(
+                                    "callback")
+                            .execute(
+                                    0));
+            tester.expectSuspended(
+                    (SuspendedEvent event) -> {
+                        assertEquals(
+                                8,
+                                event.getSourceSection()
+                                        .getStartLine());
+                        checkFrames(
+                                event,
+                                "done",
+                                "tcl",
+                                8,
+                                false, //
+                                "callback",
+                                "tcl",
+                                3,
+                                false);
+                    });
             tester.expectDone();
         }
     }
 
     // A list of stack frame information: root name, language id, line number, is host
-    private static void checkFrames(SuspendedEvent event, Object... frameInfo) {
+    private static void checkFrames(
+            SuspendedEvent event,
+            Object... frameInfo) {
         int frameInfoIndex = 0;
-        for (DebugStackFrame frame : event.getStackFrames()) {
+        for (DebugStackFrame frame : event
+                .getStackFrames()) {
             if (frameInfoIndex >= frameInfo.length) {
-                assertTrue(frame.isHost()); // Further host frames from the test classes
+                assertTrue(
+                        frame.isHost()); // Further host frames from the test classes
                 continue;
             }
-            assertEquals(frameInfo[frameInfoIndex], frame.getName());
-            String languageId = frame.getLanguage() != null ? frame.getLanguage().getId() : null;
-            assertEquals(frameInfo[frameInfoIndex + 1], languageId);
-            Integer line = (Integer) frameInfo[frameInfoIndex + 2];
+            assertEquals(
+                    frameInfo[frameInfoIndex],
+                    frame.getName());
+            String languageId = frame
+                    .getLanguage() != null
+                            ? frame.getLanguage()
+                                    .getId()
+                            : null;
+            assertEquals(
+                    frameInfo[frameInfoIndex
+                            + 1],
+                    languageId);
+            Integer line = (Integer) frameInfo[frameInfoIndex
+                    + 2];
             if (line != null) {
-                assertEquals((int) line, frame.getSourceSection().getStartLine());
+                assertEquals(
+                        (int) line,
+                        frame.getSourceSection()
+                                .getStartLine());
             } else {
-                assertNull(frame.getSourceSection());
+                assertNull(
+                        frame.getSourceSection());
             }
-            boolean isHost = (boolean) frameInfo[frameInfoIndex + 3];
-            assertEquals(isHost, frame.isHost());
-            StackTraceElement hostTraceElement = frame.getHostTraceElement();
+            boolean isHost = (boolean) frameInfo[frameInfoIndex
+                    + 3];
+            assertEquals(
+                    isHost,
+                    frame.isHost());
+            StackTraceElement hostTraceElement = frame
+                    .getHostTraceElement();
             if (isHost) {
-                assertNotNull(hostTraceElement);
+                assertNotNull(
+                        hostTraceElement);
             } else {
-                assertNull(hostTraceElement);
+                assertNull(
+                        hostTraceElement);
             }
             frameInfoIndex += 4;
         }
-        checkException(event, frameInfo);
+        checkException(
+                event,
+                frameInfo);
     }
 
-    private static void checkException(SuspendedEvent event, Object... frameInfo) {
+    private static void checkException(
+            SuspendedEvent event,
+            Object... frameInfo) {
         try {
-            event.getTopStackFrame().eval("something bad");
+            event.getTopStackFrame()
+                    .eval("something bad");
         } catch (DebugException de) {
             int frameInfoIndex = 0;
-            for (DebugStackTraceElement element : de.getDebugStackTrace()) {
+            for (DebugStackTraceElement element : de
+                    .getDebugStackTrace()) {
                 if (frameInfoIndex >= frameInfo.length) {
-                    assertTrue(element.isHost()); // Further host frames from the test classes
+                    assertTrue(
+                            element.isHost()); // Further host frames from the test classes
                     continue;
                 }
-                assertEquals(frameInfo[frameInfoIndex], element.getName());
-                Integer line = (Integer) frameInfo[frameInfoIndex + 2];
-                if (line != null && frameInfoIndex > 0) {
-                    assertEquals((int) line, element.getSourceSection().getStartLine());
+                assertEquals(
+                        frameInfo[frameInfoIndex],
+                        element.getName());
+                Integer line = (Integer) frameInfo[frameInfoIndex
+                        + 2];
+                if (line != null
+                        && frameInfoIndex > 0) {
+                    assertEquals(
+                            (int) line,
+                            element.getSourceSection()
+                                    .getStartLine());
                 } else {
-                    assertNull(element.getSourceSection());
+                    assertNull(
+                            element.getSourceSection());
                 }
-                boolean isHost = (boolean) frameInfo[frameInfoIndex + 3];
-                assertEquals(isHost, element.isHost());
-                StackTraceElement hostTraceElement = element.getHostTraceElement();
+                boolean isHost = (boolean) frameInfo[frameInfoIndex
+                        + 3];
+                assertEquals(
+                        isHost,
+                        element.isHost());
+                StackTraceElement hostTraceElement = element
+                        .getHostTraceElement();
                 if (isHost) {
-                    assertNotNull(hostTraceElement);
+                    assertNotNull(
+                            hostTraceElement);
                 } else {
-                    assertNull(hostTraceElement);
+                    assertNull(
+                            hostTraceElement);
                 }
                 frameInfoIndex += 4;
             }

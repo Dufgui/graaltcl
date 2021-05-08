@@ -57,7 +57,9 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 @TypeSystemReference(TclTypes.class)
 @NodeInfo(description = "The abstract base node for all expressions")
 @GenerateWrapper
-public abstract class TclExpressionNode extends TclStatementNode {
+public abstract class TclExpressionNode
+        extends
+        TclStatementNode {
 
     private boolean hasExpressionTag;
 
@@ -65,28 +67,36 @@ public abstract class TclExpressionNode extends TclStatementNode {
      * The execute method when no specialization is possible. This is the most general case,
      * therefore it must be provided by all subclasses.
      */
-    public abstract Object executeGeneric(VirtualFrame frame);
+    public abstract Object executeGeneric(
+            VirtualFrame frame);
 
     /**
      * When we use an expression at places where a {@link TclStatementNode statement} is already
      * sufficient, the return value is just discarded.
      */
     @Override
-    public void executeVoid(VirtualFrame frame) {
-        executeGeneric(frame);
+    public void executeVoid(
+            VirtualFrame frame) {
+        executeGeneric(
+                frame);
     }
 
     @Override
-    public WrapperNode createWrapper(ProbeNode probe) {
-        return new TclExpressionNodeWrapper(this, probe);
+    public WrapperNode createWrapper(
+            ProbeNode probe) {
+        return new TclExpressionNodeWrapper(
+                this,
+                probe);
     }
 
     @Override
-    public boolean hasTag(Class<? extends Tag> tag) {
+    public boolean hasTag(
+            Class<? extends Tag> tag) {
         if (tag == StandardTags.ExpressionTag.class) {
             return hasExpressionTag;
         }
-        return super.hasTag(tag);
+        return super.hasTag(
+                tag);
     }
 
     /**
@@ -102,16 +112,31 @@ public abstract class TclExpressionNode extends TclStatementNode {
      * subclasses overwrite the appropriate methods.
      */
 
-    public long executeLong(VirtualFrame frame) throws UnexpectedResultException {
-        return TclTypesGen.expectLong(executeGeneric(frame));
+    public long executeLong(
+            VirtualFrame frame)
+            throws UnexpectedResultException {
+        return TclTypesGen
+                .expectLong(
+                        executeGeneric(
+                                frame));
     }
 
-    public double executeDouble(VirtualFrame frame) throws UnexpectedResultException {
+    public double executeDouble(
+            VirtualFrame frame)
+            throws UnexpectedResultException {
         //TODO replace by expectDouble when available
-        return TclTypesGen.expectLong(executeGeneric(frame));
+        return TclTypesGen
+                .expectLong(
+                        executeGeneric(
+                                frame));
     }
 
-    public boolean executeBoolean(VirtualFrame frame) throws UnexpectedResultException {
-        return TclTypesGen.expectBoolean(executeGeneric(frame));
+    public boolean executeBoolean(
+            VirtualFrame frame)
+            throws UnexpectedResultException {
+        return TclTypesGen
+                .expectBoolean(
+                        executeGeneric(
+                                frame));
     }
 }

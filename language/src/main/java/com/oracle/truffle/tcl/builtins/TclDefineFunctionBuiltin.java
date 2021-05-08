@@ -53,17 +53,23 @@ import com.oracle.truffle.tcl.runtime.TclContext;
  * way as the initial source of the script, so the same syntax applies.
  */
 @NodeInfo(shortName = "defineFunction")
-public abstract class TclDefineFunctionBuiltin extends TclBuiltinNode {
+public abstract class TclDefineFunctionBuiltin
+        extends
+        TclBuiltinNode {
 
     @TruffleBoundary
     @Specialization
-    public String defineFunction(String code, @CachedContext(TclLanguage.class) TclContext context) {
+    public String defineFunction(
+            String code,
+            @CachedContext(TclLanguage.class) TclContext context) {
         // @formatter:off
         Source source = Source.newBuilder(TclLanguage.ID, code, "[defineFunction]").
             build();
         // @formatter:on
         /* The same parsing code as for parsing the initial source. */
-        context.getFunctionRegistry().register(source);
+        context.getFunctionRegistry()
+                .register(
+                        source);
 
         return code;
     }

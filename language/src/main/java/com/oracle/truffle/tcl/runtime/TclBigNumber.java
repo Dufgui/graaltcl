@@ -53,27 +53,38 @@ import com.oracle.truffle.tcl.TclLanguage;
 
 @ExportLibrary(InteropLibrary.class)
 @SuppressWarnings("static-method")
-public final class TclBigNumber implements TruffleObject, Comparable<TclBigNumber> {
+public final class TclBigNumber
+        implements
+        TruffleObject,
+        Comparable<TclBigNumber> {
 
     private static final long LONG_MAX_SAFE_DOUBLE = 9007199254740991L; // 2 ** 53 - 1
     private static final int INT_MAX_SAFE_FLOAT = 16777215; // 2 ** 24 - 1
 
-    private static boolean inSafeDoubleRange(long l) {
-        return l >= -LONG_MAX_SAFE_DOUBLE && l <= LONG_MAX_SAFE_DOUBLE;
+    private static boolean inSafeDoubleRange(
+            long l) {
+        return l >= -LONG_MAX_SAFE_DOUBLE
+                && l <= LONG_MAX_SAFE_DOUBLE;
     }
 
-    private static boolean inSafeFloatRange(int i) {
-        return i >= -INT_MAX_SAFE_FLOAT && i <= INT_MAX_SAFE_FLOAT;
+    private static boolean inSafeFloatRange(
+            int i) {
+        return i >= -INT_MAX_SAFE_FLOAT
+                && i <= INT_MAX_SAFE_FLOAT;
     }
 
     private final BigInteger value;
 
-    public TclBigNumber(BigInteger value) {
+    public TclBigNumber(
+            BigInteger value) {
         this.value = value;
     }
 
-    public TclBigNumber(long value) {
-        this.value = BigInteger.valueOf(value);
+    public TclBigNumber(
+            long value) {
+        this.value = BigInteger
+                .valueOf(
+                        value);
     }
 
     public BigInteger getValue() {
@@ -81,28 +92,36 @@ public final class TclBigNumber implements TruffleObject, Comparable<TclBigNumbe
     }
 
     @TruffleBoundary
-    public int compareTo(TclBigNumber o) {
-        return value.compareTo(o.getValue());
+    public int compareTo(
+            TclBigNumber o) {
+        return value
+                .compareTo(
+                        o.getValue());
     }
 
     @Override
     @TruffleBoundary
     public String toString() {
-        return value.toString();
+        return value
+                .toString();
     }
 
     @Override
     @TruffleBoundary
-    public boolean equals(Object obj) {
+    public boolean equals(
+            Object obj) {
         if (obj instanceof TclBigNumber) {
-            return value.equals(((TclBigNumber) obj).getValue());
+            return value
+                    .equals(((TclBigNumber) obj)
+                            .getValue());
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return value.hashCode();
+        return value
+                .hashCode();
     }
 
     @SuppressWarnings("static-method")
@@ -114,96 +133,122 @@ public final class TclBigNumber implements TruffleObject, Comparable<TclBigNumbe
     @ExportMessage
     @TruffleBoundary
     boolean fitsInByte() {
-        return value.bitLength() < 8;
+        return value
+                .bitLength() < 8;
     }
 
     @ExportMessage
     @TruffleBoundary
     boolean fitsInShort() {
-        return value.bitLength() < 16;
+        return value
+                .bitLength() < 16;
     }
 
     @ExportMessage
     @TruffleBoundary
     boolean fitsInFloat() {
-        return fitsInInt() && inSafeFloatRange(value.intValue());
+        return fitsInInt()
+                && inSafeFloatRange(
+                        value.intValue());
     }
 
     @ExportMessage
     @TruffleBoundary
     boolean fitsInLong() {
-        return value.bitLength() < 64;
+        return value
+                .bitLength() < 64;
     }
 
     @ExportMessage
     @TruffleBoundary
     boolean fitsInInt() {
-        return value.bitLength() < 32;
+        return value
+                .bitLength() < 32;
     }
 
     @ExportMessage
     @TruffleBoundary
     boolean fitsInDouble() {
-        return fitsInLong() && inSafeDoubleRange(value.longValue());
+        return fitsInLong()
+                && inSafeDoubleRange(
+                        value.longValue());
     }
 
     @ExportMessage
     @TruffleBoundary
-    double asDouble() throws UnsupportedMessageException {
+    double asDouble()
+            throws UnsupportedMessageException {
         if (fitsInDouble()) {
-            return value.doubleValue();
+            return value
+                    .doubleValue();
         } else {
-            throw UnsupportedMessageException.create();
+            throw UnsupportedMessageException
+                    .create();
         }
     }
 
     @ExportMessage
     @TruffleBoundary
-    long asLong() throws UnsupportedMessageException {
+    long asLong()
+            throws UnsupportedMessageException {
         if (fitsInLong()) {
-            return value.longValue();
+            return value
+                    .longValue();
         } else {
-            throw UnsupportedMessageException.create();
+            throw UnsupportedMessageException
+                    .create();
         }
     }
 
     @ExportMessage
     @TruffleBoundary
-    byte asByte() throws UnsupportedMessageException {
+    byte asByte()
+            throws UnsupportedMessageException {
         if (fitsInByte()) {
-            return value.byteValue();
+            return value
+                    .byteValue();
         } else {
-            throw UnsupportedMessageException.create();
+            throw UnsupportedMessageException
+                    .create();
         }
     }
 
     @ExportMessage
     @TruffleBoundary
-    int asInt() throws UnsupportedMessageException {
+    int asInt()
+            throws UnsupportedMessageException {
         if (fitsInInt()) {
-            return value.intValue();
+            return value
+                    .intValue();
         } else {
-            throw UnsupportedMessageException.create();
+            throw UnsupportedMessageException
+                    .create();
         }
     }
 
     @ExportMessage
     @TruffleBoundary
-    float asFloat() throws UnsupportedMessageException {
+    float asFloat()
+            throws UnsupportedMessageException {
         if (fitsInFloat()) {
-            return value.floatValue();
+            return value
+                    .floatValue();
         } else {
-            throw UnsupportedMessageException.create();
+            throw UnsupportedMessageException
+                    .create();
         }
     }
 
     @ExportMessage
     @TruffleBoundary
-    short asShort() throws UnsupportedMessageException {
+    short asShort()
+            throws UnsupportedMessageException {
         if (fitsInShort()) {
-            return value.shortValue();
+            return value
+                    .shortValue();
         } else {
-            throw UnsupportedMessageException.create();
+            throw UnsupportedMessageException
+                    .create();
         }
     }
 
@@ -229,8 +274,10 @@ public final class TclBigNumber implements TruffleObject, Comparable<TclBigNumbe
 
     @ExportMessage
     @TruffleBoundary
-    Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
-        return value.toString();
+    Object toDisplayString(
+            @SuppressWarnings("unused") boolean allowSideEffects) {
+        return value
+                .toString();
     }
 
 }

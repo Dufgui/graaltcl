@@ -51,32 +51,66 @@ import org.junit.Test;
 public class TclCodeSharingTest {
 
     private static Source createFib() {
-        return Source.newBuilder("tcl", "" +
-                        "function fib(n) {\n" +
-                        "  if (n == 1 || n == 2) {\n" +
-                        "    return 1;\n" +
-                        "  }\n" +
-                        "  return fib(n - 1) + fib(n - 2);\n" +
-                        "}\n",
-                        "fib.tcl").buildLiteral();
+        return Source
+                .newBuilder(
+                        "tcl",
+                        "" + "function fib(n) {\n"
+                                + "  if (n == 1 || n == 2) {\n"
+                                + "    return 1;\n"
+                                + "  }\n"
+                                + "  return fib(n - 1) + fib(n - 2);\n"
+                                + "}\n",
+                        "fib.tcl")
+                .buildLiteral();
     }
 
     @Test
-    public void testFibSharing() throws Exception {
+    public void testFibSharing()
+            throws Exception {
         Source fib = createFib();
-        try (Engine engine = Engine.create()) {
-            try (Context context = Context.newBuilder().engine(engine).build()) {
-                assertEquals(0, engine.getCachedSources().size());
-                context.eval(fib);
-                assertEquals(1, engine.getCachedSources().size());
-                assertTrue(engine.getCachedSources().contains(fib));
+        try (Engine engine = Engine
+                .create()) {
+            try (Context context = Context
+                    .newBuilder()
+                    .engine(engine)
+                    .build()) {
+                assertEquals(
+                        0,
+                        engine.getCachedSources()
+                                .size());
+                context.eval(
+                        fib);
+                assertEquals(
+                        1,
+                        engine.getCachedSources()
+                                .size());
+                assertTrue(
+                        engine.getCachedSources()
+                                .contains(
+                                        fib));
             }
-            try (Context context = Context.newBuilder().engine(engine).build()) {
-                assertEquals(1, engine.getCachedSources().size());
-                assertTrue(engine.getCachedSources().contains(fib));
-                context.eval(fib);
-                assertEquals(1, engine.getCachedSources().size());
-                assertTrue(engine.getCachedSources().contains(fib));
+            try (Context context = Context
+                    .newBuilder()
+                    .engine(engine)
+                    .build()) {
+                assertEquals(
+                        1,
+                        engine.getCachedSources()
+                                .size());
+                assertTrue(
+                        engine.getCachedSources()
+                                .contains(
+                                        fib));
+                context.eval(
+                        fib);
+                assertEquals(
+                        1,
+                        engine.getCachedSources()
+                                .size());
+                assertTrue(
+                        engine.getCachedSources()
+                                .contains(
+                                        fib));
             }
         }
     }

@@ -47,8 +47,8 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.tcl.TclLanguage;
@@ -63,7 +63,8 @@ public final class TclFunctionRegistry {
     private final FunctionsObject functionsObject = new FunctionsObject();
     private final Map<Map<String, RootCallTarget>, Void> registeredFunctions = new IdentityHashMap<>();
 
-    public TclFunctionRegistry(TclLanguage language) {
+    public TclFunctionRegistry(
+            TclLanguage language) {
         this.language = language;
     }
 
@@ -72,11 +73,19 @@ public final class TclFunctionRegistry {
      * it is created.
      */
     @TruffleBoundary
-    public TclFunction lookup(String name, boolean createIfNotPresent) {
-        TclFunction result = functionsObject.functions.get(name);
-        if (result == null && createIfNotPresent) {
-            result = new TclFunction(language, name);
-            functionsObject.functions.put(name, result);
+    public TclFunction lookup(
+            String name,
+            boolean createIfNotPresent) {
+        TclFunction result = functionsObject.functions
+                .get(name);
+        if (result == null
+                && createIfNotPresent) {
+            result = new TclFunction(
+                    language,
+                    name);
+            functionsObject.functions
+                    .put(name,
+                            result);
         }
         return result;
     }
@@ -86,13 +95,20 @@ public final class TclFunctionRegistry {
      * node. If the function did not exist before, it defines the function. If the function existed
      * before, it redefines the function and the old implementation is discarded.
      */
-    TclFunction register(String name, RootCallTarget callTarget) {
-        TclFunction result = functionsObject.functions.get(name);
+    TclFunction register(
+            String name,
+            RootCallTarget callTarget) {
+        TclFunction result = functionsObject.functions
+                .get(name);
         if (result == null) {
-            result = new TclFunction(callTarget);
-            functionsObject.functions.put(name, result);
+            result = new TclFunction(
+                    callTarget);
+            functionsObject.functions
+                    .put(name,
+                            result);
         } else {
-            result.setCallTarget(callTarget);
+            result.setCallTarget(
+                    callTarget);
         }
         return result;
     }
@@ -103,34 +119,59 @@ public final class TclFunctionRegistry {
      * functions might not get registered.
      */
     @TruffleBoundary
-    public void register(Map<String, RootCallTarget> newFunctions) {
-        if (registeredFunctions.containsKey(newFunctions)) {
+    public void register(
+            Map<String, RootCallTarget> newFunctions) {
+        if (registeredFunctions
+                .containsKey(
+                        newFunctions)) {
             return;
         }
-        for (Map.Entry<String, RootCallTarget> entry : newFunctions.entrySet()) {
-            register(entry.getKey(), entry.getValue());
+        for (Map.Entry<String, RootCallTarget> entry : newFunctions
+                .entrySet()) {
+            register(
+                    entry.getKey(),
+                    entry.getValue());
         }
-        registeredFunctions.put(newFunctions, null);
+        registeredFunctions
+                .put(newFunctions,
+                        null);
     }
 
-    public void register(Source newFunctions) {
-        register(TclParser.parseTcl(language, newFunctions));
+    public void register(
+            Source newFunctions) {
+        register(
+                TclParser
+                        .parseTcl(
+                                language,
+                                newFunctions));
     }
 
-    public TclFunction getFunction(String name) {
-        return functionsObject.functions.get(name);
+    public TclFunction getFunction(
+            String name) {
+        return functionsObject.functions
+                .get(name);
     }
 
     /**
      * Returns the sorted list of all functions, for printing purposes only.
      */
     public List<TclFunction> getFunctions() {
-        List<TclFunction> result = new ArrayList<>(functionsObject.functions.values());
-        Collections.sort(result, new Comparator<TclFunction>() {
-            public int compare(TclFunction f1, TclFunction f2) {
-                return f1.toString().compareTo(f2.toString());
-            }
-        });
+        List<TclFunction> result = new ArrayList<>(
+                functionsObject.functions
+                        .values());
+        Collections
+                .sort(result,
+                        new Comparator<TclFunction>() {
+
+                            public int compare(
+                                    TclFunction f1,
+                                    TclFunction f2) {
+                                return f1
+                                        .toString()
+                                        .compareTo(
+                                                f2.toString());
+                            }
+                        });
         return result;
     }
 

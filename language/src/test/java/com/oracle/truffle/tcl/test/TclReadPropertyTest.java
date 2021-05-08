@@ -56,15 +56,19 @@ public class TclReadPropertyTest {
 
     @Before
     public void setUp() {
-        this.ctx = Context.create("tcl");
-        this.tclObject = ctx.eval("tcl", "function createObject() {\n" +
-                        "obj1 = new();\n" +
-                        "obj1.number = 42;\n" +
-                        "return obj1;\n" +
-                        "}\n" +
-                        "function main() {\n" +
-                        "return createObject;\n" +
-                        "}").execute();
+        this.ctx = Context
+                .create("tcl");
+        this.tclObject = ctx
+                .eval("tcl",
+                        "function createObject() {\n"
+                                + "obj1 = new();\n"
+                                + "obj1.number = 42;\n"
+                                + "return obj1;\n"
+                                + "}\n"
+                                + "function main() {\n"
+                                + "return createObject;\n"
+                                + "}")
+                .execute();
     }
 
     @After
@@ -74,7 +78,15 @@ public class TclReadPropertyTest {
 
     @Test
     public void testRead() {
-        Assert.assertEquals(42, tclObject.getMember("number").asInt());
-        assertNull(tclObject.getMember("nonexistent"));
+        Assert.assertEquals(
+                42,
+                tclObject
+                        .getMember(
+                                "number")
+                        .asInt());
+        assertNull(
+                tclObject
+                        .getMember(
+                                "nonexistent"));
     }
 }

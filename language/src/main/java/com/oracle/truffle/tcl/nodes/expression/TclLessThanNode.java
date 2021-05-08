@@ -53,22 +53,36 @@ import com.oracle.truffle.tcl.runtime.TclBigNumber;
  * specialized methods return {@code boolean} instead of the input types.
  */
 @NodeInfo(shortName = "<")
-public abstract class TclLessThanNode extends TclBinaryNode {
+public abstract class TclLessThanNode
+        extends
+        TclBinaryNode {
 
     @Specialization
-    protected boolean lessThan(long left, long right) {
+    protected boolean lessThan(
+            long left,
+            long right) {
         return left < right;
     }
 
     @Specialization
     @TruffleBoundary
-    protected boolean lessThan(TclBigNumber left, TclBigNumber right) {
-        return left.compareTo(right) < 0;
+    protected boolean lessThan(
+            TclBigNumber left,
+            TclBigNumber right) {
+        return left
+                .compareTo(
+                        right) < 0;
     }
 
     @Fallback
-    protected Object typeError(Object left, Object right) {
-        throw TclException.typeError(this, left, right);
+    protected Object typeError(
+            Object left,
+            Object right) {
+        throw TclException
+                .typeError(
+                        this,
+                        left,
+                        right);
     }
 
 }

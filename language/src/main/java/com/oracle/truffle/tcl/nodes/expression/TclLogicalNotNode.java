@@ -53,16 +53,23 @@ import com.oracle.truffle.tcl.nodes.TclExpressionNode;
  */
 @NodeChild("valueNode")
 @NodeInfo(shortName = "!")
-public abstract class TclLogicalNotNode extends TclExpressionNode {
+public abstract class TclLogicalNotNode
+        extends
+        TclExpressionNode {
 
     @Specialization
-    protected boolean doBoolean(boolean value) {
+    protected boolean doBoolean(
+            boolean value) {
         return !value;
     }
 
     @Fallback
-    protected Object typeError(Object value) {
-        throw TclException.typeError(this, value);
+    protected Object typeError(
+            Object value) {
+        throw TclException
+                .typeError(
+                        this,
+                        value);
     }
 
 }

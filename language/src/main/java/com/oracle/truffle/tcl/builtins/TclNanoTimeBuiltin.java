@@ -47,10 +47,13 @@ import com.oracle.truffle.api.nodes.NodeInfo;
  * Builtin function that returns the value of a high-resolution time, in nanoseconds.
  */
 @NodeInfo(shortName = "nanoTime")
-public abstract class TclNanoTimeBuiltin extends TclBuiltinNode {
+public abstract class TclNanoTimeBuiltin
+        extends
+        TclBuiltinNode {
 
     @Specialization
     public long nanoTime() {
-        return System.nanoTime();
+        return System
+                .nanoTime();
     }
 }

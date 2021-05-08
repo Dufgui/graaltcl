@@ -60,31 +60,47 @@ import com.oracle.truffle.tcl.runtime.TclFunctionRegistry;
  */
 @NodeChild(value = "arguments", type = TclExpressionNode[].class)
 @GenerateNodeFactory
-public abstract class TclBuiltinNode extends TclExpressionNode {
+public abstract class TclBuiltinNode
+        extends
+        TclExpressionNode {
 
     @Override
-    public final Object executeGeneric(VirtualFrame frame) {
+    public final Object executeGeneric(
+            VirtualFrame frame) {
         try {
-            return execute(frame);
+            return execute(
+                    frame);
         } catch (UnsupportedSpecializationException e) {
-            throw TclException.typeError(e.getNode(), e.getSuppliedValues());
+            throw TclException
+                    .typeError(
+                            e.getNode(),
+                            e.getSuppliedValues());
         }
     }
 
     @Override
-    public final boolean executeBoolean(VirtualFrame frame) throws UnexpectedResultException {
-        return super.executeBoolean(frame);
+    public final boolean executeBoolean(
+            VirtualFrame frame)
+            throws UnexpectedResultException {
+        return super.executeBoolean(
+                frame);
     }
 
     @Override
-    public final long executeLong(VirtualFrame frame) throws UnexpectedResultException {
-        return super.executeLong(frame);
+    public final long executeLong(
+            VirtualFrame frame)
+            throws UnexpectedResultException {
+        return super.executeLong(
+                frame);
     }
 
     @Override
-    public final void executeVoid(VirtualFrame frame) {
-        super.executeVoid(frame);
+    public final void executeVoid(
+            VirtualFrame frame) {
+        super.executeVoid(
+                frame);
     }
 
-    protected abstract Object execute(VirtualFrame frame);
+    protected abstract Object execute(
+            VirtualFrame frame);
 }

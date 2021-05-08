@@ -53,17 +53,22 @@ import com.oracle.truffle.tcl.runtime.TclType;
  */
 @NodeInfo(shortName = "typeOf")
 @SuppressWarnings("unused")
-public abstract class TclTypeOfBuiltin extends TclBuiltinNode {
+public abstract class TclTypeOfBuiltin
+        extends
+        TclBuiltinNode {
 
     /*
      * This returns the tcl type for a particular operand value.
      */
     @Specialization(limit = "3")
     @ExplodeLoop
-    public Object doDefault(Object operand,
-                    @CachedLibrary("operand") InteropLibrary interop) {
+    public Object doDefault(
+            Object operand,
+            @CachedLibrary("operand") InteropLibrary interop) {
         for (TclType type : TclType.PRECEDENCE) {
-            if (type.isInstance(operand, interop)) {
+            if (type.isInstance(
+                    operand,
+                    interop)) {
                 return type;
             }
         }

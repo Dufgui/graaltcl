@@ -49,11 +49,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TclInteropPrimitiveTest {
+
     private Context context;
 
     @Before
     public void setUp() {
-        context = Context.create("tcl");
+        context = Context
+                .create("tcl");
     }
 
     @After
@@ -63,17 +65,35 @@ public class TclInteropPrimitiveTest {
 
     @Test
     public void testBoolean() {
-        final Source src = Source.newBuilder("tcl", "function testBoolean(a,b) {return a == b;} function main() {return testBoolean;}", "testBoolean.tcl").buildLiteral();
-        final Value fnc = context.eval(src);
-        Assert.assertTrue(fnc.canExecute());
-        fnc.execute(true, false);
+        final Source src = Source
+                .newBuilder(
+                        "tcl",
+                        "function testBoolean(a,b) {return a == b;} function main() {return testBoolean;}",
+                        "testBoolean.tcl")
+                .buildLiteral();
+        final Value fnc = context
+                .eval(src);
+        Assert.assertTrue(
+                fnc.canExecute());
+        fnc.execute(
+                true,
+                false);
     }
 
     @Test
     public void testChar() {
-        final Source src = Source.newBuilder("tcl", "function testChar(a,b) {return a == b;} function main() {return testChar;}", "testChar.tcl").buildLiteral();
-        final Value fnc = context.eval(src);
-        Assert.assertTrue(fnc.canExecute());
-        fnc.execute('a', 'b');
+        final Source src = Source
+                .newBuilder(
+                        "tcl",
+                        "function testChar(a,b) {return a == b;} function main() {return testChar;}",
+                        "testChar.tcl")
+                .buildLiteral();
+        final Value fnc = context
+                .eval(src);
+        Assert.assertTrue(
+                fnc.canExecute());
+        fnc.execute(
+                'a',
+                'b');
     }
 }

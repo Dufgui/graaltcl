@@ -42,9 +42,9 @@
 package com.oracle.truffle.tcl.parser;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.exception.AbstractTruffleException;
 import com.oracle.truffle.api.interop.ExceptionType;
 import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.exception.AbstractTruffleException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
@@ -52,7 +52,9 @@ import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 
 @ExportLibrary(InteropLibrary.class)
-public class TclParseError extends AbstractTruffleException {
+public class TclParseError
+        extends
+        AbstractTruffleException {
 
     public static final long serialVersionUID = 1L;
     private final Source source;
@@ -60,7 +62,12 @@ public class TclParseError extends AbstractTruffleException {
     private final int column;
     private final int length;
 
-    public TclParseError( Source source, int line, int column, int length, String message) {
+    public TclParseError(
+            Source source,
+            int line,
+            int column,
+            int length,
+            String message) {
         super(message);
         this.source = source;
         this.line = line;
@@ -86,10 +93,16 @@ public class TclParseError extends AbstractTruffleException {
 
     @ExportMessage(name = "getSourceLocation")
     @TruffleBoundary
-    SourceSection getSourceSection() throws UnsupportedMessageException {
+    SourceSection getSourceSection()
+            throws UnsupportedMessageException {
         if (source == null) {
-            throw UnsupportedMessageException.create();
+            throw UnsupportedMessageException
+                    .create();
         }
-        return source.createSection(line, column, length);
+        return source
+                .createSection(
+                        line,
+                        column,
+                        length);
     }
 }

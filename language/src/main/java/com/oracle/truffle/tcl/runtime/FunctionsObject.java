@@ -57,7 +57,9 @@ import com.oracle.truffle.tcl.TclLanguage;
 
 @ExportLibrary(InteropLibrary.class)
 @SuppressWarnings("static-method")
-final class FunctionsObject implements TruffleObject {
+final class FunctionsObject
+        implements
+        TruffleObject {
 
     final Map<String, TclFunction> functions = new HashMap<>();
 
@@ -81,24 +83,35 @@ final class FunctionsObject implements TruffleObject {
 
     @ExportMessage
     @TruffleBoundary
-    Object readMember(String member) throws UnknownIdentifierException {
-        Object value = functions.get(member);
+    Object readMember(
+            String member)
+            throws UnknownIdentifierException {
+        Object value = functions
+                .get(member);
         if (value != null) {
             return value;
         }
-        throw UnknownIdentifierException.create(member);
+        throw UnknownIdentifierException
+                .create(member);
     }
 
     @ExportMessage
     @TruffleBoundary
-    boolean isMemberReadable(String member) {
-        return functions.containsKey(member);
+    boolean isMemberReadable(
+            String member) {
+        return functions
+                .containsKey(
+                        member);
     }
 
     @ExportMessage
     @TruffleBoundary
-    Object getMembers(@SuppressWarnings("unused") boolean includeInternal) {
-        return new FunctionNamesObject(functions.keySet().toArray());
+    Object getMembers(
+            @SuppressWarnings("unused") boolean includeInternal) {
+        return new FunctionNamesObject(
+                functions
+                        .keySet()
+                        .toArray());
     }
 
     @ExportMessage
@@ -118,20 +131,25 @@ final class FunctionsObject implements TruffleObject {
 
     @ExportMessage
     @TruffleBoundary
-    Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
+    Object toDisplayString(
+            @SuppressWarnings("unused") boolean allowSideEffects) {
         return "global";
     }
 
-    public static boolean isInstance(TruffleObject obj) {
+    public static boolean isInstance(
+            TruffleObject obj) {
         return obj instanceof FunctionsObject;
     }
 
     @ExportLibrary(InteropLibrary.class)
-    static final class FunctionNamesObject implements TruffleObject {
+    static final class FunctionNamesObject
+            implements
+            TruffleObject {
 
         private final Object[] names;
 
-        FunctionNamesObject(Object[] names) {
+        FunctionNamesObject(
+                Object[] names) {
             this.names = names;
         }
 
@@ -141,8 +159,10 @@ final class FunctionsObject implements TruffleObject {
         }
 
         @ExportMessage
-        boolean isArrayElementReadable(long index) {
-            return index >= 0 && index < names.length;
+        boolean isArrayElementReadable(
+                long index) {
+            return index >= 0
+                    && index < names.length;
         }
 
         @ExportMessage
@@ -151,10 +171,15 @@ final class FunctionsObject implements TruffleObject {
         }
 
         @ExportMessage
-        Object readArrayElement(long index, @Cached BranchProfile error) throws InvalidArrayIndexException {
-            if (!isArrayElementReadable(index)) {
+        Object readArrayElement(
+                long index,
+                @Cached BranchProfile error)
+                throws InvalidArrayIndexException {
+            if (!isArrayElementReadable(
+                    index)) {
                 error.enter();
-                throw InvalidArrayIndexException.create(index);
+                throw InvalidArrayIndexException
+                        .create(index);
             }
             return names[(int) index];
         }

@@ -64,31 +64,55 @@ import com.oracle.truffle.tcl.runtime.TclUndefinedNameException;
 @NodeInfo(shortName = ".")
 @NodeChild("receiverNode")
 @NodeChild("nameNode")
-public abstract class TclReadPropertyNode extends TclExpressionNode {
+public abstract class TclReadPropertyNode
+        extends
+        TclExpressionNode {
 
     static final int LIBRARY_LIMIT = 3;
 
     @Specialization(guards = "arrays.hasArrayElements(receiver)", limit = "LIBRARY_LIMIT")
-    protected Object readArray(Object receiver, Object index,
-                    @CachedLibrary("receiver") InteropLibrary arrays,
-                    @CachedLibrary("index") InteropLibrary numbers) {
+    protected Object readArray(
+            Object receiver,
+            Object index,
+            @CachedLibrary("receiver") InteropLibrary arrays,
+            @CachedLibrary("index") InteropLibrary numbers) {
         try {
-            return arrays.readArrayElement(receiver, numbers.asLong(index));
-        } catch (UnsupportedMessageException | InvalidArrayIndexException e) {
+            return arrays
+                    .readArrayElement(
+                            receiver,
+                            numbers.asLong(
+                                    index));
+        } catch (
+                UnsupportedMessageException
+                | InvalidArrayIndexException e) {
             // read was not successful. In tcl we only have basic support for errors.
-            throw TclUndefinedNameException.undefinedProperty(this, index);
+            throw TclUndefinedNameException
+                    .undefinedProperty(
+                            this,
+                            index);
         }
     }
 
     @Specialization(guards = "objects.hasMembers(receiver)", limit = "LIBRARY_LIMIT")
-    protected Object readObject(Object receiver, Object name,
-                    @CachedLibrary("receiver") InteropLibrary objects,
-                    @Cached TclToMemberNode asMember) {
+    protected Object readObject(
+            Object receiver,
+            Object name,
+            @CachedLibrary("receiver") InteropLibrary objects,
+            @Cached TclToMemberNode asMember) {
         try {
-            return objects.readMember(receiver, asMember.execute(name));
-        } catch (UnsupportedMessageException | UnknownIdentifierException e) {
+            return objects
+                    .readMember(
+                            receiver,
+                            asMember.execute(
+                                    name));
+        } catch (
+                UnsupportedMessageException
+                | UnknownIdentifierException e) {
             // read was not successful. In tcl we only have basic support for errors.
-            throw TclUndefinedNameException.undefinedProperty(this, name);
+            throw TclUndefinedNameException
+                    .undefinedProperty(
+                            this,
+                            name);
         }
     }
 

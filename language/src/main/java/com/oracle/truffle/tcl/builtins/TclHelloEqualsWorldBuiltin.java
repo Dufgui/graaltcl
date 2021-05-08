@@ -53,15 +53,26 @@ import com.oracle.truffle.api.nodes.NodeInfo;
  * This builtin sets the variable named "hello" in the caller frame to the string "world".
  */
 @NodeInfo(shortName = "helloEqualsWorld")
-public abstract class TclHelloEqualsWorldBuiltin extends TclBuiltinNode {
+public abstract class TclHelloEqualsWorldBuiltin
+        extends
+        TclBuiltinNode {
 
     @Specialization
     @TruffleBoundary
     public String change() {
-        FrameInstance frameInstance = Truffle.getRuntime().getCallerFrame();
-        Frame frame = frameInstance.getFrame(FrameAccess.READ_WRITE);
-        FrameSlot slot = frame.getFrameDescriptor().findOrAddFrameSlot("hello");
-        frame.setObject(slot, "world");
+        FrameInstance frameInstance = Truffle
+                .getRuntime()
+                .getCallerFrame();
+        Frame frame = frameInstance
+                .getFrame(
+                        FrameAccess.READ_WRITE);
+        FrameSlot slot = frame
+                .getFrameDescriptor()
+                .findOrAddFrameSlot(
+                        "hello");
+        frame.setObject(
+                slot,
+                "world");
         return "world";
     }
 }

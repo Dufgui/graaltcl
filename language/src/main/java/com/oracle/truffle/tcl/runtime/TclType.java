@@ -72,19 +72,45 @@ import com.oracle.truffle.tcl.TclLanguage;
  */
 @ExportLibrary(InteropLibrary.class)
 @SuppressWarnings("static-method")
-public final class TclType implements TruffleObject {
+public final class TclType
+        implements
+        TruffleObject {
 
     /*
      * These are the sets of builtin types in simple languages. In case of simple language the types
      * nicely match those of the types in InteropLibrary. This might not be the case and more
      * additional checks need to be performed (similar to number checking for TclBigNumber).
      */
-    public static final TclType NUMBER = new TclType("Number", (l, v) -> l.fitsInLong(v) || v instanceof TclBigNumber);
-    public static final TclType NULL = new TclType("NULL", (l, v) -> l.isNull(v));
-    public static final TclType STRING = new TclType("String", (l, v) -> l.isString(v));
-    public static final TclType BOOLEAN = new TclType("Boolean", (l, v) -> l.isBoolean(v));
-    public static final TclType OBJECT = new TclType("Object", (l, v) -> l.hasMembers(v));
-    public static final TclType FUNCTION = new TclType("Function", (l, v) -> l.isExecutable(v));
+    public static final TclType NUMBER = new TclType(
+            "Number",
+            (l, v) -> l
+                    .fitsInLong(
+                            v)
+                    || v instanceof TclBigNumber);
+    public static final TclType NULL = new TclType(
+            "NULL",
+            (l, v) -> l
+                    .isNull(v));
+    public static final TclType STRING = new TclType(
+            "String",
+            (l, v) -> l
+                    .isString(
+                            v));
+    public static final TclType BOOLEAN = new TclType(
+            "Boolean",
+            (l, v) -> l
+                    .isBoolean(
+                            v));
+    public static final TclType OBJECT = new TclType(
+            "Object",
+            (l, v) -> l
+                    .hasMembers(
+                            v));
+    public static final TclType FUNCTION = new TclType(
+            "Function",
+            (l, v) -> l
+                    .isExecutable(
+                            v));
 
     /*
      * This array is used when all types need to be checked in a certain order. While most interop
@@ -92,7 +118,14 @@ public final class TclType implements TruffleObject {
      * example, an object might be a function. In SimpleLanguage we decided to make functions,
      * functions and not objects.
      */
-    @CompilationFinal(dimensions = 1) public static final TclType[] PRECEDENCE = new TclType[]{NULL, NUMBER, STRING, BOOLEAN, FUNCTION, OBJECT};
+    @CompilationFinal(dimensions = 1)
+    public static final TclType[] PRECEDENCE = new TclType[] {
+            NULL,
+            NUMBER,
+            STRING,
+            BOOLEAN,
+            FUNCTION,
+            OBJECT };
 
     private final String name;
     private final TypeCheck isInstance;
@@ -101,7 +134,9 @@ public final class TclType implements TruffleObject {
      * We don't allow dynamic instances of TclType. Real languages might want to expose this for
      * types that are user defined.
      */
-    private TclType(String name, TypeCheck isInstance) {
+    private TclType(
+            String name,
+            TypeCheck isInstance) {
         this.name = name;
         this.isInstance = isInstance;
     }
@@ -110,9 +145,15 @@ public final class TclType implements TruffleObject {
      * Checks whether this type is of a certain instance. If used on fast-paths it is required to
      * cast {@link TclType} to a constant.
      */
-    public boolean isInstance(Object value, InteropLibrary interop) {
-        CompilerAsserts.partialEvaluationConstant(this);
-        return isInstance.check(interop, value);
+    public boolean isInstance(
+            Object value,
+            InteropLibrary interop) {
+        CompilerAsserts
+                .partialEvaluationConstant(
+                        this);
+        return isInstance
+                .check(interop,
+                        value);
     }
 
     @ExportMessage
@@ -145,13 +186,16 @@ public final class TclType implements TruffleObject {
     }
 
     @ExportMessage(name = "toDisplayString")
-    Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
+    Object toDisplayString(
+            @SuppressWarnings("unused") boolean allowSideEffects) {
         return name;
     }
 
     @Override
     public String toString() {
-        return "TclType[" + name + "]";
+        return "TclType["
+                + name
+                + "]";
     }
 
     /*
@@ -171,16 +215,26 @@ public final class TclType implements TruffleObject {
          * real world benchmarks.
          */
         @Specialization(guards = "type == cachedType", limit = "3")
-        static boolean doCached(@SuppressWarnings("unused") TclType type, Object value,
-                        @Cached("type") TclType cachedType,
-                        @CachedLibrary("value") InteropLibrary valueLib) {
-            return cachedType.isInstance.check(valueLib, value);
+        static boolean doCached(
+                @SuppressWarnings("unused") TclType type,
+                Object value,
+                @Cached("type") TclType cachedType,
+                @CachedLibrary("value") InteropLibrary valueLib) {
+            return cachedType.isInstance
+                    .check(valueLib,
+                            value);
         }
 
         @TruffleBoundary
         @Specialization(replaces = "doCached")
-        static boolean doGeneric(TclType type, Object value) {
-            return type.isInstance.check(InteropLibrary.getFactory().getUncached(), value);
+        static boolean doGeneric(
+                TclType type,
+                Object value) {
+            return type.isInstance
+                    .check(InteropLibrary
+                            .getFactory()
+                            .getUncached(),
+                            value);
         }
     }
 
@@ -191,7 +245,9 @@ public final class TclType implements TruffleObject {
     @FunctionalInterface
     interface TypeCheck {
 
-        boolean check(InteropLibrary lib, Object value);
+        boolean check(
+                InteropLibrary lib,
+                Object value);
 
     }
 

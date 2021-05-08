@@ -62,7 +62,9 @@ import com.oracle.truffle.tcl.nodes.interop.NodeObjectDescriptor;
 @NodeField(name = "slot", type = FrameSlot.class)
 @NodeField(name = "nameNode", type = TclExpressionNode.class)
 @NodeField(name = "declaration", type = boolean.class)
-public abstract class TclWriteLocalVariableNode extends TclExpressionNode {
+public abstract class TclWriteLocalVariableNode
+        extends
+        TclExpressionNode {
 
     /**
      * Returns the descriptor of the accessed local variable. The implementation of this method is
@@ -84,20 +86,34 @@ public abstract class TclWriteLocalVariableNode extends TclExpressionNode {
      * therefore a Truffle DSL {@link #isLongOrIllegal(VirtualFrame) custom guard} is specified.
      */
     @Specialization(guards = "isLongOrIllegal(frame)")
-    protected long writeLong(VirtualFrame frame, long value) {
+    protected long writeLong(
+            VirtualFrame frame,
+            long value) {
         /* Initialize type on first write of the local variable. No-op if kind is already Long. */
-        frame.getFrameDescriptor().setFrameSlotKind(getSlot(), FrameSlotKind.Long);
+        frame.getFrameDescriptor()
+                .setFrameSlotKind(
+                        getSlot(),
+                        FrameSlotKind.Long);
 
-        frame.setLong(getSlot(), value);
+        frame.setLong(
+                getSlot(),
+                value);
         return value;
     }
 
     @Specialization(guards = "isBooleanOrIllegal(frame)")
-    protected boolean writeBoolean(VirtualFrame frame, boolean value) {
+    protected boolean writeBoolean(
+            VirtualFrame frame,
+            boolean value) {
         /* Initialize type on first write of the local variable. No-op if kind is already Long. */
-        frame.getFrameDescriptor().setFrameSlotKind(getSlot(), FrameSlotKind.Boolean);
+        frame.getFrameDescriptor()
+                .setFrameSlotKind(
+                        getSlot(),
+                        FrameSlotKind.Boolean);
 
-        frame.setBoolean(getSlot(), value);
+        frame.setBoolean(
+                getSlot(),
+                value);
         return value;
     }
 
@@ -111,8 +127,12 @@ public abstract class TclWriteLocalVariableNode extends TclExpressionNode {
      * {@link Object}, it is guaranteed to never fail, i.e., once we are in this specialization the
      * node will never be re-specialized.
      */
-    @Specialization(replaces = {"writeLong", "writeBoolean"})
-    protected Object write(VirtualFrame frame, Object value) {
+    @Specialization(replaces = {
+            "writeLong",
+            "writeBoolean" })
+    protected Object write(
+            VirtualFrame frame,
+            Object value) {
         /*
          * Regardless of the type before, the new and final type of the local variable is Object.
          * Changing the slot kind also discards compiled code, because the variable type is
@@ -120,52 +140,83 @@ public abstract class TclWriteLocalVariableNode extends TclExpressionNode {
          *
          * No-op if kind is already Object.
          */
-        frame.getFrameDescriptor().setFrameSlotKind(getSlot(), FrameSlotKind.Object);
+        frame.getFrameDescriptor()
+                .setFrameSlotKind(
+                        getSlot(),
+                        FrameSlotKind.Object);
 
-        frame.setObject(getSlot(), value);
+        frame.setObject(
+                getSlot(),
+                value);
         return value;
     }
 
-    public abstract void executeWrite(VirtualFrame frame, Object value);
+    public abstract void executeWrite(
+            VirtualFrame frame,
+            Object value);
 
     /**
      * Guard function that the local variable has the type {@code long}.
      *
      * @param frame The parameter seems unnecessary, but it is required: Without the parameter, the
-     *            Truffle DSL would not check the guard on every execution of the specialization.
-     *            Guards without parameters are assumed to be pure, but our guard depends on the
-     *            slot kind which can change.
+     *        Truffle DSL would not check the guard on every execution of the specialization.
+     *        Guards without parameters are assumed to be pure, but our guard depends on the
+     *        slot kind which can change.
      */
-    protected boolean isLongOrIllegal(VirtualFrame frame) {
-        final FrameSlotKind kind = frame.getFrameDescriptor().getFrameSlotKind(getSlot());
-        return kind == FrameSlotKind.Long || kind == FrameSlotKind.Illegal;
+    protected boolean isLongOrIllegal(
+            VirtualFrame frame) {
+        final FrameSlotKind kind = frame
+                .getFrameDescriptor()
+                .getFrameSlotKind(
+                        getSlot());
+        return kind == FrameSlotKind.Long
+                || kind == FrameSlotKind.Illegal;
     }
 
-    protected boolean isBooleanOrIllegal(VirtualFrame frame) {
-        final FrameSlotKind kind = frame.getFrameDescriptor().getFrameSlotKind(getSlot());
-        return kind == FrameSlotKind.Boolean || kind == FrameSlotKind.Illegal;
+    protected boolean isBooleanOrIllegal(
+            VirtualFrame frame) {
+        final FrameSlotKind kind = frame
+                .getFrameDescriptor()
+                .getFrameSlotKind(
+                        getSlot());
+        return kind == FrameSlotKind.Boolean
+                || kind == FrameSlotKind.Illegal;
     }
 
     @Override
-    public boolean hasTag(Class<? extends Tag> tag) {
-        return tag == WriteVariableTag.class || super.hasTag(tag);
+    public boolean hasTag(
+            Class<? extends Tag> tag) {
+        return tag == WriteVariableTag.class
+                || super.hasTag(
+                        tag);
     }
 
     @Override
     public Object getNodeObject() {
         TclExpressionNode nameNode = getNameNode();
         SourceSection nameSourceSection;
-        if (nameNode.getSourceCharIndex() == -1) {
+        if (nameNode
+                .getSourceCharIndex() == -1) {
             nameSourceSection = null;
         } else {
-            SourceSection rootSourceSection = getRootNode().getSourceSection();
+            SourceSection rootSourceSection = getRootNode()
+                    .getSourceSection();
             if (rootSourceSection == null) {
                 nameSourceSection = null;
             } else {
-                Source source = rootSourceSection.getSource();
-                nameSourceSection = source.createSection(nameNode.getSourceCharIndex(), nameNode.getSourceLength());
+                Source source = rootSourceSection
+                        .getSource();
+                nameSourceSection = source
+                        .createSection(
+                                nameNode.getSourceCharIndex(),
+                                nameNode.getSourceLength());
             }
         }
-        return NodeObjectDescriptor.writeVariable(getSlot().getIdentifier().toString(), nameSourceSection);
+        return NodeObjectDescriptor
+                .writeVariable(
+                        getSlot()
+                                .getIdentifier()
+                                .toString(),
+                        nameSourceSection);
     }
 }

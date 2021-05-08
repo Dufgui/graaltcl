@@ -50,10 +50,16 @@ import com.oracle.truffle.api.nodes.NodeInfo;
  * <link>Messages.HAS_SIZE</link>.
  */
 @NodeInfo(shortName = "hasSize")
-public abstract class TclHasSizeBuiltin extends TclBuiltinNode {
+public abstract class TclHasSizeBuiltin
+        extends
+        TclBuiltinNode {
 
     @Specialization(limit = "3")
-    public boolean hasSize(Object obj, @CachedLibrary("obj") InteropLibrary arrays) {
-        return arrays.hasArrayElements(obj);
+    public boolean hasSize(
+            Object obj,
+            @CachedLibrary("obj") InteropLibrary arrays) {
+        return arrays
+                .hasArrayElements(
+                        obj);
     }
 }

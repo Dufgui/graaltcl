@@ -47,20 +47,29 @@ import com.oracle.truffle.tcl.nodes.TclExpressionNode;
  * Logical disjunction node with short circuit evaluation.
  */
 @NodeInfo(shortName = "||")
-public final class TclLogicalOrNode extends TclShortCircuitNode {
+public final class TclLogicalOrNode
+        extends
+        TclShortCircuitNode {
 
-    public TclLogicalOrNode(TclExpressionNode left, TclExpressionNode right) {
-        super(left, right);
+    public TclLogicalOrNode(
+            TclExpressionNode left,
+            TclExpressionNode right) {
+        super(left,
+                right);
     }
 
     @Override
-    protected boolean isEvaluateRight(boolean left) {
+    protected boolean isEvaluateRight(
+            boolean left) {
         return !left;
     }
 
     @Override
-    protected boolean execute(boolean left, boolean right) {
-        return left || right;
+    protected boolean execute(
+            boolean left,
+            boolean right) {
+        return left
+                || right;
     }
 
 }

@@ -48,13 +48,14 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TclParseErrorTest
-{
+public class TclParseErrorTest {
+
     private Context context;
 
     @Before
     public void setUp() {
-        context = Context.create("tcl");
+        context = Context
+                .create("tcl");
     }
 
     @After
@@ -65,48 +66,96 @@ public class TclParseErrorTest
     @Test
     public void testParseError() {
         try {
-            final Source src = Source.newBuilder("tcl", "function testSyntaxError(a) {break;} function main() {return testSyntaxError;}", "testSyntaxError.tcl").buildLiteral();
-            context.eval(src);
-            Assert.assertTrue("Should not reach here.", false);
+            final Source src = Source
+                    .newBuilder(
+                            "tcl",
+                            "function testSyntaxError(a) {break;} function main() {return testSyntaxError;}",
+                            "testSyntaxError.tcl")
+                    .buildLiteral();
+            context.eval(
+                    src);
+            Assert.assertTrue(
+                    "Should not reach here.",
+                    false);
         } catch (PolyglotException e) {
-            Assert.assertTrue("Should be a syntax error.", e.isSyntaxError());
-            Assert.assertNotNull("Should have source section.", e.getSourceLocation());
+            Assert.assertTrue(
+                    "Should be a syntax error.",
+                    e.isSyntaxError());
+            Assert.assertNotNull(
+                    "Should have source section.",
+                    e.getSourceLocation());
         }
     }
 
     @Test
     public void testParseErrorEmpty() {
         try {
-            final Source src = Source.newBuilder("tcl", "", "testSyntaxErrorEmpty.tcl").buildLiteral();
-            context.eval(src);
-            Assert.assertTrue("Should not reach here.", false);
+            final Source src = Source
+                    .newBuilder(
+                            "tcl",
+                            "",
+                            "testSyntaxErrorEmpty.tcl")
+                    .buildLiteral();
+            context.eval(
+                    src);
+            Assert.assertTrue(
+                    "Should not reach here.",
+                    false);
         } catch (PolyglotException e) {
-            Assert.assertTrue("Should be a syntax error.", e.isSyntaxError());
-            Assert.assertNotNull("Should have source section.", e.getSourceLocation());
+            Assert.assertTrue(
+                    "Should be a syntax error.",
+                    e.isSyntaxError());
+            Assert.assertNotNull(
+                    "Should have source section.",
+                    e.getSourceLocation());
         }
     }
 
     @Test
     public void testParseErrorEOF1() {
         try {
-            final Source src = Source.newBuilder("tcl", "function main", "testSyntaxErrorEOF1.tcl").buildLiteral();
-            context.eval(src);
-            Assert.assertTrue("Should not reach here.", false);
+            final Source src = Source
+                    .newBuilder(
+                            "tcl",
+                            "function main",
+                            "testSyntaxErrorEOF1.tcl")
+                    .buildLiteral();
+            context.eval(
+                    src);
+            Assert.assertTrue(
+                    "Should not reach here.",
+                    false);
         } catch (PolyglotException e) {
-            Assert.assertTrue("Should be a syntax error.", e.isSyntaxError());
-            Assert.assertNotNull("Should have source section.", e.getSourceLocation());
+            Assert.assertTrue(
+                    "Should be a syntax error.",
+                    e.isSyntaxError());
+            Assert.assertNotNull(
+                    "Should have source section.",
+                    e.getSourceLocation());
         }
     }
 
     @Test
     public void testParseErrorEOF2() {
         try {
-            final Source src = Source.newBuilder("tcl", "function\n", "testSyntaxErrorEOF2.tcl").buildLiteral();
-            context.eval(src);
-            Assert.assertTrue("Should not reach here.", false);
+            final Source src = Source
+                    .newBuilder(
+                            "tcl",
+                            "function\n",
+                            "testSyntaxErrorEOF2.tcl")
+                    .buildLiteral();
+            context.eval(
+                    src);
+            Assert.assertTrue(
+                    "Should not reach here.",
+                    false);
         } catch (PolyglotException e) {
-            Assert.assertTrue("Should be a syntax error.", e.isSyntaxError());
-            Assert.assertNotNull("Should have source section.", e.getSourceLocation());
+            Assert.assertTrue(
+                    "Should be a syntax error.",
+                    e.isSyntaxError());
+            Assert.assertNotNull(
+                    "Should have source section.",
+                    e.getSourceLocation());
         }
     }
 }

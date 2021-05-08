@@ -58,14 +58,21 @@ import com.oracle.truffle.tcl.runtime.TclLanguageView;
  * implementation.
  */
 @ExportLibrary(InteropLibrary.class)
-public class TclException extends AbstractTruffleException {
+public class TclException
+        extends
+        AbstractTruffleException {
 
     private static final long serialVersionUID = -6799734410727348507L;
-    private static final InteropLibrary UNCACHED_LIB = InteropLibrary.getFactory().getUncached();
+    private static final InteropLibrary UNCACHED_LIB = InteropLibrary
+            .getFactory()
+            .getUncached();
 
     @TruffleBoundary
-    public TclException(String message, Node location) {
-        super(message, location);
+    public TclException(
+            String message,
+            Node location) {
+        super(message,
+                location);
     }
 
     /**
@@ -73,26 +80,50 @@ public class TclException extends AbstractTruffleException {
      * are no automatic type conversions of values.
      */
     @TruffleBoundary
-    public static TclException typeError(Node operation, Object... values) {
+    public static TclException typeError(
+            Node operation,
+            Object... values) {
         StringBuilder result = new StringBuilder();
-        result.append("Type error");
+        result.append(
+                "Type error");
 
         if (operation != null) {
-            SourceSection ss = operation.getEncapsulatingSourceSection();
-            if (ss != null && ss.isAvailable()) {
-                result.append(" at ").append(ss.getSource().getName()).append(" line ").append(ss.getStartLine()).append(" col ").append(ss.getStartColumn());
+            SourceSection ss = operation
+                    .getEncapsulatingSourceSection();
+            if (ss != null
+                    && ss.isAvailable()) {
+                result.append(
+                        " at ")
+                        .append(ss
+                                .getSource()
+                                .getName())
+                        .append(" line ")
+                        .append(ss
+                                .getStartLine())
+                        .append(" col ")
+                        .append(ss
+                                .getStartColumn());
             }
         }
 
-        result.append(": operation");
+        result.append(
+                ": operation");
         if (operation != null) {
-            NodeInfo nodeInfo = TclLanguage.lookupNodeInfo(operation.getClass());
+            NodeInfo nodeInfo = TclLanguage
+                    .lookupNodeInfo(
+                            operation
+                                    .getClass());
             if (nodeInfo != null) {
-                result.append(" \"").append(nodeInfo.shortName()).append("\"");
+                result.append(
+                        " \"")
+                        .append(nodeInfo
+                                .shortName())
+                        .append("\"");
             }
         }
 
-        result.append(" not defined for");
+        result.append(
+                " not defined for");
 
         String sep = " ";
         for (int i = 0; i < values.length; i++) {
@@ -104,33 +135,62 @@ public class TclException extends AbstractTruffleException {
              * Using the language view for core builtins like the typeOf builtin might not be a good
              * idea for performance reasons.
              */
-            Object value = TclLanguageView.forValue(values[i]);
-            result.append(sep);
+            Object value = TclLanguageView
+                    .forValue(
+                            values[i]);
+            result.append(
+                    sep);
             sep = ", ";
             if (value == null) {
-                result.append("ANY");
+                result.append(
+                        "ANY");
             } else {
-                InteropLibrary valueLib = InteropLibrary.getFactory().getUncached(value);
-                if (valueLib.hasMetaObject(value) && !valueLib.isNull(value)) {
+                InteropLibrary valueLib = InteropLibrary
+                        .getFactory()
+                        .getUncached(
+                                value);
+                if (valueLib
+                        .hasMetaObject(
+                                value)
+                        && !valueLib
+                                .isNull(value)) {
                     String qualifiedName;
                     try {
-                        qualifiedName = UNCACHED_LIB.asString(UNCACHED_LIB.getMetaQualifiedName(valueLib.getMetaObject(value)));
+                        qualifiedName = UNCACHED_LIB
+                                .asString(
+                                        UNCACHED_LIB
+                                                .getMetaQualifiedName(
+                                                        valueLib.getMetaObject(
+                                                                value)));
                     } catch (UnsupportedMessageException e) {
-                        throw shouldNotReachHere(e);
+                        throw shouldNotReachHere(
+                                e);
                     }
-                    result.append(qualifiedName);
-                    result.append(" ");
+                    result.append(
+                            qualifiedName);
+                    result.append(
+                            " ");
                 }
-                if (valueLib.isString(value)) {
-                    result.append("\"");
+                if (valueLib
+                        .isString(
+                                value)) {
+                    result.append(
+                            "\"");
                 }
-                result.append(valueLib.toDisplayString(value));
-                if (valueLib.isString(value)) {
-                    result.append("\"");
+                result.append(
+                        valueLib.toDisplayString(
+                                value));
+                if (valueLib
+                        .isString(
+                                value)) {
+                    result.append(
+                            "\"");
                 }
             }
         }
-        return new TclException(result.toString(), operation);
+        return new TclException(
+                result.toString(),
+                operation);
     }
 
 }

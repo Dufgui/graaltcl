@@ -50,19 +50,24 @@ import com.oracle.truffle.tcl.nodes.TclStatementNode;
  * Implementation of the tcl debugger statement. When under the debugger, execution suspends here.
  */
 @NodeInfo(shortName = "debugger", description = "The node implementing a debugger statement")
-public class TclDebuggerNode extends TclStatementNode {
+public class TclDebuggerNode
+        extends
+        TclStatementNode {
 
     @Override
-    public void executeVoid(VirtualFrame frame) {
+    public void executeVoid(
+            VirtualFrame frame) {
         // No op.
     }
 
     @Override
-    public boolean hasTag(Class<? extends Tag> tag) {
+    public boolean hasTag(
+            Class<? extends Tag> tag) {
         if (tag == DebuggerTags.AlwaysHalt.class) {
             return true;
         }
-        return super.hasTag(tag);
+        return super.hasTag(
+                tag);
     }
 
 }

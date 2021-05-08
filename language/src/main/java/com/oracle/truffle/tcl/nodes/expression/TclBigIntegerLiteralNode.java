@@ -52,16 +52,21 @@ import com.oracle.truffle.tcl.runtime.TclBigNumber;
  * {@link TclLongLiteralNode}.
  */
 @NodeInfo(shortName = "const")
-public final class TclBigIntegerLiteralNode extends TclExpressionNode {
+public final class TclBigIntegerLiteralNode
+        extends
+        TclExpressionNode {
 
     private final TclBigNumber value;
 
-    public TclBigIntegerLiteralNode(BigInteger value) {
-        this.value = new TclBigNumber(value);
+    public TclBigIntegerLiteralNode(
+            BigInteger value) {
+        this.value = new TclBigNumber(
+                value);
     }
 
     @Override
-    public TclBigNumber executeGeneric(VirtualFrame frame) {
+    public TclBigNumber executeGeneric(
+            VirtualFrame frame) {
         return value;
     }
 }

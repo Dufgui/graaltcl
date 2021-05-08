@@ -52,22 +52,40 @@ import com.oracle.truffle.tcl.runtime.TclBigNumber;
  * This class is similar to the extensively documented {@link TclAddNode}.
  */
 @NodeInfo(shortName = "*")
-public abstract class TclMulNode extends TclBinaryNode {
+public abstract class TclMulNode
+        extends
+        TclBinaryNode {
 
     @Specialization(rewriteOn = ArithmeticException.class)
-    protected long mul(long left, long right) {
-        return Math.multiplyExact(left, right);
+    protected long mul(
+            long left,
+            long right) {
+        return Math
+                .multiplyExact(
+                        left,
+                        right);
     }
 
     @Specialization
     @TruffleBoundary
-    protected TclBigNumber mul(TclBigNumber left, TclBigNumber right) {
-        return new TclBigNumber(left.getValue().multiply(right.getValue()));
+    protected TclBigNumber mul(
+            TclBigNumber left,
+            TclBigNumber right) {
+        return new TclBigNumber(
+                left.getValue()
+                        .multiply(
+                                right.getValue()));
     }
 
     @Fallback
-    protected Object typeError(Object left, Object right) {
-        throw TclException.typeError(this, left, right);
+    protected Object typeError(
+            Object left,
+            Object right) {
+        throw TclException
+                .typeError(
+                        this,
+                        left,
+                        right);
     }
 
 }

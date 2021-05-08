@@ -83,11 +83,16 @@ import com.oracle.truffle.tcl.nodes.TclUndefinedFunctionRootNode;
  */
 @ExportLibrary(InteropLibrary.class)
 @SuppressWarnings("static-method")
-public final class TclFunction implements TruffleObject {
+public final class TclFunction
+        implements
+        TruffleObject {
 
     public static final int INLINE_CACHE_SIZE = 2;
 
-    private static final TruffleLogger LOG = TruffleLogger.getLogger(TclLanguage.ID, TclFunction.class);
+    private static final TruffleLogger LOG = TruffleLogger
+            .getLogger(
+                    TclLanguage.ID,
+                    TclFunction.class);
 
     /** The name of the function. */
     private final String name;
@@ -102,30 +107,43 @@ public final class TclFunction implements TruffleObject {
      */
     private final CyclicAssumption callTargetStable;
 
-    protected TclFunction(TclLanguage language, String name) {
-        this(language.getOrCreateUndefinedFunction(name));
+    protected TclFunction(
+            TclLanguage language,
+            String name) {
+        this(language
+                .getOrCreateUndefinedFunction(
+                        name));
     }
 
-    protected TclFunction(RootCallTarget callTarget) {
-        this.name = callTarget.getRootNode().getName();
-        this.callTargetStable = new CyclicAssumption(name);
-        setCallTarget(callTarget);
+    protected TclFunction(
+            RootCallTarget callTarget) {
+        this.name = callTarget
+                .getRootNode()
+                .getName();
+        this.callTargetStable = new CyclicAssumption(
+                name);
+        setCallTarget(
+                callTarget);
     }
 
     public String getName() {
         return name;
     }
 
-    protected void setCallTarget(RootCallTarget callTarget) {
+    protected void setCallTarget(
+            RootCallTarget callTarget) {
         boolean wasNull = this.callTarget == null;
         this.callTarget = callTarget;
         /*
          * We have a new call target. Invalidate all code that speculated that the old call target
          * was stable.
          */
-        LOG.log(Level.FINE, "Installed call target for: {0}", name);
+        LOG.log(Level.FINE,
+                "Installed call target for: {0}",
+                name);
         if (!wasNull) {
-            callTargetStable.invalidate();
+            callTargetStable
+                    .invalidate();
         }
     }
 
@@ -134,7 +152,8 @@ public final class TclFunction implements TruffleObject {
     }
 
     public Assumption getCallTargetStable() {
-        return callTargetStable.getAssumption();
+        return callTargetStable
+                .getAssumption();
     }
 
     /**
@@ -163,7 +182,9 @@ public final class TclFunction implements TruffleObject {
     @ExportMessage
     @TruffleBoundary
     SourceSection getSourceLocation() {
-        return getCallTarget().getRootNode().getSourceSection();
+        return getCallTarget()
+                .getRootNode()
+                .getSourceSection();
     }
 
     @SuppressWarnings("static-method")
@@ -193,28 +214,39 @@ public final class TclFunction implements TruffleObject {
     @ExportMessage
     @SuppressWarnings("unused")
     static final class IsIdenticalOrUndefined {
+
         @Specialization
-        static TriState doTclFunction(TclFunction receiver, TclFunction other) {
+        static TriState doTclFunction(
+                TclFunction receiver,
+                TclFunction other) {
             /*
              * TclFunctions are potentially identical to other TclFunctions.
              */
-            return receiver == other ? TriState.TRUE : TriState.FALSE;
+            return receiver == other
+                    ? TriState.TRUE
+                    : TriState.FALSE;
         }
 
         @Fallback
-        static TriState doOther(TclFunction receiver, Object other) {
+        static TriState doOther(
+                TclFunction receiver,
+                Object other) {
             return TriState.UNDEFINED;
         }
     }
 
     @ExportMessage
     @TruffleBoundary
-    static int identityHashCode(TclFunction receiver) {
-        return System.identityHashCode(receiver);
+    static int identityHashCode(
+            TclFunction receiver) {
+        return System
+                .identityHashCode(
+                        receiver);
     }
 
     @ExportMessage
-    Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
+    Object toDisplayString(
+            @SuppressWarnings("unused") boolean allowSideEffects) {
         return name;
     }
 
@@ -272,19 +304,22 @@ public final class TclFunction implements TruffleObject {
          * @param callTargetStable The assumption object assuming the function was not redefined.
          * @param cachedTarget The call target we aim to invoke
          * @param callNode the {@link DirectCallNode} specifically created for the
-         *            {@link CallTarget} in cachedFunction.
+         *        {@link CallTarget} in cachedFunction.
          */
         @Specialization(limit = "INLINE_CACHE_SIZE", //
-                        guards = "function.getCallTarget() == cachedTarget", //
-                        assumptions = "callTargetStable")
+                guards = "function.getCallTarget() == cachedTarget", //
+                assumptions = "callTargetStable")
         @SuppressWarnings("unused")
-        protected static Object doDirect(TclFunction function, Object[] arguments,
-                        @Cached("function.getCallTargetStable()") Assumption callTargetStable,
-                        @Cached("function.getCallTarget()") RootCallTarget cachedTarget,
-                        @Cached("create(cachedTarget)") DirectCallNode callNode) {
+        protected static Object doDirect(
+                TclFunction function,
+                Object[] arguments,
+                @Cached("function.getCallTargetStable()") Assumption callTargetStable,
+                @Cached("function.getCallTarget()") RootCallTarget cachedTarget,
+                @Cached("create(cachedTarget)") DirectCallNode callNode) {
 
             /* Inline cache hit, we are safe to execute the cached call target. */
-            Object returnValue = callNode.call(arguments);
+            Object returnValue = callNode
+                    .call(arguments);
             return returnValue;
         }
 
@@ -294,13 +329,18 @@ public final class TclFunction implements TruffleObject {
          * further, e.g., no method inlining is performed.
          */
         @Specialization(replaces = "doDirect")
-        protected static Object doIndirect(TclFunction function, Object[] arguments,
-                        @Cached IndirectCallNode callNode) {
+        protected static Object doIndirect(
+                TclFunction function,
+                Object[] arguments,
+                @Cached IndirectCallNode callNode) {
             /*
              * tcl has a quite simple call lookup: just ask the function for the current call target,
              * and call it.
              */
-            return callNode.call(function.getCallTarget(), arguments);
+            return callNode
+                    .call(function
+                            .getCallTarget(),
+                            arguments);
         }
     }
 

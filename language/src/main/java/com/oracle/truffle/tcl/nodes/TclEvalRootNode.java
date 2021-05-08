@@ -65,19 +65,31 @@ import com.oracle.truffle.tcl.runtime.TclNull;
  * understood by tcl.</li>
  * </ul>
  */
-public final class TclEvalRootNode extends RootNode {
+public final class TclEvalRootNode
+        extends
+        RootNode {
 
     private final Map<String, RootCallTarget> functions;
-    @CompilationFinal private boolean registered;
+    @CompilationFinal
+    private boolean registered;
 
-    @Child private DirectCallNode mainCallNode;
+    @Child
+    private DirectCallNode mainCallNode;
     private final TclLanguage language;
 
-    public TclEvalRootNode(TclLanguage language, RootCallTarget rootFunction, Map<String, RootCallTarget> functions) {
+    public TclEvalRootNode(
+            TclLanguage language,
+            RootCallTarget rootFunction,
+            Map<String, RootCallTarget> functions) {
         super(language);
         this.language = language;
-        this.functions = Collections.unmodifiableMap(functions);
-        this.mainCallNode = rootFunction != null ? DirectCallNode.create(rootFunction) : null;
+        this.functions = Collections
+                .unmodifiableMap(
+                        functions);
+        this.mainCallNode = rootFunction != null
+                ? DirectCallNode
+                        .create(rootFunction)
+                : null;
     }
 
     @Override
@@ -101,8 +113,10 @@ public final class TclEvalRootNode extends RootNode {
     }
 
     @Override
-    public Object execute(VirtualFrame frame) {
-        if (language.isSingleContext()) {
+    public Object execute(
+            VirtualFrame frame) {
+        if (language
+                .isSingleContext()) {
             /*
              * Lazy registrations of functions on first execution. This optimization only works in
              * the single context case. Otherwise function registration needs to be repeated for
@@ -110,7 +124,8 @@ public final class TclEvalRootNode extends RootNode {
              */
             if (!registered) {
                 /* Function registration is a slow-path operation that must not be compiled. */
-                CompilerDirectives.transferToInterpreterAndInvalidate();
+                CompilerDirectives
+                        .transferToInterpreterAndInvalidate();
                 registerFunctions();
                 registered = true;
             }
@@ -128,17 +143,26 @@ public final class TclEvalRootNode extends RootNode {
             return TclNull.SINGLETON;
         } else {
             /* Conversion of arguments to types understood by tcl. */
-            Object[] arguments = frame.getArguments();
+            Object[] arguments = frame
+                    .getArguments();
             for (int i = 0; i < arguments.length; i++) {
-                arguments[i] = TclContext.fromForeignValue(arguments[i]);
+                arguments[i] = TclContext
+                        .fromForeignValue(
+                                arguments[i]);
             }
-            return mainCallNode.call(arguments);
+            return mainCallNode
+                    .call(arguments);
         }
     }
 
     @TruffleBoundary
     private void registerFunctions() {
-        lookupContextReference(TclLanguage.class).get().getFunctionRegistry().register(functions);
+        lookupContextReference(
+                TclLanguage.class)
+                        .get()
+                        .getFunctionRegistry()
+                        .register(
+                                functions);
     }
 
 }

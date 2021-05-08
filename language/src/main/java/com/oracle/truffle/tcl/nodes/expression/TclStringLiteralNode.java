@@ -48,16 +48,20 @@ import com.oracle.truffle.tcl.nodes.TclExpressionNode;
  * Constant literal for a String value.
  */
 @NodeInfo(shortName = "const")
-public final class TclStringLiteralNode extends TclExpressionNode {
+public final class TclStringLiteralNode
+        extends
+        TclExpressionNode {
 
     private final String value;
 
-    public TclStringLiteralNode(String value) {
+    public TclStringLiteralNode(
+            String value) {
         this.value = value;
     }
 
     @Override
-    public String executeGeneric(VirtualFrame frame) {
+    public String executeGeneric(
+            VirtualFrame frame) {
         return value;
     }
 }

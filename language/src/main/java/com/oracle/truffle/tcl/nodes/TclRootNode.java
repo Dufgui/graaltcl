@@ -67,9 +67,13 @@ import com.oracle.truffle.tcl.nodes.local.TclWriteLocalVariableNode;
  * functions, the {@link #bodyNode} is a {@link TclFunctionBodyNode}.
  */
 @NodeInfo(language = "tcl", description = "The root of all tcl execution trees")
-public class TclRootNode extends RootNode {
+public class TclRootNode
+        extends
+        RootNode {
+
     /** The function body that is executed, and specialized during execution. */
-    @Child private TclExpressionNode bodyNode;
+    @Child
+    private TclExpressionNode bodyNode;
 
     /** The name of the function, for printing purposes only. */
     private final String name;
@@ -78,10 +82,17 @@ public class TclRootNode extends RootNode {
 
     private final SourceSection sourceSection;
 
-    @CompilerDirectives.CompilationFinal(dimensions = 1) private volatile TclWriteLocalVariableNode[] argumentNodesCache;
+    @CompilerDirectives.CompilationFinal(dimensions = 1)
+    private volatile TclWriteLocalVariableNode[] argumentNodesCache;
 
-    public TclRootNode(TclLanguage language, FrameDescriptor frameDescriptor, TclExpressionNode bodyNode, SourceSection sourceSection, String name) {
-        super(language, frameDescriptor);
+    public TclRootNode(
+            TclLanguage language,
+            FrameDescriptor frameDescriptor,
+            TclExpressionNode bodyNode,
+            SourceSection sourceSection,
+            String name) {
+        super(language,
+                frameDescriptor);
         this.bodyNode = bodyNode;
         this.name = name;
         this.sourceSection = sourceSection;
@@ -93,9 +104,14 @@ public class TclRootNode extends RootNode {
     }
 
     @Override
-    public Object execute(VirtualFrame frame) {
-        assert lookupContextReference(TclLanguage.class).get() != null;
-        return bodyNode.executeGeneric(frame);
+    public Object execute(
+            VirtualFrame frame) {
+        assert lookupContextReference(
+                TclLanguage.class)
+                        .get() != null;
+        return bodyNode
+                .executeGeneric(
+                        frame);
     }
 
     public TclExpressionNode getBodyNode() {
@@ -107,7 +123,8 @@ public class TclRootNode extends RootNode {
         return name;
     }
 
-    public void setCloningAllowed(boolean isCloningAllowed) {
+    public void setCloningAllowed(
+            boolean isCloningAllowed) {
         this.isCloningAllowed = isCloningAllowed;
     }
 
@@ -118,47 +135,72 @@ public class TclRootNode extends RootNode {
 
     @Override
     public String toString() {
-        return "root " + name;
+        return "root "
+                + name;
     }
 
     public final TclWriteLocalVariableNode[] getDeclaredArguments() {
         TclWriteLocalVariableNode[] argumentNodes = argumentNodesCache;
         if (argumentNodes == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
+            CompilerDirectives
+                    .transferToInterpreterAndInvalidate();
             argumentNodesCache = argumentNodes = findArgumentNodes();
         }
         return argumentNodes;
     }
 
     private TclWriteLocalVariableNode[] findArgumentNodes() {
-        List<TclWriteLocalVariableNode> writeArgNodes = new ArrayList<>(4);
-        NodeUtil.forEachChild(this.getBodyNode(), new NodeVisitor() {
+        List<TclWriteLocalVariableNode> writeArgNodes = new ArrayList<>(
+                4);
+        NodeUtil.forEachChild(
+                this.getBodyNode(),
+                new NodeVisitor() {
 
-            private TclWriteLocalVariableNode wn; // The current write node containing a slot
+                    private TclWriteLocalVariableNode wn; // The current write node containing a slot
 
-            @Override
-            public boolean visit(Node node) {
-                // When there is a write node, search for TclReadArgumentNode among its children:
-                if (node instanceof InstrumentableNode.WrapperNode) {
-                    return NodeUtil.forEachChild(node, this);
-                }
-                if (node instanceof TclWriteLocalVariableNode) {
-                    wn = (TclWriteLocalVariableNode) node;
-                    boolean all = NodeUtil.forEachChild(node, this);
-                    wn = null;
-                    return all;
-                } else if (wn != null && (node instanceof TclReadArgumentNode)) {
-                    writeArgNodes.add(wn);
-                    return true;
-                } else if (wn == null && (node instanceof TclStatementNode && !(node instanceof TclBlockNode || node instanceof TclFunctionBodyNode))) {
-                    // A different tcl node - we're done.
-                    return false;
-                } else {
-                    return NodeUtil.forEachChild(node, this);
-                }
-            }
-        });
-        return writeArgNodes.toArray(new TclWriteLocalVariableNode[writeArgNodes.size()]);
+                    @Override
+                    public boolean visit(
+                            Node node) {
+                        // When there is a write node, search for TclReadArgumentNode among its children:
+                        if (node instanceof InstrumentableNode.WrapperNode) {
+                            return NodeUtil
+                                    .forEachChild(
+                                            node,
+                                            this);
+                        }
+                        if (node instanceof TclWriteLocalVariableNode) {
+                            wn = (TclWriteLocalVariableNode) node;
+                            boolean all = NodeUtil
+                                    .forEachChild(
+                                            node,
+                                            this);
+                            wn = null;
+                            return all;
+                        } else
+                            if (wn != null
+                                    && (node instanceof TclReadArgumentNode)) {
+                                        writeArgNodes
+                                                .add(wn);
+                                        return true;
+                                    } else
+                                if (wn == null
+                                        && (node instanceof TclStatementNode
+                                                && !(node instanceof TclBlockNode
+                                                        || node instanceof TclFunctionBodyNode))) {
+                                                            // A different tcl node - we're done.
+                                                            return false;
+                                                        } else {
+                                                            return NodeUtil
+                                                                    .forEachChild(
+                                                                            node,
+                                                                            this);
+                                                        }
+                    }
+                });
+        return writeArgNodes
+                .toArray(
+                        new TclWriteLocalVariableNode[writeArgNodes
+                                .size()]);
     }
 
 }

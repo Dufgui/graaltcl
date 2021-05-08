@@ -61,7 +61,9 @@ import com.oracle.truffle.tcl.runtime.TclFunctionRegistry;
  * never changes. This is guaranteed by the {@link TclFunctionRegistry}.
  */
 @NodeInfo(shortName = "func")
-public final class TclFunctionLiteralNode extends TclExpressionNode {
+public final class TclFunctionLiteralNode
+        extends
+        TclExpressionNode {
 
     /** The name of the function. */
     private final String functionName;
@@ -72,59 +74,81 @@ public final class TclFunctionLiteralNode extends TclExpressionNode {
      * first execution}. The {@link CompilationFinal} annotation ensures that the function can still
      * be constant folded during compilation.
      */
-    @CompilationFinal private TclFunction cachedFunction;
+    @CompilationFinal
+    private TclFunction cachedFunction;
 
     /**
      * The stored context reference. Caching the context reference in a field like this always
      * ensures the most efficient context lookup. The {@link TclContext} must not be stored in the
      * AST in the multi-context case.
      */
-    @CompilationFinal private ContextReference<TclContext> contextRef;
+    @CompilationFinal
+    private ContextReference<TclContext> contextRef;
 
     /**
      * It is always safe to store the language in the AST if the language supports
      * {@link ContextPolicy#SHARED shared}.
      */
-    @CompilationFinal private TclLanguage language;
+    @CompilationFinal
+    private TclLanguage language;
 
-    public TclFunctionLiteralNode(String functionName) {
+    public TclFunctionLiteralNode(
+            String functionName) {
         this.functionName = functionName;
     }
 
     @Override
-    public TclFunction executeGeneric(VirtualFrame frame) {
+    public TclFunction executeGeneric(
+            VirtualFrame frame) {
         ContextReference<TclContext> contextReference = contextRef;
         if (contextReference == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            contextReference = contextRef = lookupContextReference(TclLanguage.class);
+            CompilerDirectives
+                    .transferToInterpreterAndInvalidate();
+            contextReference = contextRef = lookupContextReference(
+                    TclLanguage.class);
         }
         TclLanguage l = language;
         if (l == null) {
-            CompilerDirectives.transferToInterpreterAndInvalidate();
-            l = language = lookupLanguageReference(TclLanguage.class).get();
+            CompilerDirectives
+                    .transferToInterpreterAndInvalidate();
+            l = language = lookupLanguageReference(
+                    TclLanguage.class)
+                            .get();
         }
-        CompilerAsserts.partialEvaluationConstant(l);
+        CompilerAsserts
+                .partialEvaluationConstant(
+                        l);
 
         TclFunction function;
         if (l.isSingleContext()) {
             function = this.cachedFunction;
             if (function == null) {
                 /* We are about to change a @CompilationFinal field. */
-                CompilerDirectives.transferToInterpreterAndInvalidate();
+                CompilerDirectives
+                        .transferToInterpreterAndInvalidate();
                 /* First execution of the node: lookup the function in the function registry. */
-                this.cachedFunction = function = contextReference.get().getFunctionRegistry().lookup(functionName, true);
+                this.cachedFunction = function = contextReference
+                        .get()
+                        .getFunctionRegistry()
+                        .lookup(functionName,
+                                true);
             }
         } else {
             /*
              * We need to rest the cached function otherwise it might cause a memory leak.
              */
             if (this.cachedFunction != null) {
-                CompilerDirectives.transferToInterpreterAndInvalidate();
+                CompilerDirectives
+                        .transferToInterpreterAndInvalidate();
                 this.cachedFunction = null;
             }
             // in the multi-context case we are not allowed to store
             // TclFunction objects in the AST. Instead we always perform the lookup in the hash map.
-            function = contextReference.get().getFunctionRegistry().lookup(functionName, true);
+            function = contextReference
+                    .get()
+                    .getFunctionRegistry()
+                    .lookup(functionName,
+                            true);
         }
         return function;
     }

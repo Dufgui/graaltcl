@@ -54,8 +54,10 @@ public class TclFactorialTest {
     private Value factorial;
 
     @Before
-    public void initEngine() throws Exception {
-        context = Context.create();
+    public void initEngine()
+            throws Exception {
+        context = Context
+                .create();
         // @formatter:off
         context.eval("tcl", "\n" +
                 "function fac(n) {\n" +
@@ -67,7 +69,11 @@ public class TclFactorialTest {
                 "}\n"
         );
         // @formatter:on
-        factorial = context.getBindings("tcl").getMember("fac");
+        factorial = context
+                .getBindings(
+                        "tcl")
+                .getMember(
+                        "fac");
     }
 
     @After
@@ -76,20 +82,38 @@ public class TclFactorialTest {
     }
 
     @Test
-    public void factorialOf5() throws Exception {
-        Number ret = factorial.execute(5).as(Number.class);
-        assertEquals(120, ret.intValue());
+    public void factorialOf5()
+            throws Exception {
+        Number ret = factorial
+                .execute(
+                        5)
+                .as(Number.class);
+        assertEquals(
+                120,
+                ret.intValue());
     }
 
     @Test
-    public void factorialOf3() throws Exception {
-        Number ret = factorial.execute(3).as(Number.class);
-        assertEquals(6, ret.intValue());
+    public void factorialOf3()
+            throws Exception {
+        Number ret = factorial
+                .execute(
+                        3)
+                .as(Number.class);
+        assertEquals(
+                6,
+                ret.intValue());
     }
 
     @Test
-    public void factorialOf1() throws Exception {
-        Number ret = factorial.execute(1).as(Number.class);
-        assertEquals(1, ret.intValue());
+    public void factorialOf1()
+            throws Exception {
+        Number ret = factorial
+                .execute(
+                        1)
+                .as(Number.class);
+        assertEquals(
+                1,
+                ret.intValue());
     }
 }

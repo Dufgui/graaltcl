@@ -73,7 +73,8 @@ public class TclExceptionTest {
 
     @Before
     public void setUp() {
-        this.ctx = Context.create("tcl");
+        this.ctx = Context
+                .create("tcl");
     }
 
     @After
@@ -83,59 +84,119 @@ public class TclExceptionTest {
 
     @Test
     public void testExceptions() {
-        assertException(true, "function main() { x = 1 / (1 == 1); }", "main");
-        assertException(true, "function foo() { return 1 / \"foo\"; } function main() { foo(); }", "foo", "main");
-        assertException(true, "function foo() { bar(); } function bar() { return 1 / \"foo\"; } function main() { foo(); }", "bar", "foo", "main");
-        assertException(true, "function foo() { bar1(); bar2(); } function bar1() { return 1; } function bar2() { return \"foo\" / 1; } function main() { foo(); }", "bar2", "foo", "main");
+        assertException(
+                true,
+                "function main() { x = 1 / (1 == 1); }",
+                "main");
+        assertException(
+                true,
+                "function foo() { return 1 / \"foo\"; } function main() { foo(); }",
+                "foo",
+                "main");
+        assertException(
+                true,
+                "function foo() { bar(); } function bar() { return 1 / \"foo\"; } function main() { foo(); }",
+                "bar",
+                "foo",
+                "main");
+        assertException(
+                true,
+                "function foo() { bar1(); bar2(); } function bar1() { return 1; } function bar2() { return \"foo\" / 1; } function main() { foo(); }",
+                "bar2",
+                "foo",
+                "main");
     }
 
     @Test
     public void testNonMain() {
-        assertException(false, "function foo(z) { x = 1 / (1==1); } function main() { return foo; }", "foo");
+        assertException(
+                false,
+                "function foo(z) { x = 1 / (1==1); } function main() { return foo; }",
+                "foo");
     }
 
     @Test
     public void testThroughProxy() {
-        assertException(false, "function bar() { x = 1 / (1==1); } function foo(z) { z(bar); } function main() { return foo; }", "bar", null, null, "foo");
+        assertException(
+                false,
+                "function bar() { x = 1 / (1==1); } function foo(z) { z(bar); } function main() { return foo; }",
+                "bar",
+                null,
+                null,
+                "foo");
     }
 
     @Test
     public void testHostException() {
-        assertHostException("function foo(z) { z(1); } function main() { return foo; }", null, "foo");
+        assertHostException(
+                "function foo(z) { z(1); } function main() { return foo; }",
+                null,
+                "foo");
     }
 
-    private void assertException(boolean failImmediately, String source, String... expectedFrames) {
+    private void assertException(
+            boolean failImmediately,
+            String source,
+            String... expectedFrames) {
         boolean initialExecute = true;
         try {
-            Value value = ctx.eval("tcl", source);
+            Value value = ctx
+                    .eval("tcl",
+                            source);
             initialExecute = false;
             if (failImmediately) {
-                Assert.fail("Should not reach here.");
+                Assert.fail(
+                        "Should not reach here.");
             }
-            ProxyExecutable proxy = (args) -> args[0].execute();
-            value.execute(proxy);
-            Assert.fail("Should not reach here.");
+            ProxyExecutable proxy = (
+                    args) -> args[0]
+                            .execute();
+            value.execute(
+                    proxy);
+            Assert.fail(
+                    "Should not reach here.");
         } catch (PolyglotException e) {
-            Assert.assertEquals(failImmediately, initialExecute);
-            assertFrames(failImmediately, e, expectedFrames);
+            Assert.assertEquals(
+                    failImmediately,
+                    initialExecute);
+            assertFrames(
+                    failImmediately,
+                    e,
+                    expectedFrames);
         }
     }
 
-    private static void assertFrames(boolean isEval, PolyglotException e, String... expectedFrames) {
+    private static void assertFrames(
+            boolean isEval,
+            PolyglotException e,
+            String... expectedFrames) {
         int i = 0;
         boolean firstHostFrame = false;
         // Expected exception
-        for (StackFrame frame : e.getPolyglotStackTrace()) {
-            if (i < expectedFrames.length && expectedFrames[i] != null) {
-                Assert.assertTrue(frame.isGuestFrame());
-                Assert.assertEquals("tcl", frame.getLanguage().getId());
-                Assert.assertEquals(expectedFrames[i], frame.getRootName());
-                Assert.assertTrue(frame.getSourceLocation() != null);
+        for (StackFrame frame : e
+                .getPolyglotStackTrace()) {
+            if (i < expectedFrames.length
+                    && expectedFrames[i] != null) {
+                Assert.assertTrue(
+                        frame.isGuestFrame());
+                Assert.assertEquals(
+                        "tcl",
+                        frame.getLanguage()
+                                .getId());
+                Assert.assertEquals(
+                        expectedFrames[i],
+                        frame.getRootName());
+                Assert.assertTrue(
+                        frame.getSourceLocation() != null);
                 firstHostFrame = true;
             } else {
-                Assert.assertTrue(frame.isHostFrame());
+                Assert.assertTrue(
+                        frame.isHostFrame());
                 if (firstHostFrame) {
-                    Assert.assertEquals(isEval ? "org.graalvm.polyglot.Context.eval" : "org.graalvm.polyglot.Value.execute", frame.getRootName());
+                    Assert.assertEquals(
+                            isEval ? "org.graalvm.polyglot.Context.eval"
+                                    : "org.graalvm.polyglot.Value.execute",
+                            frame.getRootName());
                     firstHostFrame = false;
                 }
             }
@@ -143,73 +204,133 @@ public class TclExceptionTest {
         }
     }
 
-    private void assertHostException(String source, String... expectedFrames) {
+    private void assertHostException(
+            String source,
+            String... expectedFrames) {
         boolean initialExecute = true;
         RuntimeException[] exception = new RuntimeException[1];
         try {
-            Value value = ctx.eval("tcl", source);
+            Value value = ctx
+                    .eval("tcl",
+                            source);
             initialExecute = false;
-            ProxyExecutable proxy = (args) -> {
+            ProxyExecutable proxy = (
+                    args) -> {
                 throw exception[0] = new RuntimeException();
             };
-            value.execute(proxy);
-            Assert.fail("Should not reach here.");
+            value.execute(
+                    proxy);
+            Assert.fail(
+                    "Should not reach here.");
         } catch (PolyglotException e) {
-            Assert.assertFalse(initialExecute);
-            Assert.assertTrue(e.asHostException() == exception[0]);
-            assertFrames(false, e, expectedFrames);
+            Assert.assertFalse(
+                    initialExecute);
+            Assert.assertTrue(
+                    e.asHostException() == exception[0]);
+            assertFrames(
+                    false,
+                    e,
+                    expectedFrames);
         }
     }
 
     @Test
     public void testGuestLanguageError() {
         try {
-            String source = "function bar() { x = 1 / \"asdf\"; }\n" +
-                            "function foo() { return bar(); }\n" +
-                            "function main() { foo(); }";
-            ctx.eval(Source.newBuilder("tcl", source, "script.tcl").buildLiteral());
+            String source = "function bar() { x = 1 / \"asdf\"; }\n"
+                    + "function foo() { return bar(); }\n"
+                    + "function main() { foo(); }";
+            ctx.eval(
+                    Source.newBuilder(
+                            "tcl",
+                            source,
+                            "script.tcl")
+                            .buildLiteral());
             fail();
         } catch (PolyglotException e) {
-            assertTrue(e.isGuestException());
+            assertTrue(
+                    e.isGuestException());
 
-            Iterator<StackFrame> frames = e.getPolyglotStackTrace().iterator();
-            assertGuestFrame(frames, "tcl", "bar", "script.tcl", 21, 31);
-            assertGuestFrame(frames, "tcl", "foo", "script.tcl", 59, 64);
-            assertGuestFrame(frames, "tcl", "main", "script.tcl", 86, 91);
-            assertHostFrame(frames, Context.class.getName(), "eval");
-            assertHostFrame(frames, TclExceptionTest.class.getName(), "testGuestLanguageError");
+            Iterator<StackFrame> frames = e
+                    .getPolyglotStackTrace()
+                    .iterator();
+            assertGuestFrame(
+                    frames,
+                    "tcl",
+                    "bar",
+                    "script.tcl",
+                    21,
+                    31);
+            assertGuestFrame(
+                    frames,
+                    "tcl",
+                    "foo",
+                    "script.tcl",
+                    59,
+                    64);
+            assertGuestFrame(
+                    frames,
+                    "tcl",
+                    "main",
+                    "script.tcl",
+                    86,
+                    91);
+            assertHostFrame(
+                    frames,
+                    Context.class
+                            .getName(),
+                    "eval");
+            assertHostFrame(
+                    frames,
+                    TclExceptionTest.class
+                            .getName(),
+                    "testGuestLanguageError");
 
             // only host frames trailing
-            while (frames.hasNext()) {
-                assertTrue(frames.next().isHostFrame());
+            while (frames
+                    .hasNext()) {
+                assertTrue(
+                        frames.next()
+                                .isHostFrame());
             }
         }
     }
 
-    private static class TestProxy implements ProxyExecutable {
+    private static class TestProxy
+            implements
+            ProxyExecutable {
+
         private int depth;
         private final Value f;
         final List<PolyglotException> seenExceptions = new ArrayList<>();
 
         RuntimeException thrownException;
 
-        TestProxy(int depth, Value f) {
+        TestProxy(
+                int depth,
+                Value f) {
             this.depth = depth;
             this.f = f;
         }
 
-        public Object execute(Value... t) {
+        public Object execute(
+                Value... t) {
             depth--;
             if (depth > 0) {
                 try {
-                    return f.execute(this);
+                    return f.execute(
+                            this);
                 } catch (PolyglotException e) {
-                    assertProxyException(this, e);
-                    seenExceptions.add(e);
+                    assertProxyException(
+                            this,
+                            e);
+                    seenExceptions
+                            .add(e);
                     throw e;
                 }
             } else {
-                thrownException = new RuntimeException("Error in proxy test.");
+                thrownException = new RuntimeException(
+                        "Error in proxy test.");
                 throw thrownException;
             }
         }
@@ -217,144 +338,373 @@ public class TclExceptionTest {
 
     @Test
     public void testProxyGuestLanguageStack() {
-        Value bar = ctx.eval("tcl", "function foo(f) { f(); } function bar(f) { return foo(f); } function main() { return bar; }");
+        Value bar = ctx
+                .eval("tcl",
+                        "function foo(f) { f(); } function bar(f) { return foo(f); } function main() { return bar; }");
 
-        TestProxy proxy = new TestProxy(3, bar);
+        TestProxy proxy = new TestProxy(
+                3,
+                bar);
         try {
-            bar.execute(proxy);
+            bar.execute(
+                    proxy);
             fail();
         } catch (PolyglotException e) {
-            assertProxyException(proxy, e);
+            assertProxyException(
+                    proxy,
+                    e);
 
             for (PolyglotException seenException : proxy.seenExceptions) {
                 // exceptions are unwrapped and wrapped again
-                assertNotSame(e, seenException);
-                assertSame(e.asHostException(), seenException.asHostException());
+                assertNotSame(
+                        e,
+                        seenException);
+                assertSame(
+                        e.asHostException(),
+                        seenException
+                                .asHostException());
             }
         }
     }
 
-    private static void assertProxyException(TestProxy proxy, PolyglotException e) {
-        assertTrue(e.isHostException());
+    private static void assertProxyException(
+            TestProxy proxy,
+            PolyglotException e) {
+        assertTrue(
+                e.isHostException());
         if (e.asHostException() instanceof AssertionError) {
-            throw (AssertionError) e.asHostException();
+            throw (AssertionError) e
+                    .asHostException();
         }
-        assertSame(proxy.thrownException, e.asHostException());
+        assertSame(
+                proxy.thrownException,
+                e.asHostException());
 
-        Iterator<StackFrame> frames = e.getPolyglotStackTrace().iterator();
-        assertHostFrame(frames, TestProxy.class.getName(), "execute");
+        Iterator<StackFrame> frames = e
+                .getPolyglotStackTrace()
+                .iterator();
+        assertHostFrame(
+                frames,
+                TestProxy.class
+                        .getName(),
+                "execute");
         for (int i = 0; i < 2; i++) {
-            assertGuestFrame(frames, "tcl", "foo", "Unnamed", 18, 21);
-            assertGuestFrame(frames, "tcl", "bar", "Unnamed", 50, 56);
+            assertGuestFrame(
+                    frames,
+                    "tcl",
+                    "foo",
+                    "Unnamed",
+                    18,
+                    21);
+            assertGuestFrame(
+                    frames,
+                    "tcl",
+                    "bar",
+                    "Unnamed",
+                    50,
+                    56);
 
-            assertHostFrame(frames, Value.class.getName(), "execute");
-            assertHostFrame(frames, TestProxy.class.getName(), "execute");
+            assertHostFrame(
+                    frames,
+                    Value.class
+                            .getName(),
+                    "execute");
+            assertHostFrame(
+                    frames,
+                    TestProxy.class
+                            .getName(),
+                    "execute");
         }
 
-        assertGuestFrame(frames, "tcl", "foo", "Unnamed", 18, 21);
-        assertGuestFrame(frames, "tcl", "bar", "Unnamed", 50, 56);
+        assertGuestFrame(
+                frames,
+                "tcl",
+                "foo",
+                "Unnamed",
+                18,
+                21);
+        assertGuestFrame(
+                frames,
+                "tcl",
+                "bar",
+                "Unnamed",
+                50,
+                56);
 
-        assertHostFrame(frames, Value.class.getName(), "execute");
-        assertHostFrame(frames, TclExceptionTest.class.getName(), "testProxyGuestLanguageStack");
+        assertHostFrame(
+                frames,
+                Value.class
+                        .getName(),
+                "execute");
+        assertHostFrame(
+                frames,
+                TclExceptionTest.class
+                        .getName(),
+                "testProxyGuestLanguageStack");
 
-        while (frames.hasNext()) {
+        while (frames
+                .hasNext()) {
             // skip unit test frames.
-            assertTrue(frames.next().isHostFrame());
+            assertTrue(
+                    frames.next()
+                            .isHostFrame());
         }
     }
 
-    static void assertHostFrame(Iterator<StackFrame> frames, String className, String methodName) {
-        assertTrue(frames.hasNext());
-        StackFrame frame = frames.next();
-        String info = frame.toString();
-        assertTrue(info, frame.isHostFrame());
-        assertFalse(info, frame.isGuestFrame());
-        assertEquals(info, "host", frame.getLanguage().getId());
-        assertEquals(info, "Host", frame.getLanguage().getName());
-        assertEquals(info, className + "." + methodName, frame.getRootName());
-        assertNull(info, frame.getSourceLocation());
-        assertNotNull(frame.toString());
+    static void assertHostFrame(
+            Iterator<StackFrame> frames,
+            String className,
+            String methodName) {
+        assertTrue(
+                frames.hasNext());
+        StackFrame frame = frames
+                .next();
+        String info = frame
+                .toString();
+        assertTrue(
+                info,
+                frame.isHostFrame());
+        assertFalse(
+                info,
+                frame.isGuestFrame());
+        assertEquals(
+                info,
+                "host",
+                frame.getLanguage()
+                        .getId());
+        assertEquals(
+                info,
+                "Host",
+                frame.getLanguage()
+                        .getName());
+        assertEquals(
+                info,
+                className
+                        + "."
+                        + methodName,
+                frame.getRootName());
+        assertNull(
+                info,
+                frame.getSourceLocation());
+        assertNotNull(
+                frame.toString());
 
-        StackTraceElement hostFrame = frame.toHostFrame();
-        info = hostFrame.toString();
-        assertEquals(info, className, hostFrame.getClassName());
-        assertEquals(info, methodName, hostFrame.getMethodName());
-        assertNotNull(hostFrame.toString());
-        assertTrue(info, hostFrame.equals(hostFrame));
-        assertNotEquals(0, hostFrame.hashCode());
+        StackTraceElement hostFrame = frame
+                .toHostFrame();
+        info = hostFrame
+                .toString();
+        assertEquals(
+                info,
+                className,
+                hostFrame
+                        .getClassName());
+        assertEquals(
+                info,
+                methodName,
+                hostFrame
+                        .getMethodName());
+        assertNotNull(
+                hostFrame
+                        .toString());
+        assertTrue(
+                info,
+                hostFrame
+                        .equals(hostFrame));
+        assertNotEquals(
+                0,
+                hostFrame
+                        .hashCode());
     }
 
-    static void assertGuestFrame(Iterator<StackFrame> frames, String languageId, String rootName, String fileName, int charIndex, int endIndex) {
-        assertTrue(frames.hasNext());
-        StackFrame frame = frames.next();
-        assertTrue(frame.toString(), frame.isGuestFrame());
-        assertEquals(languageId, frame.getLanguage().getId());
-        assertEquals(rootName, frame.getRootName());
-        assertNotNull(frame.getSourceLocation());
-        assertNotNull(frame.getSourceLocation().getSource());
-        assertEquals(fileName, frame.getSourceLocation().getSource().getName());
-        assertEquals(charIndex, frame.getSourceLocation().getCharIndex());
-        assertEquals(endIndex, frame.getSourceLocation().getCharEndIndex());
+    static void assertGuestFrame(
+            Iterator<StackFrame> frames,
+            String languageId,
+            String rootName,
+            String fileName,
+            int charIndex,
+            int endIndex) {
+        assertTrue(
+                frames.hasNext());
+        StackFrame frame = frames
+                .next();
+        assertTrue(
+                frame.toString(),
+                frame.isGuestFrame());
+        assertEquals(
+                languageId,
+                frame.getLanguage()
+                        .getId());
+        assertEquals(
+                rootName,
+                frame.getRootName());
+        assertNotNull(
+                frame.getSourceLocation());
+        assertNotNull(
+                frame.getSourceLocation()
+                        .getSource());
+        assertEquals(
+                fileName,
+                frame.getSourceLocation()
+                        .getSource()
+                        .getName());
+        assertEquals(
+                charIndex,
+                frame.getSourceLocation()
+                        .getCharIndex());
+        assertEquals(
+                endIndex,
+                frame.getSourceLocation()
+                        .getCharEndIndex());
 
-        StackTraceElement hostFrame = frame.toHostFrame();
-        assertEquals("<" + languageId + ">", hostFrame.getClassName());
-        assertEquals(rootName, hostFrame.getMethodName());
-        assertEquals(frame.getSourceLocation().getStartLine(), hostFrame.getLineNumber());
-        assertEquals(fileName, hostFrame.getFileName());
-        assertNotNull(hostFrame.toString());
-        assertTrue(hostFrame.equals(hostFrame));
-        assertNotEquals(0, hostFrame.hashCode());
+        StackTraceElement hostFrame = frame
+                .toHostFrame();
+        assertEquals(
+                "<" + languageId
+                        + ">",
+                hostFrame
+                        .getClassName());
+        assertEquals(
+                rootName,
+                hostFrame
+                        .getMethodName());
+        assertEquals(
+                frame.getSourceLocation()
+                        .getStartLine(),
+                hostFrame
+                        .getLineNumber());
+        assertEquals(
+                fileName,
+                hostFrame
+                        .getFileName());
+        assertNotNull(
+                hostFrame
+                        .toString());
+        assertTrue(
+                hostFrame
+                        .equals(hostFrame));
+        assertNotEquals(
+                0,
+                hostFrame
+                        .hashCode());
     }
 
-    static void assertGuestFrame(Iterator<StackFrame> frames, String languageId, String rootName) {
-        assertTrue(frames.hasNext());
-        StackFrame frame = frames.next();
-        assertTrue(frame.toString(), frame.isGuestFrame());
-        assertEquals(languageId, frame.getLanguage().getId());
-        assertEquals(rootName, frame.getRootName());
+    static void assertGuestFrame(
+            Iterator<StackFrame> frames,
+            String languageId,
+            String rootName) {
+        assertTrue(
+                frames.hasNext());
+        StackFrame frame = frames
+                .next();
+        assertTrue(
+                frame.toString(),
+                frame.isGuestFrame());
+        assertEquals(
+                languageId,
+                frame.getLanguage()
+                        .getId());
+        assertEquals(
+                rootName,
+                frame.getRootName());
 
-        StackTraceElement hostFrame = frame.toHostFrame();
-        assertEquals("<" + languageId + ">", hostFrame.getClassName());
-        assertEquals(rootName, hostFrame.getMethodName());
-        assertNotNull(hostFrame.toString());
-        assertTrue(hostFrame.equals(hostFrame));
-        assertNotEquals(0, hostFrame.hashCode());
+        StackTraceElement hostFrame = frame
+                .toHostFrame();
+        assertEquals(
+                "<" + languageId
+                        + ">",
+                hostFrame
+                        .getClassName());
+        assertEquals(
+                rootName,
+                hostFrame
+                        .getMethodName());
+        assertNotNull(
+                hostFrame
+                        .toString());
+        assertTrue(
+                hostFrame
+                        .equals(hostFrame));
+        assertNotEquals(
+                0,
+                hostFrame
+                        .hashCode());
     }
 
     @Export
-    public String methodThatTakesFunction(Function<String, String> s) {
-        return s.apply("t");
+    public String methodThatTakesFunction(
+            Function<String, String> s) {
+        return s.apply(
+                "t");
     }
 
     @Test
     public void testGuestOverHostPropagation() {
-        Context context = Context.newBuilder("tcl").allowAllAccess(true).build();
-        String code = "" +
-                        "function other(x) {" +
-                        "   return invalidFunction();" +
-                        "}" +
-                        "" +
-                        "function f(test) {" +
-                        "test.methodThatTakesFunction(other);" +
-                        "}";
+        Context context = Context
+                .newBuilder(
+                        "tcl")
+                .allowAllAccess(
+                        true)
+                .build();
+        String code = ""
+                + "function other(x) {"
+                + "   return invalidFunction();"
+                + "}"
+                + ""
+                + "function f(test) {"
+                + "test.methodThatTakesFunction(other);"
+                + "}";
 
-        context.eval("tcl", code);
+        context.eval(
+                "tcl",
+                code);
         try {
-            context.getBindings("tcl").getMember("f").execute(this);
+            context.getBindings(
+                    "tcl")
+                    .getMember(
+                            "f")
+                    .execute(
+                            this);
             fail();
         } catch (PolyglotException e) {
-            assertFalse(e.isHostException());
-            assertTrue(e.isGuestException());
-            Iterator<StackFrame> frames = e.getPolyglotStackTrace().iterator();
-            assertTrue(frames.next().isGuestFrame());
-            assertGuestFrame(frames, "tcl", "other", "Unnamed", 29, 46);
-            assertHostFrame(frames, "com.oracle.truffle.polyglot.PolyglotFunction", "apply");
-            assertHostFrame(frames, "com.oracle.truffle.tcl.test.TclExceptionTest", "methodThatTakesFunction");
-            assertGuestFrame(frames, "tcl", "f", "Unnamed", 66, 101);
+            assertFalse(
+                    e.isHostException());
+            assertTrue(
+                    e.isGuestException());
+            Iterator<StackFrame> frames = e
+                    .getPolyglotStackTrace()
+                    .iterator();
+            assertTrue(
+                    frames.next()
+                            .isGuestFrame());
+            assertGuestFrame(
+                    frames,
+                    "tcl",
+                    "other",
+                    "Unnamed",
+                    29,
+                    46);
+            assertHostFrame(
+                    frames,
+                    "com.oracle.truffle.polyglot.PolyglotFunction",
+                    "apply");
+            assertHostFrame(
+                    frames,
+                    "com.oracle.truffle.tcl.test.TclExceptionTest",
+                    "methodThatTakesFunction");
+            assertGuestFrame(
+                    frames,
+                    "tcl",
+                    "f",
+                    "Unnamed",
+                    66,
+                    101);
 
             // rest is just unit test host frames
-            while (frames.hasNext()) {
-                assertTrue(frames.next().isHostFrame());
+            while (frames
+                    .hasNext()) {
+                assertTrue(
+                        frames.next()
+                                .isHostFrame());
             }
         }
     }

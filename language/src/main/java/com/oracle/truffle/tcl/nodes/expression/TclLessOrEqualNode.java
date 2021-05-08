@@ -52,21 +52,35 @@ import com.oracle.truffle.tcl.runtime.TclBigNumber;
  * This class is similar to the {@link TclLessThanNode}.
  */
 @NodeInfo(shortName = "<=")
-public abstract class TclLessOrEqualNode extends TclBinaryNode {
+public abstract class TclLessOrEqualNode
+        extends
+        TclBinaryNode {
 
     @Specialization
-    protected boolean lessOrEqual(long left, long right) {
+    protected boolean lessOrEqual(
+            long left,
+            long right) {
         return left <= right;
     }
 
     @Specialization
     @TruffleBoundary
-    protected boolean lessOrEqual(TclBigNumber left, TclBigNumber right) {
-        return left.compareTo(right) <= 0;
+    protected boolean lessOrEqual(
+            TclBigNumber left,
+            TclBigNumber right) {
+        return left
+                .compareTo(
+                        right) <= 0;
     }
 
     @Fallback
-    protected Object typeError(Object left, Object right) {
-        throw TclException.typeError(this, left, right);
+    protected Object typeError(
+            Object left,
+            Object right) {
+        throw TclException
+                .typeError(
+                        this,
+                        left,
+                        right);
     }
 }

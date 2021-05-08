@@ -40,67 +40,123 @@
  */
 package com.oracle.truffle.tcl.test;
 
-import com.oracle.truffle.api.Truffle;
-import com.oracle.truffle.tcl.TclLanguage;
+import static org.junit.Assert.assertNotNull;
+
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
 import java.util.Map;
+
 import org.graalvm.polyglot.Engine;
 import org.junit.After;
-import static org.junit.Assert.assertNotNull;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.oracle.truffle.api.Truffle;
+import com.oracle.truffle.tcl.TclLanguage;
+
 public class TclSeparatedClassLoadersTest {
+
     private ClassLoader loader;
 
     @Before
     public void storeLoader() {
-        loader = Thread.currentThread().getContextClassLoader();
+        loader = Thread
+                .currentThread()
+                .getContextClassLoader();
     }
 
     @Test
-    public void sdkAndTruffleLanguageAPIAndTclInSeparateClassLoaders() throws Exception {
-        final ProtectionDomain sdkDomain = Engine.class.getProtectionDomain();
-        Assume.assumeNotNull(sdkDomain);
-        Assume.assumeNotNull(sdkDomain.getCodeSource());
-        URL sdkURL = sdkDomain.getCodeSource().getLocation();
-        Assume.assumeNotNull(sdkURL);
+    public void sdkAndTruffleLanguageAPIAndTclInSeparateClassLoaders()
+            throws Exception {
+        final ProtectionDomain sdkDomain = Engine.class
+                .getProtectionDomain();
+        Assume.assumeNotNull(
+                sdkDomain);
+        Assume.assumeNotNull(
+                sdkDomain
+                        .getCodeSource());
+        URL sdkURL = sdkDomain
+                .getCodeSource()
+                .getLocation();
+        Assume.assumeNotNull(
+                sdkURL);
 
-        URL truffleURL = Truffle.class.getProtectionDomain().getCodeSource().getLocation();
-        Assume.assumeNotNull(truffleURL);
+        URL truffleURL = Truffle.class
+                .getProtectionDomain()
+                .getCodeSource()
+                .getLocation();
+        Assume.assumeNotNull(
+                truffleURL);
 
-        URL tclURL = TclLanguage.class.getProtectionDomain().getCodeSource().getLocation();
-        Assume.assumeNotNull(tclURL);
+        URL tclURL = TclLanguage.class
+                .getProtectionDomain()
+                .getCodeSource()
+                .getLocation();
+        Assume.assumeNotNull(
+                tclURL);
 
-        ClassLoader parent = Engine.class.getClassLoader().getParent();
+        ClassLoader parent = Engine.class
+                .getClassLoader()
+                .getParent();
 
-        URLClassLoader sdkLoader = new URLClassLoader(new URL[]{sdkURL}, parent);
+        URLClassLoader sdkLoader = new URLClassLoader(
+                new URL[] {
+                        sdkURL },
+                parent);
         boolean sdkLoaderLoadsTruffleLanguage;
         try {
-            Class.forName("com.oracle.truffle.api.TruffleLanguage", false, sdkLoader);
+            Class.forName(
+                    "com.oracle.truffle.api.TruffleLanguage",
+                    false,
+                    sdkLoader);
             sdkLoaderLoadsTruffleLanguage = true;
         } catch (ClassNotFoundException cnf) {
             sdkLoaderLoadsTruffleLanguage = false;
         }
-        Assume.assumeFalse(sdkLoaderLoadsTruffleLanguage);
-        URLClassLoader truffleLoader = new URLClassLoader(new URL[]{truffleURL}, sdkLoader);
-        URLClassLoader tclLoader = new URLClassLoader(new URL[]{tclURL}, truffleLoader);
-        Thread.currentThread().setContextClassLoader(tclLoader);
+        Assume.assumeFalse(
+                sdkLoaderLoadsTruffleLanguage);
+        URLClassLoader truffleLoader = new URLClassLoader(
+                new URL[] {
+                        truffleURL },
+                sdkLoader);
+        URLClassLoader tclLoader = new URLClassLoader(
+                new URL[] {
+                        tclURL },
+                truffleLoader);
+        Thread.currentThread()
+                .setContextClassLoader(
+                        tclLoader);
 
-        Class<?> engineClass = sdkLoader.loadClass(Engine.class.getName());
-        Object engine = engineClass.getMethod("create").invoke(null);
-        assertNotNull("Engine has been created", engine);
+        Class<?> engineClass = sdkLoader
+                .loadClass(
+                        Engine.class
+                                .getName());
+        Object engine = engineClass
+                .getMethod(
+                        "create")
+                .invoke(null);
+        assertNotNull(
+                "Engine has been created",
+                engine);
 
-        Map<?, ?> languages = (Map<?, ?>) engineClass.getMethod("getLanguages").invoke(engine);
-        Object lang = languages.get("tcl");
-        assertNotNull("Tcl language found: " + languages, lang);
+        Map<?, ?> languages = (Map<?, ?>) engineClass
+                .getMethod(
+                        "getLanguages")
+                .invoke(engine);
+        Object lang = languages
+                .get("tcl");
+        assertNotNull(
+                "Tcl language found: "
+                        + languages,
+                lang);
     }
 
     @After
     public void resetLoader() {
-        Thread.currentThread().setContextClassLoader(loader);
+        Thread.currentThread()
+                .setContextClassLoader(
+                        loader);
     }
 }

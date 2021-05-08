@@ -54,28 +54,48 @@ import com.oracle.truffle.tcl.runtime.TclBigNumber;
  * the code simple.
  */
 @NodeInfo(shortName = "/")
-public abstract class TclDivNode extends TclBinaryNode {
+public abstract class TclDivNode
+        extends
+        TclBinaryNode {
 
     @Specialization(rewriteOn = ArithmeticException.class)
-    protected long div(long left, long right) throws ArithmeticException {
-        long result = left / right;
+    protected long div(
+            long left,
+            long right)
+            throws ArithmeticException {
+        long result = left
+                / right;
         /*
          * The division overflows if left is Long.MIN_VALUE and right is -1.
          */
-        if ((left & right & result) < 0) {
-            throw new ArithmeticException("long overflow");
+        if ((left
+                & right
+                & result) < 0) {
+            throw new ArithmeticException(
+                    "long overflow");
         }
         return result;
     }
 
     @Specialization
     @TruffleBoundary
-    protected TclBigNumber div(TclBigNumber left, TclBigNumber right) {
-        return new TclBigNumber(left.getValue().divide(right.getValue()));
+    protected TclBigNumber div(
+            TclBigNumber left,
+            TclBigNumber right) {
+        return new TclBigNumber(
+                left.getValue()
+                        .divide(right
+                                .getValue()));
     }
 
     @Fallback
-    protected Object typeError(Object left, Object right) {
-        throw TclException.typeError(this, left, right);
+    protected Object typeError(
+            Object left,
+            Object right) {
+        throw TclException
+                .typeError(
+                        this,
+                        left,
+                        right);
     }
 }

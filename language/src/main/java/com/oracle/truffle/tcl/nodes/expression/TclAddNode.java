@@ -61,7 +61,9 @@ import com.oracle.truffle.tcl.runtime.TclBigNumber;
  * is generated that provides, e.g., {@link TclAddNodeGen#create node creation}.
  */
 @NodeInfo(shortName = "+")
-public abstract class TclAddNode extends TclBinaryNode {
+public abstract class TclAddNode
+        extends
+        TclBinaryNode {
 
     /**
      * Specialization for primitive {@code long} values. This is the fast path of the
@@ -79,8 +81,13 @@ public abstract class TclAddNode extends TclBinaryNode {
      * operand are {@code long} values.
      */
     @Specialization(rewriteOn = ArithmeticException.class)
-    protected long add(long left, long right) {
-        return Math.addExact(left, right);
+    protected long add(
+            long left,
+            long right) {
+        return Math
+                .addExact(
+                        left,
+                        right);
     }
 
     /**
@@ -97,8 +104,13 @@ public abstract class TclAddNode extends TclBinaryNode {
      */
     @Specialization
     @TruffleBoundary
-    protected TclBigNumber add(TclBigNumber left, TclBigNumber right) {
-        return new TclBigNumber(left.getValue().add(right.getValue()));
+    protected TclBigNumber add(
+            TclBigNumber left,
+            TclBigNumber right) {
+        return new TclBigNumber(
+                left.getValue()
+                        .add(right
+                                .getValue()));
     }
 
     /**
@@ -111,20 +123,33 @@ public abstract class TclAddNode extends TclBinaryNode {
      */
     @Specialization(guards = "isString(left, right)")
     @TruffleBoundary
-    protected String add(Object left, Object right) {
-        return left.toString() + right.toString();
+    protected String add(
+            Object left,
+            Object right) {
+        return left
+                .toString()
+                + right.toString();
     }
 
     /**
      * Guard for String concatenation: returns true if either the left or the right operand is a
      * {@link String}.
      */
-    protected boolean isString(Object a, Object b) {
-        return a instanceof String || b instanceof String;
+    protected boolean isString(
+            Object a,
+            Object b) {
+        return a instanceof String
+                || b instanceof String;
     }
 
     @Fallback
-    protected Object typeError(Object left, Object right) {
-        throw TclException.typeError(this, left, right);
+    protected Object typeError(
+            Object left,
+            Object right) {
+        throw TclException
+                .typeError(
+                        this,
+                        left,
+                        right);
     }
 }

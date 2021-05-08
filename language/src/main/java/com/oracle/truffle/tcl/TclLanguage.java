@@ -193,16 +193,34 @@ import com.oracle.truffle.tcl.runtime.TclObject;
  * </ul>
  */
 @TruffleLanguage.Registration(id = TclLanguage.ID, name = "Tcl", defaultMimeType = TclLanguage.MIME_TYPE, characterMimeTypes = TclLanguage.MIME_TYPE, contextPolicy = ContextPolicy.SHARED, fileTypeDetectors = TclFileDetector.class)
-@ProvidedTags({StandardTags.CallTag.class, StandardTags.StatementTag.class, StandardTags.RootTag.class, StandardTags.RootBodyTag.class, StandardTags.ExpressionTag.class, DebuggerTags.AlwaysHalt.class,
-                StandardTags.ReadVariableTag.class, StandardTags.WriteVariableTag.class})
-public final class TclLanguage extends TruffleLanguage<TclContext> {
+@ProvidedTags({
+        StandardTags.CallTag.class,
+        StandardTags.StatementTag.class,
+        StandardTags.RootTag.class,
+        StandardTags.RootBodyTag.class,
+        StandardTags.ExpressionTag.class,
+        DebuggerTags.AlwaysHalt.class,
+        StandardTags.ReadVariableTag.class,
+        StandardTags.WriteVariableTag.class })
+public final class TclLanguage
+        extends
+        TruffleLanguage<TclContext> {
+
     public static volatile int counter;
 
     public static final String ID = "tcl";
     public static final String MIME_TYPE = "application/x-sl";
-    private static final Source BUILTIN_SOURCE = Source.newBuilder(TclLanguage.ID, "", "tcl builtin").build();
+    private static final Source BUILTIN_SOURCE = Source
+            .newBuilder(
+                    TclLanguage.ID,
+                    "",
+                    "tcl builtin")
+            .build();
 
-    private final Assumption singleContext = Truffle.getRuntime().createAssumption("Single tcl context.");
+    private final Assumption singleContext = Truffle
+            .getRuntime()
+            .createAssumption(
+                    "Single tcl context.");
 
     private final Map<NodeFactory<? extends TclBuiltinNode>, RootCallTarget> builtinTargets = new ConcurrentHashMap<>();
     private final Map<String, RootCallTarget> undefinedFunctions = new ConcurrentHashMap<>();
@@ -211,19 +229,37 @@ public final class TclLanguage extends TruffleLanguage<TclContext> {
 
     public TclLanguage() {
         counter++;
-        this.rootShape = Shape.newBuilder().layout(TclObject.class).build();
+        this.rootShape = Shape
+                .newBuilder()
+                .layout(TclObject.class)
+                .build();
     }
 
     @Override
-    protected TclContext createContext(Env env) {
-        return new TclContext(this, env, new ArrayList<>(EXTERNAL_BUILTINS));
+    protected TclContext createContext(
+            Env env) {
+        return new TclContext(
+                this,
+                env,
+                new ArrayList<>(
+                        EXTERNAL_BUILTINS));
     }
 
-    public RootCallTarget getOrCreateUndefinedFunction(String name) {
-        RootCallTarget target = undefinedFunctions.get(name);
+    public RootCallTarget getOrCreateUndefinedFunction(
+            String name) {
+        RootCallTarget target = undefinedFunctions
+                .get(name);
         if (target == null) {
-            target = Truffle.getRuntime().createCallTarget(new TclUndefinedFunctionRootNode(this, name));
-            RootCallTarget other = undefinedFunctions.putIfAbsent(name, target);
+            target = Truffle
+                    .getRuntime()
+                    .createCallTarget(
+                            new TclUndefinedFunctionRootNode(
+                                    this,
+                                    name));
+            RootCallTarget other = undefinedFunctions
+                    .putIfAbsent(
+                            name,
+                            target);
             if (other != null) {
                 target = other;
             }
@@ -231,8 +267,10 @@ public final class TclLanguage extends TruffleLanguage<TclContext> {
         return target;
     }
 
-    public RootCallTarget lookupBuiltin(NodeFactory<? extends TclBuiltinNode> factory) {
-        RootCallTarget target = builtinTargets.get(factory);
+    public RootCallTarget lookupBuiltin(
+            NodeFactory<? extends TclBuiltinNode> factory) {
+        RootCallTarget target = builtinTargets
+                .get(factory);
         if (target != null) {
             return target;
         }
@@ -243,7 +281,9 @@ public final class TclLanguage extends TruffleLanguage<TclContext> {
          *
          * methods in the builtin classes.
          */
-        int argumentCount = factory.getExecutionSignature().size();
+        int argumentCount = factory
+                .getExecutionSignature()
+                .size();
         TclExpressionNode[] argumentNodes = new TclExpressionNode[argumentCount];
         /*
          * Builtin functions are like normal functions, i.e., the arguments are passed in as an
@@ -251,70 +291,120 @@ public final class TclLanguage extends TruffleLanguage<TclContext> {
          * from this array.
          */
         for (int i = 0; i < argumentCount; i++) {
-            argumentNodes[i] = new TclReadArgumentNode(i);
+            argumentNodes[i] = new TclReadArgumentNode(
+                    i);
         }
         /* Instantiate the builtin node. This node performs the actual functionality. */
-        TclBuiltinNode builtinBodyNode = factory.createNode((Object) argumentNodes);
-        builtinBodyNode.addRootTag();
+        TclBuiltinNode builtinBodyNode = factory
+                .createNode(
+                        (Object) argumentNodes);
+        builtinBodyNode
+                .addRootTag();
         /* The name of the builtin function is specified via an annotation on the node class. */
-        String name = lookupNodeInfo(builtinBodyNode.getClass()).shortName();
-        builtinBodyNode.setUnavailableSourceSection();
+        String name = lookupNodeInfo(
+                builtinBodyNode
+                        .getClass())
+                                .shortName();
+        builtinBodyNode
+                .setUnavailableSourceSection();
 
         /* Wrap the builtin in a RootNode. Truffle requires all AST to start with a RootNode. */
-        TclRootNode rootNode = new TclRootNode(this, new FrameDescriptor(), builtinBodyNode, BUILTIN_SOURCE.createUnavailableSection(), name);
+        TclRootNode rootNode = new TclRootNode(
+                this,
+                new FrameDescriptor(),
+                builtinBodyNode,
+                BUILTIN_SOURCE
+                        .createUnavailableSection(),
+                name);
 
         /*
          * Register the builtin function in the builtin registry. Call targets for builtins may be
          * reused across multiple contexts.
          */
-        RootCallTarget newTarget = Truffle.getRuntime().createCallTarget(rootNode);
-        RootCallTarget oldTarget = builtinTargets.put(factory, newTarget);
+        RootCallTarget newTarget = Truffle
+                .getRuntime()
+                .createCallTarget(
+                        rootNode);
+        RootCallTarget oldTarget = builtinTargets
+                .put(factory,
+                        newTarget);
         if (oldTarget != null) {
             return oldTarget;
         }
         return newTarget;
     }
 
-    public static NodeInfo lookupNodeInfo(Class<?> clazz) {
+    public static NodeInfo lookupNodeInfo(
+            Class<?> clazz) {
         if (clazz == null) {
             return null;
         }
-        NodeInfo info = clazz.getAnnotation(NodeInfo.class);
+        NodeInfo info = clazz
+                .getAnnotation(
+                        NodeInfo.class);
         if (info != null) {
             return info;
         } else {
-            return lookupNodeInfo(clazz.getSuperclass());
+            return lookupNodeInfo(
+                    clazz.getSuperclass());
         }
     }
 
     @Override
-    protected CallTarget parse(ParsingRequest request) throws Exception {
-        Source source = request.getSource();
+    protected CallTarget parse(
+            ParsingRequest request)
+            throws Exception {
+        Source source = request
+                .getSource();
         Map<String, RootCallTarget> functions;
         /*
          * Parse the provided source. At this point, we do not have a TclContext yet. Registration of
          * the functions with the TclContext happens lazily in TclEvalRootNode.
          */
-        if (request.getArgumentNames().isEmpty()) {
-            functions = TclParser.parseTcl(this, source);
+        if (request
+                .getArgumentNames()
+                .isEmpty()) {
+            functions = TclParser
+                    .parseTcl(
+                            this,
+                            source);
         } else {
             StringBuilder sb = new StringBuilder();
-            sb.append("function main(");
+            sb.append(
+                    "function main(");
             String sep = "";
-            for (String argumentName : request.getArgumentNames()) {
-                sb.append(sep);
-                sb.append(argumentName);
+            for (String argumentName : request
+                    .getArgumentNames()) {
+                sb.append(
+                        sep);
+                sb.append(
+                        argumentName);
                 sep = ",";
             }
-            sb.append(") { return ");
-            sb.append(source.getCharacters());
-            sb.append(";}");
-            String language = source.getLanguage() == null ? ID : source.getLanguage();
-            Source decoratedSource = Source.newBuilder(language, sb.toString(), source.getName()).build();
-            functions = TclParser.parseTcl(this, decoratedSource);
+            sb.append(
+                    ") { return ");
+            sb.append(
+                    source.getCharacters());
+            sb.append(
+                    ";}");
+            String language = source
+                    .getLanguage() == null
+                            ? ID
+                            : source.getLanguage();
+            Source decoratedSource = Source
+                    .newBuilder(
+                            language,
+                            sb.toString(),
+                            source.getName())
+                    .build();
+            functions = TclParser
+                    .parseTcl(
+                            this,
+                            decoratedSource);
         }
 
-        RootCallTarget main = functions.get("main");
+        RootCallTarget main = functions
+                .get("main");
         RootNode evalMain;
         if (main != null) {
             /*
@@ -323,15 +413,24 @@ public final class TclLanguage extends TruffleLanguage<TclContext> {
              * we cannot use the original TclRootNode for the main function. Instead, we create a new
              * TclEvalRootNode that does everything we need.
              */
-            evalMain = new TclEvalRootNode(this, main, functions);
+            evalMain = new TclEvalRootNode(
+                    this,
+                    main,
+                    functions);
         } else {
             /*
              * Even without a main function, "evaluating" the parsed source needs to register the
              * functions into the TclContext.
              */
-            evalMain = new TclEvalRootNode(this, null, functions);
+            evalMain = new TclEvalRootNode(
+                    this,
+                    null,
+                    functions);
         }
-        return Truffle.getRuntime().createCallTarget(evalMain);
+        return Truffle
+                .getRuntime()
+                .createCallTarget(
+                        evalMain);
     }
 
     /**
@@ -354,16 +453,21 @@ public final class TclLanguage extends TruffleLanguage<TclContext> {
      */
     @Override
     protected void initializeMultipleContexts() {
-        singleContext.invalidate();
+        singleContext
+                .invalidate();
     }
 
     public boolean isSingleContext() {
-        return singleContext.isValid();
+        return singleContext
+                .isValid();
     }
 
     @Override
-    protected Object getLanguageView(TclContext context, Object value) {
-        return TclLanguageView.create(value);
+    protected Object getLanguageView(
+            TclContext context,
+            Object value) {
+        return TclLanguageView
+                .create(value);
     }
 
     /*
@@ -371,18 +475,33 @@ public final class TclLanguage extends TruffleLanguage<TclContext> {
      * should not override this.
      */
     @Override
-    protected Object findExportedSymbol(TclContext context, String globalName, boolean onlyExplicit) {
-        return context.getFunctionRegistry().lookup(globalName, false);
+    protected Object findExportedSymbol(
+            TclContext context,
+            String globalName,
+            boolean onlyExplicit) {
+        return context
+                .getFunctionRegistry()
+                .lookup(globalName,
+                        false);
     }
 
     @Override
-    protected boolean isVisible(TclContext context, Object value) {
-        return !InteropLibrary.getFactory().getUncached(value).isNull(value);
+    protected boolean isVisible(
+            TclContext context,
+            Object value) {
+        return !InteropLibrary
+                .getFactory()
+                .getUncached(
+                        value)
+                .isNull(value);
     }
 
     @Override
-    protected Object getScope(TclContext context) {
-        return context.getFunctionRegistry().getFunctionsObject();
+    protected Object getScope(
+            TclContext context) {
+        return context
+                .getFunctionRegistry()
+                .getFunctionsObject();
     }
 
     public Shape getRootShape() {
@@ -393,21 +512,34 @@ public final class TclLanguage extends TruffleLanguage<TclContext> {
      * Allocate an empty object. All new objects initially have no properties. Properties are added
      * when they are first stored, i.e., the store triggers a shape change of the object.
      */
-    public TclObject createObject(AllocationReporter reporter) {
-        reporter.onEnter(null, 0, AllocationReporter.SIZE_UNKNOWN);
-        TclObject object = new TclObject(rootShape);
-        reporter.onReturnValue(object, 0, AllocationReporter.SIZE_UNKNOWN);
+    public TclObject createObject(
+            AllocationReporter reporter) {
+        reporter.onEnter(
+                null,
+                0,
+                AllocationReporter.SIZE_UNKNOWN);
+        TclObject object = new TclObject(
+                rootShape);
+        reporter.onReturnValue(
+                object,
+                0,
+                AllocationReporter.SIZE_UNKNOWN);
         return object;
     }
 
     public static TclContext getCurrentContext() {
-        return getCurrentContext(TclLanguage.class);
+        return getCurrentContext(
+                TclLanguage.class);
     }
 
-    private static final List<NodeFactory<? extends TclBuiltinNode>> EXTERNAL_BUILTINS = Collections.synchronizedList(new ArrayList<>());
+    private static final List<NodeFactory<? extends TclBuiltinNode>> EXTERNAL_BUILTINS = Collections
+            .synchronizedList(
+                    new ArrayList<>());
 
-    public static void installBuiltin(NodeFactory<? extends TclBuiltinNode> builtin) {
-        EXTERNAL_BUILTINS.add(builtin);
+    public static void installBuiltin(
+            NodeFactory<? extends TclBuiltinNode> builtin) {
+        EXTERNAL_BUILTINS
+                .add(builtin);
     }
 
 }

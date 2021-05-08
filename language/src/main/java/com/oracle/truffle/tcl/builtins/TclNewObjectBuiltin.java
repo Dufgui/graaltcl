@@ -61,24 +61,39 @@ import com.oracle.truffle.tcl.runtime.TclUndefinedNameException;
  * Built-in function to create a new object. Objects in tcl are simply made up of name/value pairs.
  */
 @NodeInfo(shortName = "new")
-public abstract class TclNewObjectBuiltin extends TclBuiltinNode {
+public abstract class TclNewObjectBuiltin
+        extends
+        TclBuiltinNode {
 
     @Specialization
     @SuppressWarnings("unused")
-    public Object newObject(TclNull o,
-                    @CachedLanguage TclLanguage language,
-                    @CachedContext(TclLanguage.class) ContextReference<TclContext> contextRef,
-                    @Cached("contextRef.get().getAllocationReporter()") AllocationReporter reporter) {
-        return language.createObject(reporter);
+    public Object newObject(
+            TclNull o,
+            @CachedLanguage TclLanguage language,
+            @CachedContext(TclLanguage.class) ContextReference<TclContext> contextRef,
+            @Cached("contextRef.get().getAllocationReporter()") AllocationReporter reporter) {
+        return language
+                .createObject(
+                        reporter);
     }
 
     @Specialization(guards = "!values.isNull(obj)", limit = "3")
-    public Object newObject(Object obj, @CachedLibrary("obj") InteropLibrary values) {
+    public Object newObject(
+            Object obj,
+            @CachedLibrary("obj") InteropLibrary values) {
         try {
-            return values.instantiate(obj);
-        } catch (UnsupportedTypeException | ArityException | UnsupportedMessageException e) {
+            return values
+                    .instantiate(
+                            obj);
+        } catch (
+                UnsupportedTypeException
+                | ArityException
+                | UnsupportedMessageException e) {
             /* Foreign access was not successful. */
-            throw TclUndefinedNameException.undefinedFunction(this, obj);
+            throw TclUndefinedNameException
+                    .undefinedFunction(
+                            this,
+                            obj);
         }
     }
 }

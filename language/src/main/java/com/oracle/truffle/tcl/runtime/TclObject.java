@@ -79,10 +79,16 @@ import com.oracle.truffle.tcl.TclLanguage;
  */
 @SuppressWarnings("static-method")
 @ExportLibrary(InteropLibrary.class)
-public final class TclObject extends DynamicObject implements TruffleObject {
+public final class TclObject
+        extends
+        DynamicObject
+        implements
+        TruffleObject {
+
     protected static final int CACHE_LIMIT = 3;
 
-    public TclObject(Shape shape) {
+    public TclObject(
+            Shape shape) {
         super(shape);
     }
 
@@ -99,13 +105,20 @@ public final class TclObject extends DynamicObject implements TruffleObject {
     @ExportMessage
     @SuppressWarnings("unused")
     static final class IsIdenticalOrUndefined {
+
         @Specialization
-        static TriState doTclObject(TclObject receiver, TclObject other) {
-            return TriState.valueOf(receiver == other);
+        static TriState doTclObject(
+                TclObject receiver,
+                TclObject other) {
+            return TriState
+                    .valueOf(
+                            receiver == other);
         }
 
         @Fallback
-        static TriState doOther(TclObject receiver, Object other) {
+        static TriState doOther(
+                TclObject receiver,
+                Object other) {
             return TriState.UNDEFINED;
         }
     }
@@ -113,7 +126,9 @@ public final class TclObject extends DynamicObject implements TruffleObject {
     @ExportMessage
     @TruffleBoundary
     int identityHashCode() {
-        return System.identityHashCode(this);
+        return System
+                .identityHashCode(
+                        this);
     }
 
     @ExportMessage
@@ -128,7 +143,8 @@ public final class TclObject extends DynamicObject implements TruffleObject {
 
     @ExportMessage
     @TruffleBoundary
-    Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
+    Object toDisplayString(
+            @SuppressWarnings("unused") boolean allowSideEffects) {
         return "Object";
     }
 
@@ -138,37 +154,60 @@ public final class TclObject extends DynamicObject implements TruffleObject {
     }
 
     @ExportMessage
-    void removeMember(String member,
-                    @CachedLibrary("this") DynamicObjectLibrary objectLibrary) throws UnknownIdentifierException {
-        if (objectLibrary.containsKey(this, member)) {
-            objectLibrary.removeKey(this, member);
+    void removeMember(
+            String member,
+            @CachedLibrary("this") DynamicObjectLibrary objectLibrary)
+            throws UnknownIdentifierException {
+        if (objectLibrary
+                .containsKey(
+                        this,
+                        member)) {
+            objectLibrary
+                    .removeKey(
+                            this,
+                            member);
         } else {
-            throw UnknownIdentifierException.create(member);
+            throw UnknownIdentifierException
+                    .create(member);
         }
     }
 
     @ExportMessage
-    Object getMembers(@SuppressWarnings("unused") boolean includeInternal,
-                    @CachedLibrary("this") DynamicObjectLibrary objectLibrary) {
-        return new Keys(objectLibrary.getKeyArray(this));
+    Object getMembers(
+            @SuppressWarnings("unused") boolean includeInternal,
+            @CachedLibrary("this") DynamicObjectLibrary objectLibrary) {
+        return new Keys(
+                objectLibrary
+                        .getKeyArray(
+                                this));
     }
 
     @ExportMessage(name = "isMemberReadable")
     @ExportMessage(name = "isMemberModifiable")
     @ExportMessage(name = "isMemberRemovable")
-    boolean existsMember(String member,
-                    @CachedLibrary("this") DynamicObjectLibrary objectLibrary) {
-        return objectLibrary.containsKey(this, member);
+    boolean existsMember(
+            String member,
+            @CachedLibrary("this") DynamicObjectLibrary objectLibrary) {
+        return objectLibrary
+                .containsKey(
+                        this,
+                        member);
     }
 
     @ExportMessage
-    boolean isMemberInsertable(String member,
-                    @CachedLibrary("this") InteropLibrary receivers) {
-        return !receivers.isMemberExisting(this, member);
+    boolean isMemberInsertable(
+            String member,
+            @CachedLibrary("this") InteropLibrary receivers) {
+        return !receivers
+                .isMemberExisting(
+                        this,
+                        member);
     }
 
     @ExportLibrary(InteropLibrary.class)
-    static final class Keys implements TruffleObject {
+    static final class Keys
+            implements
+            TruffleObject {
 
         private final Object[] keys;
 
@@ -177,9 +216,13 @@ public final class TclObject extends DynamicObject implements TruffleObject {
         }
 
         @ExportMessage
-        Object readArrayElement(long index) throws InvalidArrayIndexException {
-            if (!isArrayElementReadable(index)) {
-                throw InvalidArrayIndexException.create(index);
+        Object readArrayElement(
+                long index)
+                throws InvalidArrayIndexException {
+            if (!isArrayElementReadable(
+                    index)) {
+                throw InvalidArrayIndexException
+                        .create(index);
             }
             return keys[(int) index];
         }
@@ -195,8 +238,10 @@ public final class TclObject extends DynamicObject implements TruffleObject {
         }
 
         @ExportMessage
-        boolean isArrayElementReadable(long index) {
-            return index >= 0 && index < keys.length;
+        boolean isArrayElementReadable(
+                long index) {
+            return index >= 0
+                    && index < keys.length;
         }
     }
 
@@ -204,12 +249,19 @@ public final class TclObject extends DynamicObject implements TruffleObject {
      * {@link DynamicObjectLibrary} provides the polymorphic inline cache for reading properties.
      */
     @ExportMessage
-    Object readMember(String name,
-                    @CachedLibrary("this") DynamicObjectLibrary objectLibrary) throws UnknownIdentifierException {
-        Object result = objectLibrary.getOrDefault(this, name, null);
+    Object readMember(
+            String name,
+            @CachedLibrary("this") DynamicObjectLibrary objectLibrary)
+            throws UnknownIdentifierException {
+        Object result = objectLibrary
+                .getOrDefault(
+                        this,
+                        name,
+                        null);
         if (result == null) {
             /* Property does not exist. */
-            throw UnknownIdentifierException.create(name);
+            throw UnknownIdentifierException
+                    .create(name);
         }
         return result;
     }
@@ -218,8 +270,13 @@ public final class TclObject extends DynamicObject implements TruffleObject {
      * {@link DynamicObjectLibrary} provides the polymorphic inline cache for writing properties.
      */
     @ExportMessage
-    void writeMember(String name, Object value,
-                    @CachedLibrary("this") DynamicObjectLibrary objectLibrary) {
-        objectLibrary.put(this, name, value);
+    void writeMember(
+            String name,
+            Object value,
+            @CachedLibrary("this") DynamicObjectLibrary objectLibrary) {
+        objectLibrary
+                .put(this,
+                        name,
+                        value);
     }
 }

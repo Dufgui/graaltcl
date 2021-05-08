@@ -54,15 +54,23 @@ import com.oracle.truffle.api.nodes.NodeInfo;
  */
 @NodeInfo(shortName = "isInstance")
 @SuppressWarnings("unused")
-public abstract class TclIsInstanceBuiltin extends TclBuiltinNode {
+public abstract class TclIsInstanceBuiltin
+        extends
+        TclBuiltinNode {
 
     @Specialization(limit = "3", guards = "metaLib.isMetaObject(metaObject)")
-    public Object doDefault(Object metaObject, Object value,
-                    @CachedLibrary("metaObject") InteropLibrary metaLib) {
+    public Object doDefault(
+            Object metaObject,
+            Object value,
+            @CachedLibrary("metaObject") InteropLibrary metaLib) {
         try {
-            return metaLib.isMetaInstance(metaObject, value);
+            return metaLib
+                    .isMetaInstance(
+                            metaObject,
+                            value);
         } catch (UnsupportedMessageException e) {
-            throw shouldNotReachHere(e);
+            throw shouldNotReachHere(
+                    e);
         }
     }
 

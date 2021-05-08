@@ -48,17 +48,29 @@ import com.oracle.truffle.tcl.nodes.TclExpressionNode;
 import com.oracle.truffle.tcl.nodes.TclStatementNode;
 
 @NodeInfo(shortName = "while", description = "The node implementing a while loop")
-public final class TclWhileNode extends TclStatementNode {
+public final class TclWhileNode
+        extends
+        TclStatementNode {
 
-    @Child private LoopNode loopNode;
+    @Child
+    private LoopNode loopNode;
 
-    public TclWhileNode(TclExpressionNode conditionNode, TclStatementNode bodyNode) {
-        this.loopNode = Truffle.getRuntime().createLoopNode(new TclWhileRepeatingNode(conditionNode, bodyNode));
+    public TclWhileNode(
+            TclExpressionNode conditionNode,
+            TclStatementNode bodyNode) {
+        this.loopNode = Truffle
+                .getRuntime()
+                .createLoopNode(
+                        new TclWhileRepeatingNode(
+                                conditionNode,
+                                bodyNode));
     }
 
     @Override
-    public void executeVoid(VirtualFrame frame) {
-        loopNode.execute(frame);
+    public void executeVoid(
+            VirtualFrame frame) {
+        loopNode.execute(
+                frame);
     }
 
 }

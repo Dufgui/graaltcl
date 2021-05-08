@@ -49,11 +49,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TclInteropOperatorTest {
+
     private Context context;
 
     @Before
     public void setUp() {
-        context = Context.create("tcl");
+        context = Context
+                .create("tcl");
     }
 
     @After
@@ -63,20 +65,45 @@ public class TclInteropOperatorTest {
 
     @Test
     public void testAdd() {
-        final Source src = Source.newBuilder("tcl", "function testAdd(a,b) {return a + b;} function main() {return testAdd;}", "testAdd.tcl").buildLiteral();
-        final Value fnc = context.eval(src);
-        Assert.assertTrue(fnc.canExecute());
-        final Value res = fnc.execute(1, 2);
-        Assert.assertTrue(res.isNumber());
-        Assert.assertEquals(3, res.asInt());
+        final Source src = Source
+                .newBuilder(
+                        "tcl",
+                        "function testAdd(a,b) {return a + b;} function main() {return testAdd;}",
+                        "testAdd.tcl")
+                .buildLiteral();
+        final Value fnc = context
+                .eval(src);
+        Assert.assertTrue(
+                fnc.canExecute());
+        final Value res = fnc
+                .execute(
+                        1,
+                        2);
+        Assert.assertTrue(
+                res.isNumber());
+        Assert.assertEquals(
+                3,
+                res.asInt());
     }
 
     @Test
     public void testSub() {
-        final Source src = Source.newBuilder("tcl", "function testSub(a,b) {return a - b;} function main() {return testSub;}", "testSub.tcl").buildLiteral();
-        final Value fnc = context.eval(src);
-        final Value res = fnc.execute(1, 2);
-        Assert.assertTrue(res.isNumber());
-        Assert.assertEquals(-1, res.asInt());
+        final Source src = Source
+                .newBuilder(
+                        "tcl",
+                        "function testSub(a,b) {return a - b;} function main() {return testSub;}",
+                        "testSub.tcl")
+                .buildLiteral();
+        final Value fnc = context
+                .eval(src);
+        final Value res = fnc
+                .execute(
+                        1,
+                        2);
+        Assert.assertTrue(
+                res.isNumber());
+        Assert.assertEquals(
+                -1,
+                res.asInt());
     }
 }

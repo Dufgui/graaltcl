@@ -53,7 +53,9 @@ import com.oracle.truffle.tcl.runtime.TclNull;
  * specialized and can, e.g., be accessed without unboxing, all arguments are loaded into local
  * variables {@link TclNodeFactory#addFormalParameter in the method prologue}.
  */
-public class TclReadArgumentNode extends TclExpressionNode {
+public class TclReadArgumentNode
+        extends
+        TclExpressionNode {
 
     /** The argument number, i.e., the index into the array of arguments. */
     private final int index;
@@ -62,20 +64,25 @@ public class TclReadArgumentNode extends TclExpressionNode {
      * Profiling information, collected by the interpreter, capturing whether the function was
      * called with fewer actual arguments than formal arguments.
      */
-    private final BranchProfile outOfBoundsTaken = BranchProfile.create();
+    private final BranchProfile outOfBoundsTaken = BranchProfile
+            .create();
 
-    public TclReadArgumentNode(int index) {
+    public TclReadArgumentNode(
+            int index) {
         this.index = index;
     }
 
     @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
+    public Object executeGeneric(
+            VirtualFrame frame) {
+        Object[] args = frame
+                .getArguments();
         if (index < args.length) {
             return args[index];
         } else {
             /* In the interpreter, record profiling information that the branch was used. */
-            outOfBoundsTaken.enter();
+            outOfBoundsTaken
+                    .enter();
             /* Use the default null value. */
             return TclNull.SINGLETON;
         }

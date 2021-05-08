@@ -62,7 +62,9 @@ import com.oracle.truffle.tcl.nodes.interop.NodeObjectDescriptor;
  * stored boxed.
  */
 @NodeField(name = "slot", type = FrameSlot.class)
-public abstract class TclReadLocalVariableNode extends TclExpressionNode {
+public abstract class TclReadLocalVariableNode
+        extends
+        TclExpressionNode {
 
     /**
      * Returns the descriptor of the accessed local variable. The implementation of this method is
@@ -71,23 +73,36 @@ public abstract class TclReadLocalVariableNode extends TclExpressionNode {
     protected abstract FrameSlot getSlot();
 
     @Specialization(guards = "frame.isLong(getSlot())")
-    protected long readLong(VirtualFrame frame) {
+    protected long readLong(
+            VirtualFrame frame) {
         /*
          * When the FrameSlotKind is Long, we know that only primitive long values have ever been
          * written to the local variable. So we do not need to check that the frame really contains
          * a primitive long value.
          */
-        return FrameUtil.getLongSafe(frame, getSlot());
+        return FrameUtil
+                .getLongSafe(
+                        frame,
+                        getSlot());
     }
 
     @Specialization(guards = "frame.isBoolean(getSlot())")
-    protected boolean readBoolean(VirtualFrame frame) {
-        return FrameUtil.getBooleanSafe(frame, getSlot());
+    protected boolean readBoolean(
+            VirtualFrame frame) {
+        return FrameUtil
+                .getBooleanSafe(
+                        frame,
+                        getSlot());
     }
 
-    @Specialization(replaces = {"readLong", "readBoolean"})
-    protected Object readObject(VirtualFrame frame) {
-        if (!frame.isObject(getSlot())) {
+    @Specialization(replaces = {
+            "readLong",
+            "readBoolean" })
+    protected Object readObject(
+            VirtualFrame frame) {
+        if (!frame
+                .isObject(
+                        getSlot())) {
             /*
              * The FrameSlotKind has been set to Object, so from now on all writes to the local
              * variable will be Object writes. However, now we are in a frame that still has an old
@@ -95,22 +110,37 @@ public abstract class TclReadLocalVariableNode extends TclExpressionNode {
              * write it immediately as an Object value so that we do not hit this path again
              * multiple times for the same variable of the same frame.
              */
-            CompilerDirectives.transferToInterpreter();
-            Object result = frame.getValue(getSlot());
-            frame.setObject(getSlot(), result);
+            CompilerDirectives
+                    .transferToInterpreter();
+            Object result = frame
+                    .getValue(
+                            getSlot());
+            frame.setObject(
+                    getSlot(),
+                    result);
             return result;
         }
 
-        return FrameUtil.getObjectSafe(frame, getSlot());
+        return FrameUtil
+                .getObjectSafe(
+                        frame,
+                        getSlot());
     }
 
     @Override
-    public boolean hasTag(Class<? extends Tag> tag) {
-        return tag == ReadVariableTag.class || super.hasTag(tag);
+    public boolean hasTag(
+            Class<? extends Tag> tag) {
+        return tag == ReadVariableTag.class
+                || super.hasTag(
+                        tag);
     }
 
     @Override
     public Object getNodeObject() {
-        return NodeObjectDescriptor.readVariable(getSlot().getIdentifier().toString());
+        return NodeObjectDescriptor
+                .readVariable(
+                        getSlot()
+                                .getIdentifier()
+                                .toString());
     }
 }

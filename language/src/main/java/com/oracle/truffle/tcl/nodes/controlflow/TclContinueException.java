@@ -47,7 +47,9 @@ import com.oracle.truffle.api.nodes.ControlFlowException;
  * {@link TclWhileNode loop statement}. Since the exception is stateless, i.e., has no instance
  * fields, we can use a {@link #SINGLETON} to avoid memory allocation during interpretation.
  */
-public final class TclContinueException extends ControlFlowException {
+public final class TclContinueException
+        extends
+        ControlFlowException {
 
     public static final TclContinueException SINGLETON = new TclContinueException();
 

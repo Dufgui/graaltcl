@@ -55,11 +55,15 @@ import com.oracle.truffle.tcl.runtime.TclContext;
  * Builtin function that reads a String from the {@link TclContext#getInput() standard input}.
  */
 @NodeInfo(shortName = "readln")
-public abstract class TclReadlnBuiltin extends TclBuiltinNode {
+public abstract class TclReadlnBuiltin
+        extends
+        TclBuiltinNode {
 
     @Specialization
-    public String readln(@CachedContext(TclLanguage.class) TclContext context) {
-        String result = doRead(context.getInput());
+    public String readln(
+            @CachedContext(TclLanguage.class) TclContext context) {
+        String result = doRead(
+                context.getInput());
         if (result == null) {
             /*
              * We do not have a sophisticated end of file handling, so returning an empty string is
@@ -72,11 +76,15 @@ public abstract class TclReadlnBuiltin extends TclBuiltinNode {
     }
 
     @TruffleBoundary
-    private String doRead(BufferedReader in) {
+    private String doRead(
+            BufferedReader in) {
         try {
-            return in.readLine();
+            return in
+                    .readLine();
         } catch (IOException ex) {
-            throw new TclException(ex.getMessage(), this);
+            throw new TclException(
+                    ex.getMessage(),
+                    this);
         }
     }
 }

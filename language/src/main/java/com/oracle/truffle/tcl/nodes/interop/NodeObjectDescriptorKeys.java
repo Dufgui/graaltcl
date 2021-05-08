@@ -49,11 +49,14 @@ import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.profiles.BranchProfile;
 
 @ExportLibrary(InteropLibrary.class)
-public final class NodeObjectDescriptorKeys implements TruffleObject {
+public final class NodeObjectDescriptorKeys
+        implements
+        TruffleObject {
 
     private final String keyName;
 
-    NodeObjectDescriptorKeys(String keyName) {
+    NodeObjectDescriptorKeys(
+            String keyName) {
         this.keyName = keyName;
     }
 
@@ -65,8 +68,10 @@ public final class NodeObjectDescriptorKeys implements TruffleObject {
 
     @ExportMessage
     @SuppressWarnings("static-method")
-    boolean isArrayElementReadable(long index) {
-        return index >= 0 && index < 1;
+    boolean isArrayElementReadable(
+            long index) {
+        return index >= 0
+                && index < 1;
     }
 
     @ExportMessage
@@ -76,10 +81,16 @@ public final class NodeObjectDescriptorKeys implements TruffleObject {
     }
 
     @ExportMessage
-    Object readArrayElement(long index, @Cached BranchProfile exception) throws InvalidArrayIndexException {
-        if (!isArrayElementReadable(index)) {
-            exception.enter();
-            throw InvalidArrayIndexException.create(index);
+    Object readArrayElement(
+            long index,
+            @Cached BranchProfile exception)
+            throws InvalidArrayIndexException {
+        if (!isArrayElementReadable(
+                index)) {
+            exception
+                    .enter();
+            throw InvalidArrayIndexException
+                    .create(index);
         }
         return keyName;
     }

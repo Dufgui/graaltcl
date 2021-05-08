@@ -49,11 +49,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TclInteropControlFlowTest {
+
     private Context context;
 
     @Before
     public void setUp() {
-        context = Context.create("tcl");
+        context = Context
+                .create("tcl");
     }
 
     @After
@@ -63,16 +65,31 @@ public class TclInteropControlFlowTest {
 
     @Test
     public void testWhile() {
-        final Source src = Source.newBuilder("tcl", "function testWhile(a) {while(a) {break;}} function main() {return testWhile;}", "testWhile.tcl").buildLiteral();
-        final Value fnc = context.eval(src);
-        Assert.assertTrue(fnc.canExecute());
-        fnc.execute(false);
+        final Source src = Source
+                .newBuilder(
+                        "tcl",
+                        "function testWhile(a) {while(a) {break;}} function main() {return testWhile;}",
+                        "testWhile.tcl")
+                .buildLiteral();
+        final Value fnc = context
+                .eval(src);
+        Assert.assertTrue(
+                fnc.canExecute());
+        fnc.execute(
+                false);
     }
 
     @Test
     public void testIf() {
-        final Source src = Source.newBuilder("tcl", "function testIf(a) {if(a) {return 1;} else {return 0;}} function main() {return testIf;}", "testIf.tcl").buildLiteral();
-        final Value fnc = context.eval(src);
-        fnc.execute(false);
+        final Source src = Source
+                .newBuilder(
+                        "tcl",
+                        "function testIf(a) {if(a) {return 1;} else {return 0;}} function main() {return testIf;}",
+                        "testIf.tcl")
+                .buildLiteral();
+        final Value fnc = context
+                .eval(src);
+        fnc.execute(
+                false);
     }
 }

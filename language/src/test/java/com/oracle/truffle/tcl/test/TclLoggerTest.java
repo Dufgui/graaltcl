@@ -65,8 +65,18 @@ public class TclLoggerTest {
     private static final Source ADD_TCL;
     private static final Source MUL_TCL;
     static {
-        ADD_TCL = Source.newBuilder("tcl", "function add(a,b) {return a + b;} function main() {return add(1,1);}", "add.tcl").buildLiteral();
-        MUL_TCL = Source.newBuilder("tcl", "function mul(a,b) {return a * b;} function main() {return mul(1,1);}", "mul.tcl").buildLiteral();
+        ADD_TCL = Source
+                .newBuilder(
+                        "tcl",
+                        "function add(a,b) {return a + b;} function main() {return add(1,1);}",
+                        "add.tcl")
+                .buildLiteral();
+        MUL_TCL = Source
+                .newBuilder(
+                        "tcl",
+                        "function mul(a,b) {return a * b;} function main() {return mul(1,1);}",
+                        "mul.tcl")
+                .buildLiteral();
     }
 
     private TestHandler testHandler;
@@ -80,94 +90,249 @@ public class TclLoggerTest {
     @After
     public void tearDown() {
         if (currentContext != null) {
-            currentContext.close();
+            currentContext
+                    .close();
             currentContext = null;
         }
     }
 
-    private Context createContext(Map<String, String> options) {
+    private Context createContext(
+            Map<String, String> options) {
         if (currentContext != null) {
-            throw new IllegalStateException("Context already created");
+            throw new IllegalStateException(
+                    "Context already created");
         }
-        currentContext = Context.newBuilder("tcl").options(options).logHandler(testHandler).build();
+        currentContext = Context
+                .newBuilder(
+                        "tcl")
+                .options(
+                        options)
+                .logHandler(
+                        testHandler)
+                .build();
         return currentContext;
     }
 
     @Test
     public void testLoggerNoConfig() {
-        final Context context = createContext(Collections.emptyMap());
-        executeTclScript(context);
-        Assert.assertTrue(functionNames(testHandler.getRecords()).isEmpty());
+        final Context context = createContext(
+                Collections
+                        .emptyMap());
+        executeTclScript(
+                context);
+        Assert.assertTrue(
+                functionNames(
+                        testHandler
+                                .getRecords())
+                                        .isEmpty());
     }
 
     @Test
     public void testLoggerTclFunctionLevelFine() {
-        final Context context = createContext(createLoggingOptions("tcl", "com.oracle.truffle.tcl.runtime.TclFunction", "FINE"));
-        executeTclScript(context);
-        Assert.assertFalse(functionNames(testHandler.getRecords()).isEmpty());
+        final Context context = createContext(
+                createLoggingOptions(
+                        "tcl",
+                        "com.oracle.truffle.tcl.runtime.TclFunction",
+                        "FINE"));
+        executeTclScript(
+                context);
+        Assert.assertFalse(
+                functionNames(
+                        testHandler
+                                .getRecords())
+                                        .isEmpty());
     }
 
     @Test
     public void testLoggerTclFunctionParentLevelFine() {
-        final Context context = createContext(createLoggingOptions("tcl", "com.oracle.truffle.tcl.runtime", "FINE"));
-        executeTclScript(context);
-        Assert.assertFalse(functionNames(testHandler.getRecords()).isEmpty());
+        final Context context = createContext(
+                createLoggingOptions(
+                        "tcl",
+                        "com.oracle.truffle.tcl.runtime",
+                        "FINE"));
+        executeTclScript(
+                context);
+        Assert.assertFalse(
+                functionNames(
+                        testHandler
+                                .getRecords())
+                                        .isEmpty());
     }
 
     @Test
     public void testLoggerTclFunctionSiblingLevelFine() {
-        final Context context = createContext(createLoggingOptions("tcl", "com.oracle.truffle.tcl.runtime.TclContext", "FINE"));
-        executeTclScript(context);
-        Assert.assertTrue(functionNames(testHandler.getRecords()).isEmpty());
+        final Context context = createContext(
+                createLoggingOptions(
+                        "tcl",
+                        "com.oracle.truffle.tcl.runtime.TclContext",
+                        "FINE"));
+        executeTclScript(
+                context);
+        Assert.assertTrue(
+                functionNames(
+                        testHandler
+                                .getRecords())
+                                        .isEmpty());
     }
 
     @Test
     public void testMultipleContextsExclusiveFineLevel() {
         final TestHandler handler1 = new TestHandler();
-        try (Context ctx = Context.newBuilder("tcl").options(createLoggingOptions("tcl", "com.oracle.truffle.tcl.runtime.TclFunction", "FINE")).logHandler(handler1).build()) {
-            executeTclScript(ctx, ADD_TCL, 2);
+        try (Context ctx = Context
+                .newBuilder(
+                        "tcl")
+                .options(
+                        createLoggingOptions(
+                                "tcl",
+                                "com.oracle.truffle.tcl.runtime.TclFunction",
+                                "FINE"))
+                .logHandler(
+                        handler1)
+                .build()) {
+            executeTclScript(
+                    ctx,
+                    ADD_TCL,
+                    2);
         }
         final TestHandler handler2 = new TestHandler();
-        try (Context ctx = Context.newBuilder("tcl").options(createLoggingOptions("tcl", "com.oracle.truffle.tcl.runtime.TclFunction", "FINE")).logHandler(handler2).build()) {
-            executeTclScript(ctx, MUL_TCL, 1);
+        try (Context ctx = Context
+                .newBuilder(
+                        "tcl")
+                .options(
+                        createLoggingOptions(
+                                "tcl",
+                                "com.oracle.truffle.tcl.runtime.TclFunction",
+                                "FINE"))
+                .logHandler(
+                        handler2)
+                .build()) {
+            executeTclScript(
+                    ctx,
+                    MUL_TCL,
+                    1);
         }
         final TestHandler handler3 = new TestHandler();
-        try (Context ctx = Context.newBuilder("tcl").options(createLoggingOptions("tcl", "com.oracle.truffle.tcl.runtime.TclFunction", "FINE")).logHandler(handler3).build()) {
-            executeTclScript(ctx, ADD_TCL, 2);
+        try (Context ctx = Context
+                .newBuilder(
+                        "tcl")
+                .options(
+                        createLoggingOptions(
+                                "tcl",
+                                "com.oracle.truffle.tcl.runtime.TclFunction",
+                                "FINE"))
+                .logHandler(
+                        handler3)
+                .build()) {
+            executeTclScript(
+                    ctx,
+                    ADD_TCL,
+                    2);
         }
-        Set<String> functionNames = functionNames(handler1.getRecords());
-        Assert.assertTrue(functionNames.contains("add"));
-        Assert.assertFalse(functionNames.contains("mul"));
-        functionNames = functionNames(handler2.getRecords());
-        Assert.assertFalse(functionNames.contains("add"));
-        Assert.assertTrue(functionNames.contains("mul"));
-        functionNames = functionNames(handler3.getRecords());
-        Assert.assertTrue(functionNames.contains("add"));
-        Assert.assertFalse(functionNames.contains("mul"));
+        Set<String> functionNames = functionNames(
+                handler1.getRecords());
+        Assert.assertTrue(
+                functionNames
+                        .contains(
+                                "add"));
+        Assert.assertFalse(
+                functionNames
+                        .contains(
+                                "mul"));
+        functionNames = functionNames(
+                handler2.getRecords());
+        Assert.assertFalse(
+                functionNames
+                        .contains(
+                                "add"));
+        Assert.assertTrue(
+                functionNames
+                        .contains(
+                                "mul"));
+        functionNames = functionNames(
+                handler3.getRecords());
+        Assert.assertTrue(
+                functionNames
+                        .contains(
+                                "add"));
+        Assert.assertFalse(
+                functionNames
+                        .contains(
+                                "mul"));
     }
 
     @Test
     public void testMultipleContextsExclusiveDifferentLogLevel() {
         final TestHandler handler1 = new TestHandler();
-        try (Context ctx = Context.newBuilder("tcl").options(createLoggingOptions("tcl", "com.oracle.truffle.tcl.runtime.TclFunction", "FINE")).logHandler(handler1).build()) {
-            executeTclScript(ctx, ADD_TCL, 2);
+        try (Context ctx = Context
+                .newBuilder(
+                        "tcl")
+                .options(
+                        createLoggingOptions(
+                                "tcl",
+                                "com.oracle.truffle.tcl.runtime.TclFunction",
+                                "FINE"))
+                .logHandler(
+                        handler1)
+                .build()) {
+            executeTclScript(
+                    ctx,
+                    ADD_TCL,
+                    2);
         }
         final TestHandler handler2 = new TestHandler();
-        try (Context ctx = Context.newBuilder("tcl").logHandler(handler2).build()) {
-            executeTclScript(ctx, MUL_TCL, 1);
+        try (Context ctx = Context
+                .newBuilder(
+                        "tcl")
+                .logHandler(
+                        handler2)
+                .build()) {
+            executeTclScript(
+                    ctx,
+                    MUL_TCL,
+                    1);
         }
         final TestHandler handler3 = new TestHandler();
-        try (Context ctx = Context.newBuilder("tcl").options(createLoggingOptions("tcl", "com.oracle.truffle.tcl.runtime.TclFunction", "FINE")).logHandler(handler3).build()) {
-            executeTclScript(ctx, ADD_TCL, 2);
+        try (Context ctx = Context
+                .newBuilder(
+                        "tcl")
+                .options(
+                        createLoggingOptions(
+                                "tcl",
+                                "com.oracle.truffle.tcl.runtime.TclFunction",
+                                "FINE"))
+                .logHandler(
+                        handler3)
+                .build()) {
+            executeTclScript(
+                    ctx,
+                    ADD_TCL,
+                    2);
         }
-        Set<String> functionNames = functionNames(handler1.getRecords());
-        Assert.assertTrue(functionNames.contains("add"));
-        Assert.assertFalse(functionNames.contains("mul"));
-        functionNames = functionNames(handler2.getRecords());
-        Assert.assertTrue(functionNames.isEmpty());
-        functionNames = functionNames(handler3.getRecords());
-        Assert.assertTrue(functionNames.contains("add"));
-        Assert.assertFalse(functionNames.contains("mul"));
+        Set<String> functionNames = functionNames(
+                handler1.getRecords());
+        Assert.assertTrue(
+                functionNames
+                        .contains(
+                                "add"));
+        Assert.assertFalse(
+                functionNames
+                        .contains(
+                                "mul"));
+        functionNames = functionNames(
+                handler2.getRecords());
+        Assert.assertTrue(
+                functionNames
+                        .isEmpty());
+        functionNames = functionNames(
+                handler3.getRecords());
+        Assert.assertTrue(
+                functionNames
+                        .contains(
+                                "add"));
+        Assert.assertFalse(
+                functionNames
+                        .contains(
+                                "mul"));
     }
 
     @Test
@@ -175,24 +340,84 @@ public class TclLoggerTest {
         final TestHandler handler1 = new TestHandler();
         final TestHandler handler2 = new TestHandler();
         final TestHandler handler3 = new TestHandler();
-        try (Context ctx1 = Context.newBuilder("tcl").options(createLoggingOptions("tcl", "com.oracle.truffle.tcl.runtime.TcFunction", "FINE")).logHandler(handler1).build()) {
-            try (Context ctx2 = Context.newBuilder("tcl").options(createLoggingOptions("tcl", "com.oracle.truffle.tcl.runtime.TcFunction", "FINE")).logHandler(handler2).build()) {
-                try (Context ctx3 = Context.newBuilder("tcl").options(createLoggingOptions("tcl", "com.oracle.truffle.tcl.runtime.TcFunction", "FINE")).logHandler(handler3).build()) {
-                    executeTclScript(ctx1, ADD_TCL, 2);
-                    executeTclScript(ctx2, MUL_TCL, 1);
-                    executeTclScript(ctx3, ADD_TCL, 2);
+        try (Context ctx1 = Context
+                .newBuilder(
+                        "tcl")
+                .options(
+                        createLoggingOptions(
+                                "tcl",
+                                "com.oracle.truffle.tcl.runtime.TcFunction",
+                                "FINE"))
+                .logHandler(
+                        handler1)
+                .build()) {
+            try (Context ctx2 = Context
+                    .newBuilder(
+                            "tcl")
+                    .options(
+                            createLoggingOptions(
+                                    "tcl",
+                                    "com.oracle.truffle.tcl.runtime.TcFunction",
+                                    "FINE"))
+                    .logHandler(
+                            handler2)
+                    .build()) {
+                try (Context ctx3 = Context
+                        .newBuilder(
+                                "tcl")
+                        .options(
+                                createLoggingOptions(
+                                        "tcl",
+                                        "com.oracle.truffle.tcl.runtime.TcFunction",
+                                        "FINE"))
+                        .logHandler(
+                                handler3)
+                        .build()) {
+                    executeTclScript(
+                            ctx1,
+                            ADD_TCL,
+                            2);
+                    executeTclScript(
+                            ctx2,
+                            MUL_TCL,
+                            1);
+                    executeTclScript(
+                            ctx3,
+                            ADD_TCL,
+                            2);
                 }
             }
         }
-        Set<String> functionNames = functionNames(handler1.getRecords());
-        Assert.assertTrue(functionNames.contains("add"));
-        Assert.assertFalse(functionNames.contains("mul"));
-        functionNames = functionNames(handler2.getRecords());
-        Assert.assertFalse(functionNames.contains("add"));
-        Assert.assertTrue(functionNames.contains("mul"));
-        functionNames = functionNames(handler3.getRecords());
-        Assert.assertTrue(functionNames.contains("add"));
-        Assert.assertFalse(functionNames.contains("mul"));
+        Set<String> functionNames = functionNames(
+                handler1.getRecords());
+        Assert.assertTrue(
+                functionNames
+                        .contains(
+                                "add"));
+        Assert.assertFalse(
+                functionNames
+                        .contains(
+                                "mul"));
+        functionNames = functionNames(
+                handler2.getRecords());
+        Assert.assertFalse(
+                functionNames
+                        .contains(
+                                "add"));
+        Assert.assertTrue(
+                functionNames
+                        .contains(
+                                "mul"));
+        functionNames = functionNames(
+                handler3.getRecords());
+        Assert.assertTrue(
+                functionNames
+                        .contains(
+                                "add"));
+        Assert.assertFalse(
+                functionNames
+                        .contains(
+                                "mul"));
     }
 
     @Test
@@ -200,51 +425,135 @@ public class TclLoggerTest {
         final TestHandler handler1 = new TestHandler();
         final TestHandler handler2 = new TestHandler();
         final TestHandler handler3 = new TestHandler();
-        try (Context ctx1 = Context.newBuilder("tcl").options(createLoggingOptions("tcl", "com.oracle.truffle.tcl.runtime.TcFunction", "FINE")).logHandler(handler1).build()) {
-            try (Context ctx2 = Context.newBuilder("tcl").options(createLoggingOptions("tcl", "com.oracle.truffle.tcl.runtime.TcFunction", "FINE")).logHandler(handler2).build()) {
-                try (Context ctx3 = Context.newBuilder("tcl").logHandler(handler3).build()) {
-                    executeTclScript(ctx1, ADD_TCL, 2);
-                    executeTclScript(ctx2, MUL_TCL, 1);
-                    executeTclScript(ctx3, ADD_TCL, 2);
+        try (Context ctx1 = Context
+                .newBuilder(
+                        "tcl")
+                .options(
+                        createLoggingOptions(
+                                "tcl",
+                                "com.oracle.truffle.tcl.runtime.TcFunction",
+                                "FINE"))
+                .logHandler(
+                        handler1)
+                .build()) {
+            try (Context ctx2 = Context
+                    .newBuilder(
+                            "tcl")
+                    .options(
+                            createLoggingOptions(
+                                    "tcl",
+                                    "com.oracle.truffle.tcl.runtime.TcFunction",
+                                    "FINE"))
+                    .logHandler(
+                            handler2)
+                    .build()) {
+                try (Context ctx3 = Context
+                        .newBuilder(
+                                "tcl")
+                        .logHandler(
+                                handler3)
+                        .build()) {
+                    executeTclScript(
+                            ctx1,
+                            ADD_TCL,
+                            2);
+                    executeTclScript(
+                            ctx2,
+                            MUL_TCL,
+                            1);
+                    executeTclScript(
+                            ctx3,
+                            ADD_TCL,
+                            2);
                 }
             }
         }
-        Set<String> functionNames = functionNames(handler1.getRecords());
-        Assert.assertTrue(functionNames.contains("add"));
-        Assert.assertFalse(functionNames.contains("mul"));
-        functionNames = functionNames(handler2.getRecords());
-        Assert.assertFalse(functionNames.contains("add"));
-        Assert.assertTrue(functionNames.contains("mul"));
-        functionNames = functionNames(handler3.getRecords());
-        Assert.assertTrue(functionNames.isEmpty());
+        Set<String> functionNames = functionNames(
+                handler1.getRecords());
+        Assert.assertTrue(
+                functionNames
+                        .contains(
+                                "add"));
+        Assert.assertFalse(
+                functionNames
+                        .contains(
+                                "mul"));
+        functionNames = functionNames(
+                handler2.getRecords());
+        Assert.assertFalse(
+                functionNames
+                        .contains(
+                                "add"));
+        Assert.assertTrue(
+                functionNames
+                        .contains(
+                                "mul"));
+        functionNames = functionNames(
+                handler3.getRecords());
+        Assert.assertTrue(
+                functionNames
+                        .isEmpty());
     }
 
-    private static void executeTclScript(final Context context) {
-        executeTclScript(context, ADD_TCL, 2);
+    private static void executeTclScript(
+            final Context context) {
+        executeTclScript(
+                context,
+                ADD_TCL,
+                2);
     }
 
-    private static void executeTclScript(final Context context, final Source src, final int expectedResult) {
-        final Value res = context.eval(src);
-        Assert.assertTrue(res.isNumber());
-        Assert.assertEquals(expectedResult, res.asInt());
+    private static void executeTclScript(
+            final Context context,
+            final Source src,
+            final int expectedResult) {
+        final Value res = context
+                .eval(src);
+        Assert.assertTrue(
+                res.isNumber());
+        Assert.assertEquals(
+                expectedResult,
+                res.asInt());
     }
 
-    private static Map<String, String> createLoggingOptions(String... kvs) {
-        if ((kvs.length % 3) != 0) {
-            throw new IllegalArgumentException("Lang, Key, Val length has to be divisible by 3.");
+    private static Map<String, String> createLoggingOptions(
+            String... kvs) {
+        if ((kvs.length
+                % 3) != 0) {
+            throw new IllegalArgumentException(
+                    "Lang, Key, Val length has to be divisible by 3.");
         }
         final Map<String, String> options = new HashMap<>();
         for (int i = 0; i < kvs.length; i += 3) {
-            options.put(String.format("log.%s.%s.level", kvs[i], kvs[i + 1]), kvs[i + 2]);
+            options.put(
+                    String.format(
+                            "log.%s.%s.level",
+                            kvs[i],
+                            kvs[i + 1]),
+                    kvs[i + 2]);
         }
         return options;
     }
 
-    private static Set<String> functionNames(final List<? extends LogRecord> records) {
-        return records.stream().filter((lr) -> "tcl.com.oracle.truffle.tcl.runtime.TclFunction".equals(lr.getLoggerName())).map((lr) -> (String) lr.getParameters()[0]).collect(Collectors.toSet());
+    private static Set<String> functionNames(
+            final List<? extends LogRecord> records) {
+        return records
+                .stream()
+                .filter((
+                        lr) -> "tcl.com.oracle.truffle.tcl.runtime.TclFunction"
+                                .equals(lr
+                                        .getLoggerName()))
+                .map((lr) -> (String) lr
+                        .getParameters()[0])
+                .collect(
+                        Collectors
+                                .toSet());
     }
 
-    private static final class TestHandler extends Handler {
+    private static final class TestHandler
+            extends
+            Handler {
+
         private final Queue<LogRecord> records;
         private volatile boolean closed;
 
@@ -253,26 +562,32 @@ public class TclLoggerTest {
         }
 
         @Override
-        public void publish(LogRecord record) {
+        public void publish(
+                LogRecord record) {
             if (closed) {
-                throw new IllegalStateException("Closed handler");
+                throw new IllegalStateException(
+                        "Closed handler");
             }
-            records.offer(record);
+            records.offer(
+                    record);
         }
 
         @Override
         public void flush() {
             if (closed) {
-                throw new IllegalStateException("Closed handler");
+                throw new IllegalStateException(
+                        "Closed handler");
             }
         }
 
         public List<? extends LogRecord> getRecords() {
-            return new ArrayList<>(records);
+            return new ArrayList<>(
+                    records);
         }
 
         @Override
-        public void close() throws SecurityException {
+        public void close()
+                throws SecurityException {
             closed = true;
         }
     }

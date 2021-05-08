@@ -62,54 +62,94 @@ import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.source.Source;
 
 public class TclParseInContextTest {
+
     private Context context;
 
     @Before
-    public void setup() throws Exception {
-        context = Context.newBuilder().allowPolyglotAccess(PolyglotAccess.ALL).build();
+    public void setup()
+            throws Exception {
+        context = Context
+                .newBuilder()
+                .allowPolyglotAccess(
+                        PolyglotAccess.ALL)
+                .build();
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown()
+            throws Exception {
         context.close();
     }
 
     @Test
-    public void parseAPlusB() throws Exception {
-        Value value = context.eval("x-test-eval", "");
-        assertTrue("Result is a number: " + value, value.isNumber());
-        assertEquals(42, value.asInt());
+    public void parseAPlusB()
+            throws Exception {
+        Value value = context
+                .eval("x-test-eval",
+                        "");
+        assertTrue(
+                "Result is a number: "
+                        + value,
+                value.isNumber());
+        assertEquals(
+                42,
+                value.asInt());
     }
 
     @TruffleLanguage.Registration(id = "x-test-eval", name = "EvalLang", version = "1.0")
-    public static final class EvalLang extends TruffleLanguage<Env> {
+    public static final class EvalLang
+            extends
+            TruffleLanguage<Env> {
 
         @Override
-        protected Env createContext(Env env) {
+        protected Env createContext(
+                Env env) {
             return env;
         }
 
         @Override
-        protected CallTarget parse(ParsingRequest request) throws Exception {
-            return Truffle.getRuntime().createCallTarget(new RootNode(this) {
+        protected CallTarget parse(
+                ParsingRequest request)
+                throws Exception {
+            return Truffle
+                    .getRuntime()
+                    .createCallTarget(
+                            new RootNode(
+                                    this) {
 
-                @CompilationFinal private ContextReference<Env> reference;
+                                @CompilationFinal
+                                private ContextReference<Env> reference;
 
-                @Override
-                public Object execute(VirtualFrame frame) {
-                    return parseAndEval();
-                }
+                                @Override
+                                public Object execute(
+                                        VirtualFrame frame) {
+                                    return parseAndEval();
+                                }
 
-                @TruffleBoundary
-                private Object parseAndEval() {
-                    if (reference == null) {
-                        CompilerDirectives.transferToInterpreterAndInvalidate();
-                        this.reference = lookupContextReference(EvalLang.class);
-                    }
-                    Source aPlusB = Source.newBuilder("tcl", "a + b", "plus.tcl").build();
-                    return reference.get().parsePublic(aPlusB, "a", "b").call(30, 12);
-                }
-            });
+                                @TruffleBoundary
+                                private Object parseAndEval() {
+                                    if (reference == null) {
+                                        CompilerDirectives
+                                                .transferToInterpreterAndInvalidate();
+                                        this.reference = lookupContextReference(
+                                                EvalLang.class);
+                                    }
+                                    Source aPlusB = Source
+                                            .newBuilder(
+                                                    "tcl",
+                                                    "a + b",
+                                                    "plus.tcl")
+                                            .build();
+                                    return reference
+                                            .get()
+                                            .parsePublic(
+                                                    aPlusB,
+                                                    "a",
+                                                    "b")
+                                            .call(30,
+                                                    12);
+                                }
+                            });
         }
     }
 }

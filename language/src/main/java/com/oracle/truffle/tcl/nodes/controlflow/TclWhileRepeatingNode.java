@@ -56,78 +56,103 @@ import com.oracle.truffle.tcl.nodes.util.TclUnboxNodeGen;
  * the {@link TclWhileNode} and {@link TclWhileRepeatingNode} allows Truffle to perform loop
  * optimizations, for example, compile just the loop body for long running loops.
  */
-public final class TclWhileRepeatingNode extends Node implements RepeatingNode {
+public final class TclWhileRepeatingNode
+        extends
+        Node
+        implements
+        RepeatingNode {
 
     /**
      * The condition of the loop. This in a {@link TclExpressionNode} because we require a result
      * value. We do not have a node type that can only return a {@code boolean} value, so
      * {@link #evaluateCondition executing the condition} can lead to a type error.
      */
-    @Child private TclExpressionNode conditionNode;
+    @Child
+    private TclExpressionNode conditionNode;
 
     /** Statement (or {@link TclBlockNode block}) executed as long as the condition is true. */
-    @Child private TclStatementNode bodyNode;
+    @Child
+    private TclStatementNode bodyNode;
 
     /**
      * Profiling information, collected by the interpreter, capturing whether a {@code continue}
      * statement was used in this loop. This allows the compiler to generate better code for loops
      * without a {@code continue}.
      */
-    private final BranchProfile continueTaken = BranchProfile.create();
-    private final BranchProfile breakTaken = BranchProfile.create();
+    private final BranchProfile continueTaken = BranchProfile
+            .create();
+    private final BranchProfile breakTaken = BranchProfile
+            .create();
 
-    public TclWhileRepeatingNode(TclExpressionNode conditionNode, TclStatementNode bodyNode) {
-        this.conditionNode = TclUnboxNodeGen.create(conditionNode);
+    public TclWhileRepeatingNode(
+            TclExpressionNode conditionNode,
+            TclStatementNode bodyNode) {
+        this.conditionNode = TclUnboxNodeGen
+                .create(conditionNode);
         this.bodyNode = bodyNode;
     }
 
     @Override
-    public boolean executeRepeating(VirtualFrame frame) {
-        if (!evaluateCondition(frame)) {
+    public boolean executeRepeating(
+            VirtualFrame frame) {
+        if (!evaluateCondition(
+                frame)) {
             /* Normal exit of the loop when loop condition is false. */
             return false;
         }
 
         try {
             /* Execute the loop body. */
-            bodyNode.executeVoid(frame);
+            bodyNode.executeVoid(
+                    frame);
             /* Continue with next loop iteration. */
             return true;
 
         } catch (TclContinueException ex) {
             /* In the interpreter, record profiling information that the loop uses continue. */
-            continueTaken.enter();
+            continueTaken
+                    .enter();
             /* Continue with next loop iteration. */
             return true;
 
         } catch (TclBreakException ex) {
             /* In the interpreter, record profiling information that the loop uses break. */
-            breakTaken.enter();
+            breakTaken
+                    .enter();
             /* Break out of the loop. */
             return false;
         }
     }
 
-    private boolean evaluateCondition(VirtualFrame frame) {
+    private boolean evaluateCondition(
+            VirtualFrame frame) {
         try {
             /*
              * The condition must evaluate to a boolean value, so we call the boolean-specialized
              * execute method.
              */
-            return conditionNode.executeBoolean(frame);
+            return conditionNode
+                    .executeBoolean(
+                            frame);
         } catch (UnexpectedResultException ex) {
             /*
              * The condition evaluated to a non-boolean result. This is a type error in the tcl
              * program. We report it with the same exception that Truffle DSL generated nodes use to
              * report type errors.
              */
-            throw new UnsupportedSpecializationException(this, new Node[]{conditionNode}, ex.getResult());
+            throw new UnsupportedSpecializationException(
+                    this,
+                    new Node[] {
+                            conditionNode },
+                    ex.getResult());
         }
     }
 
     @Override
     public String toString() {
-        return TclStatementNode.formatSourceSection(this);
+        return TclStatementNode
+                .formatSourceSection(
+                        this);
     }
 
 }

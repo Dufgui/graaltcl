@@ -52,26 +52,41 @@ import com.oracle.truffle.tcl.nodes.TclExpressionNode;
  * parentheses and allows a tool to describe the expression as distinct from its contents.
  */
 @NodeInfo(description = "A parenthesized expression")
-public class TclParenExpressionNode extends TclExpressionNode {
+public class TclParenExpressionNode
+        extends
+        TclExpressionNode {
 
-    @Child private TclExpressionNode expression;
+    @Child
+    private TclExpressionNode expression;
 
-    public TclParenExpressionNode(TclExpressionNode expression) {
+    public TclParenExpressionNode(
+            TclExpressionNode expression) {
         this.expression = expression;
     }
 
     @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        return expression.executeGeneric(frame);
+    public Object executeGeneric(
+            VirtualFrame frame) {
+        return expression
+                .executeGeneric(
+                        frame);
     }
 
     @Override
-    public long executeLong(VirtualFrame frame) throws UnexpectedResultException {
-        return expression.executeLong(frame);
+    public long executeLong(
+            VirtualFrame frame)
+            throws UnexpectedResultException {
+        return expression
+                .executeLong(
+                        frame);
     }
 
     @Override
-    public boolean executeBoolean(VirtualFrame frame) throws UnexpectedResultException {
-        return expression.executeBoolean(frame);
+    public boolean executeBoolean(
+            VirtualFrame frame)
+            throws UnexpectedResultException {
+        return expression
+                .executeBoolean(
+                        frame);
     }
 }

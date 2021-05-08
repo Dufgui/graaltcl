@@ -65,11 +65,14 @@ import com.oracle.truffle.tcl.TclLanguage;
  */
 @ExportLibrary(value = InteropLibrary.class, delegateTo = "delegate")
 @SuppressWarnings("static-method")
-public final class TclLanguageView implements TruffleObject {
+public final class TclLanguageView
+        implements
+        TruffleObject {
 
     final Object delegate;
 
-    TclLanguageView(Object delegate) {
+    TclLanguageView(
+            Object delegate) {
         this.delegate = delegate;
     }
 
@@ -89,7 +92,8 @@ public final class TclLanguageView implements TruffleObject {
 
     @ExportMessage
     @ExplodeLoop
-    boolean hasMetaObject(@CachedLibrary("this.delegate") InteropLibrary interop) {
+    boolean hasMetaObject(
+            @CachedLibrary("this.delegate") InteropLibrary interop) {
         /*
          * We use the isInstance method to find out whether one of the builtin simple language types
          * apply. If yes, then we can provide a meta object in getMetaObject. The interop contract
@@ -101,7 +105,9 @@ public final class TclLanguageView implements TruffleObject {
          * not be used.
          */
         for (TclType type : TclType.PRECEDENCE) {
-            if (type.isInstance(delegate, interop)) {
+            if (type.isInstance(
+                    delegate,
+                    interop)) {
                 return true;
             }
         }
@@ -110,40 +116,60 @@ public final class TclLanguageView implements TruffleObject {
 
     @ExportMessage
     @ExplodeLoop
-    Object getMetaObject(@CachedLibrary("this.delegate") InteropLibrary interop) throws UnsupportedMessageException {
+    Object getMetaObject(
+            @CachedLibrary("this.delegate") InteropLibrary interop)
+            throws UnsupportedMessageException {
         /*
          * We do the same as in hasMetaObject but actually return the type this time.
          */
         for (TclType type : TclType.PRECEDENCE) {
-            if (type.isInstance(delegate, interop)) {
+            if (type.isInstance(
+                    delegate,
+                    interop)) {
                 return type;
             }
         }
-        throw UnsupportedMessageException.create();
+        throw UnsupportedMessageException
+                .create();
     }
 
     @ExportMessage
     @ExplodeLoop
-    Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects, @CachedLibrary("this.delegate") InteropLibrary interop) {
+    Object toDisplayString(
+            @SuppressWarnings("unused") boolean allowSideEffects,
+            @CachedLibrary("this.delegate") InteropLibrary interop) {
         for (TclType type : TclType.PRECEDENCE) {
-            if (type.isInstance(this.delegate, interop)) {
+            if (type.isInstance(
+                    this.delegate,
+                    interop)) {
                 try {
                     /*
                      * The type is a partial evaluation constant here as we use @ExplodeLoop. So
                      * this if-else cascade should fold after partial evaluation.
                      */
                     if (type == TclType.NUMBER) {
-                        return longToString(interop.asLong(delegate));
-                    } else if (type == TclType.BOOLEAN) {
-                        return Boolean.toString(interop.asBoolean(delegate));
-                    } else if (type == TclType.STRING) {
-                        return interop.asString(delegate);
-                    } else {
-                        /* We use the type name as fallback for any other type */
-                        return type.getName();
-                    }
+                        return longToString(
+                                interop.asLong(
+                                        delegate));
+                    } else
+                        if (type == TclType.BOOLEAN) {
+                            return Boolean
+                                    .toString(
+                                            interop.asBoolean(
+                                                    delegate));
+                        } else
+                            if (type == TclType.STRING) {
+                                return interop
+                                        .asString(
+                                                delegate);
+                            } else {
+                                /* We use the type name as fallback for any other type */
+                                return type
+                                        .getName();
+                            }
                 } catch (UnsupportedMessageException e) {
-                    throw shouldNotReachHere(e);
+                    throw shouldNotReachHere(
+                            e);
                 }
             }
         }
@@ -155,24 +181,40 @@ public final class TclLanguageView implements TruffleObject {
      * boundary.
      */
     @TruffleBoundary
-    private static String longToString(long l) {
-        return Long.toString(l);
+    private static String longToString(
+            long l) {
+        return Long
+                .toString(
+                        l);
     }
 
-    public static Object create(Object value) {
-        assert isPrimitiveOrFromOtherLanguage(value);
-        return new TclLanguageView(value);
+    public static Object create(
+            Object value) {
+        assert isPrimitiveOrFromOtherLanguage(
+                value);
+        return new TclLanguageView(
+                value);
     }
 
     /*
      * Language views are intended to be used only for primitives and other language values.
      */
-    private static boolean isPrimitiveOrFromOtherLanguage(Object value) {
-        InteropLibrary interop = InteropLibrary.getFactory().getUncached(value);
+    private static boolean isPrimitiveOrFromOtherLanguage(
+            Object value) {
+        InteropLibrary interop = InteropLibrary
+                .getFactory()
+                .getUncached(
+                        value);
         try {
-            return !interop.hasLanguage(value) || interop.getLanguage(value) != TclLanguage.class;
+            return !interop
+                    .hasLanguage(
+                            value)
+                    || interop
+                            .getLanguage(
+                                    value) != TclLanguage.class;
         } catch (UnsupportedMessageException e) {
-            throw shouldNotReachHere(e);
+            throw shouldNotReachHere(
+                    e);
         }
     }
 
@@ -182,19 +224,28 @@ public final class TclLanguageView implements TruffleObject {
      * perspective of simple language in slow paths, for example, printing values in error messages.
      */
     @TruffleBoundary
-    public static Object forValue(Object value) {
+    public static Object forValue(
+            Object value) {
         if (value == null) {
             return null;
         }
-        InteropLibrary lib = InteropLibrary.getFactory().getUncached(value);
+        InteropLibrary lib = InteropLibrary
+                .getFactory()
+                .getUncached(
+                        value);
         try {
-            if (lib.hasLanguage(value) && lib.getLanguage(value) == TclLanguage.class) {
+            if (lib.hasLanguage(
+                    value)
+                    && lib.getLanguage(
+                            value) == TclLanguage.class) {
                 return value;
             } else {
-                return create(value);
+                return create(
+                        value);
             }
         } catch (UnsupportedMessageException e) {
-            throw shouldNotReachHere(e);
+            throw shouldNotReachHere(
+                    e);
         }
     }
 

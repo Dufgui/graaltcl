@@ -52,14 +52,22 @@ import com.oracle.truffle.tcl.TclException;
  * <link>Messages.GET_SIZE</link>.
  */
 @NodeInfo(shortName = "getSize")
-public abstract class TclGetSizeBuiltin extends TclBuiltinNode {
+public abstract class TclGetSizeBuiltin
+        extends
+        TclBuiltinNode {
 
     @Specialization(limit = "3")
-    public Object getSize(Object obj, @CachedLibrary("obj") InteropLibrary arrays) {
+    public Object getSize(
+            Object obj,
+            @CachedLibrary("obj") InteropLibrary arrays) {
         try {
-            return arrays.getArraySize(obj);
+            return arrays
+                    .getArraySize(
+                            obj);
         } catch (UnsupportedMessageException e) {
-            throw new TclException("Element is not a valid array.", this);
+            throw new TclException(
+                    "Element is not a valid array.",
+                    this);
         }
     }
 }

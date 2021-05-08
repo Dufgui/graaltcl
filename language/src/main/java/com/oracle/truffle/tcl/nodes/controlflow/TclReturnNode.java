@@ -54,25 +54,33 @@ import com.oracle.truffle.tcl.runtime.TclNull;
  * the return value.
  */
 @NodeInfo(shortName = "return", description = "The node implementing a return statement")
-public final class TclReturnNode extends TclStatementNode {
+public final class TclReturnNode
+        extends
+        TclStatementNode {
 
-    @Child private TclExpressionNode valueNode;
+    @Child
+    private TclExpressionNode valueNode;
 
-    public TclReturnNode(TclExpressionNode valueNode) {
+    public TclReturnNode(
+            TclExpressionNode valueNode) {
         this.valueNode = valueNode;
     }
 
     @Override
-    public void executeVoid(VirtualFrame frame) {
+    public void executeVoid(
+            VirtualFrame frame) {
         Object result;
         if (valueNode != null) {
-            result = valueNode.executeGeneric(frame);
+            result = valueNode
+                    .executeGeneric(
+                            frame);
         } else {
             /*
              * Return statement that was not followed by an expression, so return the tcl null value.
              */
             result = TclNull.SINGLETON;
         }
-        throw new TclReturnException(result);
+        throw new TclReturnException(
+                result);
     }
 }

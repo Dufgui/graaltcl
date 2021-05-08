@@ -40,23 +40,33 @@
  */
 package com.oracle.truffle.tcl;
 
-import com.oracle.truffle.api.TruffleFile;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
-public final class TclFileDetector implements TruffleFile.FileTypeDetector {
+import com.oracle.truffle.api.TruffleFile;
+
+public final class TclFileDetector
+        implements
+        TruffleFile.FileTypeDetector {
 
     @Override
-    public String findMimeType(TruffleFile file) throws IOException {
-        String name = file.getName();
-        if (name != null && name.endsWith(".tcl")) {
+    public String findMimeType(
+            TruffleFile file)
+            throws IOException {
+        String name = file
+                .getName();
+        if (name != null
+                && name.endsWith(
+                        ".tcl")) {
             return TclLanguage.MIME_TYPE;
         }
         return null;
     }
 
     @Override
-    public Charset findEncoding(TruffleFile file) throws IOException {
+    public Charset findEncoding(
+            TruffleFile file)
+            throws IOException {
         return null;
     }
 }

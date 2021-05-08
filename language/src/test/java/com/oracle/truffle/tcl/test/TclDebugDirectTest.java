@@ -40,8 +40,8 @@
  */
 package com.oracle.truffle.tcl.test;
 
-import static com.oracle.truffle.tcl.test.TclJavaInteropTest.toUnixString;
 import static com.oracle.truffle.tck.DebuggerTester.getSourceImpl;
+import static com.oracle.truffle.tcl.test.TclJavaInteropTest.toUnixString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -74,6 +74,7 @@ import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.source.SourceSection;
 
 public class TclDebugDirectTest {
+
     private static final Object UNASSIGNED = new Object();
 
     private Debugger debugger;
@@ -89,15 +90,27 @@ public class TclDebugDirectTest {
     @Before
     public void before() {
         suspendedEvent = null;
-        engine = Engine.newBuilder().out(out).err(err).build();
-        debugger = engine.getInstruments().get("debugger").lookup(Debugger.class);
-        session = debugger.startSession((event) -> {
-            suspendedEvent = event;
-            performWork();
-            suspendedEvent = null;
+        engine = Engine
+                .newBuilder()
+                .out(out)
+                .err(err)
+                .build();
+        debugger = engine
+                .getInstruments()
+                .get("debugger")
+                .lookup(Debugger.class);
+        session = debugger
+                .startSession(
+                        (event) -> {
+                            suspendedEvent = event;
+                            performWork();
+                            suspendedEvent = null;
 
-        });
-        context = Context.newBuilder().engine(engine).build();
+                        });
+        context = Context
+                .newBuilder()
+                .engine(engine)
+                .build();
         run.clear();
     }
 
@@ -109,172 +122,327 @@ public class TclDebugDirectTest {
     }
 
     private static Source createFactorial() {
-        return Source.newBuilder("tcl", "function test() {\n" +
-                        "  res = fac(2);\n" + "  println(res);\n" +
-                        "  return res;\n" +
-                        "}\n" +
-                        "function fac(n) {\n" +
-                        "  if (n <= 1) {\n" +
-                        "    return 1;\n" + "  }\n" +
-                        "  nMinusOne = n - 1;\n" +
-                        "  nMOFact = fac(nMinusOne);\n" +
-                        "  res = n * nMOFact;\n" +
-                        "  return res;\n" + "}\n", "factorial.tcl").buildLiteral();
+        return Source
+                .newBuilder(
+                        "tcl",
+                        "function test() {\n"
+                                + "  res = fac(2);\n"
+                                + "  println(res);\n"
+                                + "  return res;\n"
+                                + "}\n"
+                                + "function fac(n) {\n"
+                                + "  if (n <= 1) {\n"
+                                + "    return 1;\n"
+                                + "  }\n"
+                                + "  nMinusOne = n - 1;\n"
+                                + "  nMOFact = fac(nMinusOne);\n"
+                                + "  res = n * nMOFact;\n"
+                                + "  return res;\n"
+                                + "}\n",
+                        "factorial.tcl")
+                .buildLiteral();
     }
 
     private static Source createFactorialWithDebugger() {
-        return Source.newBuilder("tcl", "function test() {\n" +
-                        "  res = fac(2);\n" +
-                        "  println(res);\n" +
-                        "  return res;\n" +
-                        "}\n" +
-                        "function fac(n) {\n" +
-                        "  if (n <= 1) {\n" +
-                        "    return 1;\n" +
-                        "  }\n" +
-                        "  nMinusOne = n - 1;\n" +
-                        "  nMOFact = fac(nMinusOne);\n" +
-                        "  debugger;\n" +
-                        "  res = n * nMOFact;\n" +
-                        "  return res;\n" +
-                        "}\n", "factorial.tcl").buildLiteral();
+        return Source
+                .newBuilder(
+                        "tcl",
+                        "function test() {\n"
+                                + "  res = fac(2);\n"
+                                + "  println(res);\n"
+                                + "  return res;\n"
+                                + "}\n"
+                                + "function fac(n) {\n"
+                                + "  if (n <= 1) {\n"
+                                + "    return 1;\n"
+                                + "  }\n"
+                                + "  nMinusOne = n - 1;\n"
+                                + "  nMOFact = fac(nMinusOne);\n"
+                                + "  debugger;\n"
+                                + "  res = n * nMOFact;\n"
+                                + "  return res;\n"
+                                + "}\n",
+                        "factorial.tcl")
+                .buildLiteral();
     }
 
     private static Source createInteropComputation() {
-        return Source.newBuilder("tcl", "function test() {\n" +
-                        "}\n" +
-                        "function interopFunction(notifyHandler) {\n" +
-                        "  executing = true;\n" +
-                        "  while (executing == true || executing) {\n" +
-                        "    executing = notifyHandler.isExecuting;\n" +
-                        "  }\n" +
-                        "  return executing;\n" +
-                        "}\n", "interopComputation.tcl").buildLiteral();
+        return Source
+                .newBuilder(
+                        "tcl",
+                        "function test() {\n"
+                                + "}\n"
+                                + "function interopFunction(notifyHandler) {\n"
+                                + "  executing = true;\n"
+                                + "  while (executing == true || executing) {\n"
+                                + "    executing = notifyHandler.isExecuting;\n"
+                                + "  }\n"
+                                + "  return executing;\n"
+                                + "}\n",
+                        "interopComputation.tcl")
+                .buildLiteral();
     }
 
     protected final String getOut() {
-        return toUnixString(out);
+        return toUnixString(
+                out);
     }
 
     protected final String getErr() {
         try {
             err.flush();
-        } catch (IOException e) {
-        }
-        return toUnixString(err);
+        } catch (IOException e) {}
+        return toUnixString(
+                err);
     }
 
     @Test
-    public void testBreakpoint() throws Throwable {
+    public void testBreakpoint()
+            throws Throwable {
         final Source factorial = createFactorial();
 
-        session.install(Breakpoint.newBuilder(getSourceImpl(factorial)).lineIs(8).build());
-        context.eval(factorial);
+        session.install(
+                Breakpoint
+                        .newBuilder(
+                                getSourceImpl(
+                                        factorial))
+                        .lineIs(8)
+                        .build());
+        context.eval(
+                factorial);
         assertExecutedOK();
 
-        assertLocation("fac", 8, true,
-                        "return 1", "n",
-                        "1", "nMinusOne",
-                        UNASSIGNED, "nMOFact",
-                        UNASSIGNED, "res", UNASSIGNED);
+        assertLocation(
+                "fac",
+                8,
+                true,
+                "return 1",
+                "n",
+                "1",
+                "nMinusOne",
+                UNASSIGNED,
+                "nMOFact",
+                UNASSIGNED,
+                "res",
+                UNASSIGNED);
         continueExecution();
 
-        Value value = context.getBindings("tcl").getMember("test").execute();
+        Value value = context
+                .getBindings(
+                        "tcl")
+                .getMember(
+                        "test")
+                .execute();
         assertExecutedOK();
-        Assert.assertEquals("2\n", getOut());
-        Assert.assertTrue(value.isNumber());
-        int n = value.asInt();
-        assertEquals("Factorial computed OK", 2, n);
+        Assert.assertEquals(
+                "2\n",
+                getOut());
+        Assert.assertTrue(
+                value.isNumber());
+        int n = value
+                .asInt();
+        assertEquals(
+                "Factorial computed OK",
+                2,
+                n);
     }
 
     @Test
-    public void testDebuggerBreakpoint() throws Throwable {
+    public void testDebuggerBreakpoint()
+            throws Throwable {
         final Source factorial = createFactorialWithDebugger();
 
-        context.eval(factorial);
+        context.eval(
+                factorial);
         assertExecutedOK();
 
-        assertLocation("fac", 12, true,
-                        "debugger", "n",
-                        "2", "nMinusOne",
-                        "1", "nMOFact",
-                        "1", "res", UNASSIGNED);
+        assertLocation(
+                "fac",
+                12,
+                true,
+                "debugger",
+                "n",
+                "2",
+                "nMinusOne",
+                "1",
+                "nMOFact",
+                "1",
+                "res",
+                UNASSIGNED);
         continueExecution();
 
-        Value value = context.getBindings("tcl").getMember("test").execute();
+        Value value = context
+                .getBindings(
+                        "tcl")
+                .getMember(
+                        "test")
+                .execute();
         assertExecutedOK();
-        Assert.assertEquals("2\n", getOut());
-        Assert.assertTrue(value.isNumber());
-        int n = value.asInt();
-        assertEquals("Factorial computed OK", 2, n);
+        Assert.assertEquals(
+                "2\n",
+                getOut());
+        Assert.assertTrue(
+                value.isNumber());
+        int n = value
+                .asInt();
+        assertEquals(
+                "Factorial computed OK",
+                2,
+                n);
     }
 
     @Test
-    public void stepInStepOver() throws Throwable {
+    public void stepInStepOver()
+            throws Throwable {
         final Source factorial = createFactorial();
-        context.eval(factorial);
+        context.eval(
+                factorial);
 
         session.suspendNextExecution();
 
-        assertLocation("test", 2, true, "res = fac(2)", "res", UNASSIGNED);
-        stepInto(1);
-        assertLocation("fac", 7, true,
-                        "n <= 1", "n",
-                        "2", "nMinusOne",
-                        UNASSIGNED, "nMOFact",
-                        UNASSIGNED, "res", UNASSIGNED);
-        stepOver(1);
-        assertLocation("fac", 10, true,
-                        "nMinusOne = n - 1", "n",
-                        "2", "nMinusOne",
-                        UNASSIGNED, "nMOFact",
-                        UNASSIGNED, "res", UNASSIGNED);
-        stepOver(1);
-        assertLocation("fac", 11, true,
-                        "nMOFact = fac(nMinusOne)", "n",
-                        "2", "nMinusOne",
-                        "1", "nMOFact",
-                        UNASSIGNED, "res", UNASSIGNED);
-        stepOver(1);
-        assertLocation("fac", 12, true,
-                        "res = n * nMOFact", "n", "2", "nMinusOne",
-                        "1", "nMOFact",
-                        "1", "res", UNASSIGNED);
-        stepOver(1);
-        assertLocation("fac", 13, true,
-                        "return res", "n",
-                        "2", "nMinusOne",
-                        "1", "nMOFact",
-                        "1", "res", "2");
-        stepOver(1);
-        assertLocation("test", 2, false, "fac(2)", "res", UNASSIGNED);
-        stepOver(1);
-        assertLocation("test", 3, true, "println(res)", "res", "2");
+        assertLocation(
+                "test",
+                2,
+                true,
+                "res = fac(2)",
+                "res",
+                UNASSIGNED);
+        stepInto(
+                1);
+        assertLocation(
+                "fac",
+                7,
+                true,
+                "n <= 1",
+                "n",
+                "2",
+                "nMinusOne",
+                UNASSIGNED,
+                "nMOFact",
+                UNASSIGNED,
+                "res",
+                UNASSIGNED);
+        stepOver(
+                1);
+        assertLocation(
+                "fac",
+                10,
+                true,
+                "nMinusOne = n - 1",
+                "n",
+                "2",
+                "nMinusOne",
+                UNASSIGNED,
+                "nMOFact",
+                UNASSIGNED,
+                "res",
+                UNASSIGNED);
+        stepOver(
+                1);
+        assertLocation(
+                "fac",
+                11,
+                true,
+                "nMOFact = fac(nMinusOne)",
+                "n",
+                "2",
+                "nMinusOne",
+                "1",
+                "nMOFact",
+                UNASSIGNED,
+                "res",
+                UNASSIGNED);
+        stepOver(
+                1);
+        assertLocation(
+                "fac",
+                12,
+                true,
+                "res = n * nMOFact",
+                "n",
+                "2",
+                "nMinusOne",
+                "1",
+                "nMOFact",
+                "1",
+                "res",
+                UNASSIGNED);
+        stepOver(
+                1);
+        assertLocation(
+                "fac",
+                13,
+                true,
+                "return res",
+                "n",
+                "2",
+                "nMinusOne",
+                "1",
+                "nMOFact",
+                "1",
+                "res",
+                "2");
+        stepOver(
+                1);
+        assertLocation(
+                "test",
+                2,
+                false,
+                "fac(2)",
+                "res",
+                UNASSIGNED);
+        stepOver(
+                1);
+        assertLocation(
+                "test",
+                3,
+                true,
+                "println(res)",
+                "res",
+                "2");
         stepOut();
 
-        Value value = context.getBindings("tcl").getMember("test");
-        assertTrue(value.canExecute());
-        Value resultValue = value.execute();
-        String resultStr = resultValue.toString();
-        Number result = resultValue.asInt();
+        Value value = context
+                .getBindings(
+                        "tcl")
+                .getMember(
+                        "test");
+        assertTrue(
+                value.canExecute());
+        Value resultValue = value
+                .execute();
+        String resultStr = resultValue
+                .toString();
+        Number result = resultValue
+                .asInt();
         assertExecutedOK();
 
-        assertNotNull(result);
-        assertEquals("Factorial computed OK", 2, result.intValue());
-        assertEquals("Factorial computed OK", "2", resultStr);
+        assertNotNull(
+                result);
+        assertEquals(
+                "Factorial computed OK",
+                2,
+                result.intValue());
+        assertEquals(
+                "Factorial computed OK",
+                "2",
+                resultStr);
     }
 
     @Test
-    public void testPause() throws Throwable {
+    public void testPause()
+            throws Throwable {
         final Source interopComp = createInteropComputation();
 
-        context.eval(interopComp);
+        context.eval(
+                interopComp);
         assertExecutedOK();
 
         final ExecNotifyHandler nh = new ExecNotifyHandler();
 
         // Do pause after execution has really started
         new Thread() {
+
             @Override
             public void run() {
                 nh.waitTillCanPause();
@@ -282,64 +450,125 @@ public class TclDebugDirectTest {
             }
         }.start();
 
-        run.addLast(() -> {
-            // paused
-            assertNotNull(suspendedEvent);
-            int line = suspendedEvent.getSourceSection().getStartLine();
-            Assert.assertTrue("Unexpected line: " + line, 5 <= line && line <= 6);
-            final DebugStackFrame frame = suspendedEvent.getTopStackFrame();
-            DebugScope scope = frame.getScope();
-            DebugValue slot = scope.getDeclaredValue("executing");
-            if (slot == null) {
-                slot = scope.getParent().getDeclaredValue("executing");
-            }
-            Assert.assertNotNull(slot);
-            Assert.assertNotNull("Value is null", slot.toString());
-            suspendedEvent.prepareContinue();
-            nh.pauseDone();
-        });
+        run.addLast(
+                () -> {
+                    // paused
+                    assertNotNull(
+                            suspendedEvent);
+                    int line = suspendedEvent
+                            .getSourceSection()
+                            .getStartLine();
+                    Assert.assertTrue(
+                            "Unexpected line: "
+                                    + line,
+                            5 <= line
+                                    && line <= 6);
+                    final DebugStackFrame frame = suspendedEvent
+                            .getTopStackFrame();
+                    DebugScope scope = frame
+                            .getScope();
+                    DebugValue slot = scope
+                            .getDeclaredValue(
+                                    "executing");
+                    if (slot == null) {
+                        slot = scope
+                                .getParent()
+                                .getDeclaredValue(
+                                        "executing");
+                    }
+                    Assert.assertNotNull(
+                            slot);
+                    Assert.assertNotNull(
+                            "Value is null",
+                            slot.toString());
+                    suspendedEvent
+                            .prepareContinue();
+                    nh.pauseDone();
+                });
 
-        Value value = context.getBindings("tcl").getMember("interopFunction").execute(nh);
+        Value value = context
+                .getBindings(
+                        "tcl")
+                .getMember(
+                        "interopFunction")
+                .execute(
+                        nh);
 
         assertExecutedOK();
-        assertTrue(value.isBoolean());
-        boolean n = value.asBoolean();
-        assertTrue("Interop computation OK", !n);
+        assertTrue(
+                value.isBoolean());
+        boolean n = value
+                .asBoolean();
+        assertTrue(
+                "Interop computation OK",
+                !n);
     }
 
     private static Source createNull() {
-        return Source.newBuilder("tcl", "function nullTest() {\n" +
-                        "  res = doNull();\n" +
-                        "  return res;\n" +
-                        "}\n" +
-                        "function doNull() {\n" +
-                        "}\n", "nullTest.tcl").buildLiteral();
+        return Source
+                .newBuilder(
+                        "tcl",
+                        "function nullTest() {\n"
+                                + "  res = doNull();\n"
+                                + "  return res;\n"
+                                + "}\n"
+                                + "function doNull() {\n"
+                                + "}\n",
+                        "nullTest.tcl")
+                .buildLiteral();
     }
 
     @Test
-    public void testNull() throws Throwable {
+    public void testNull()
+            throws Throwable {
         final Source nullTest = createNull();
-        context.eval(nullTest);
+        context.eval(
+                nullTest);
 
         session.suspendNextExecution();
 
-        assertLocation("nullTest", 2, true, "res = doNull()", "res", UNASSIGNED);
-        stepInto(1);
-        assertLocation("nullTest", 3, true, "return res", "res", "NULL");
+        assertLocation(
+                "nullTest",
+                2,
+                true,
+                "res = doNull()",
+                "res",
+                UNASSIGNED);
+        stepInto(
+                1);
+        assertLocation(
+                "nullTest",
+                3,
+                true,
+                "return res",
+                "res",
+                "NULL");
         continueExecution();
 
-        Value value = context.getBindings("tcl").getMember("nullTest").execute();
+        Value value = context
+                .getBindings(
+                        "tcl")
+                .getMember(
+                        "nullTest")
+                .execute();
         assertExecutedOK();
 
-        String val = value.toString();
-        assertNotNull(val);
-        assertEquals("tcl displays null as NULL", "NULL", val);
+        String val = value
+                .toString();
+        assertNotNull(
+                val);
+        assertEquals(
+                "tcl displays null as NULL",
+                "NULL",
+                val);
     }
 
     private void performWork() {
         try {
-            if (ex == null && !run.isEmpty()) {
-                Runnable c = run.removeFirst();
+            if (ex == null
+                    && !run.isEmpty()) {
+                Runnable c = run
+                        .removeFirst();
                 c.run();
             }
         } catch (Throwable e) {
@@ -347,90 +576,154 @@ public class TclDebugDirectTest {
         }
     }
 
-    private void stepOver(final int size) {
-        run.addLast(() -> {
-            suspendedEvent.prepareStepOver(size);
-        });
+    private void stepOver(
+            final int size) {
+        run.addLast(
+                () -> {
+                    suspendedEvent
+                            .prepareStepOver(
+                                    size);
+                });
     }
 
     private void stepOut() {
-        run.addLast(() -> {
-            suspendedEvent.prepareStepOut(1);
-        });
+        run.addLast(
+                () -> {
+                    suspendedEvent
+                            .prepareStepOut(
+                                    1);
+                });
     }
 
     private void continueExecution() {
-        run.addLast(() -> {
-            suspendedEvent.prepareContinue();
-        });
+        run.addLast(
+                () -> {
+                    suspendedEvent
+                            .prepareContinue();
+                });
     }
 
-    private void stepInto(final int size) {
-        run.addLast(() -> {
-            suspendedEvent.prepareStepInto(size);
-        });
+    private void stepInto(
+            final int size) {
+        run.addLast(
+                () -> {
+                    suspendedEvent
+                            .prepareStepInto(
+                                    size);
+                });
     }
 
-    private void assertLocation(final String name, final int line, final boolean isBefore, final String code, final Object... expectedFrame) {
-        run.addLast(() -> {
-            assertNotNull(suspendedEvent);
+    private void assertLocation(
+            final String name,
+            final int line,
+            final boolean isBefore,
+            final String code,
+            final Object... expectedFrame) {
+        run.addLast(
+                () -> {
+                    assertNotNull(
+                            suspendedEvent);
 
-            final SourceSection suspendedSourceSection = suspendedEvent.getSourceSection();
-            Assert.assertEquals(line, suspendedSourceSection.getStartLine());
-            Assert.assertEquals(code, suspendedSourceSection.getCharacters());
+                    final SourceSection suspendedSourceSection = suspendedEvent
+                            .getSourceSection();
+                    Assert.assertEquals(
+                            line,
+                            suspendedSourceSection
+                                    .getStartLine());
+                    Assert.assertEquals(
+                            code,
+                            suspendedSourceSection
+                                    .getCharacters());
 
-            Assert.assertEquals(isBefore, suspendedEvent.getSuspendAnchor() == SuspendAnchor.BEFORE);
-            final DebugStackFrame frame = suspendedEvent.getTopStackFrame();
-            assertEquals(name, frame.getName());
+                    Assert.assertEquals(
+                            isBefore,
+                            suspendedEvent
+                                    .getSuspendAnchor() == SuspendAnchor.BEFORE);
+                    final DebugStackFrame frame = suspendedEvent
+                            .getTopStackFrame();
+                    assertEquals(
+                            name,
+                            frame.getName());
 
-            for (int i = 0; i < expectedFrame.length; i = i + 2) {
-                final String expectedIdentifier = (String) expectedFrame[i];
-                final Object expectedValue = expectedFrame[i + 1];
-                DebugScope scope = frame.getScope();
-                DebugValue slot = scope.getDeclaredValue(expectedIdentifier);
-                while (slot == null && (scope = scope.getParent()) != null) {
-                    slot = scope.getDeclaredValue(expectedIdentifier);
-                }
-                if (expectedValue != UNASSIGNED) {
-                    Assert.assertNotNull(expectedIdentifier, slot);
-                    final String slotValue = slot.toDisplayString();
-                    Assert.assertEquals(expectedValue, slotValue);
-                } else {
-                    Assert.assertNull(expectedIdentifier, slot);
-                }
-            }
-            run.removeFirst().run();
-        });
+                    for (int i = 0; i < expectedFrame.length; i = i
+                            + 2) {
+                        final String expectedIdentifier = (String) expectedFrame[i];
+                        final Object expectedValue = expectedFrame[i
+                                + 1];
+                        DebugScope scope = frame
+                                .getScope();
+                        DebugValue slot = scope
+                                .getDeclaredValue(
+                                        expectedIdentifier);
+                        while (slot == null
+                                && (scope = scope
+                                        .getParent()) != null) {
+                            slot = scope
+                                    .getDeclaredValue(
+                                            expectedIdentifier);
+                        }
+                        if (expectedValue != UNASSIGNED) {
+                            Assert.assertNotNull(
+                                    expectedIdentifier,
+                                    slot);
+                            final String slotValue = slot
+                                    .toDisplayString();
+                            Assert.assertEquals(
+                                    expectedValue,
+                                    slotValue);
+                        } else {
+                            Assert.assertNull(
+                                    expectedIdentifier,
+                                    slot);
+                        }
+                    }
+                    run.removeFirst()
+                            .run();
+                });
     }
 
-    private void assertExecutedOK() throws Throwable {
-        Assert.assertTrue(getErr(), getErr().isEmpty());
+    private void assertExecutedOK()
+            throws Throwable {
+        Assert.assertTrue(
+                getErr(),
+                getErr().isEmpty());
         if (ex != null) {
             if (ex instanceof AssertionError) {
                 throw ex;
             } else {
-                throw new AssertionError("Error during execution", ex);
+                throw new AssertionError(
+                        "Error during execution",
+                        ex);
             }
         }
-        assertTrue("Assuming all requests processed: " + run, run.isEmpty());
+        assertTrue(
+                "Assuming all requests processed: "
+                        + run,
+                run.isEmpty());
     }
 
     @ExportLibrary(InteropLibrary.class)
-    @SuppressWarnings({"static-method", "unused"})
-    static class ExecNotifyHandler implements TruffleObject {
+    @SuppressWarnings({
+            "static-method",
+            "unused" })
+    static class ExecNotifyHandler
+            implements
+            TruffleObject {
 
         private final Object pauseLock = new Object();
         private boolean canPause;
         private volatile boolean pauseDone;
 
         @ExportMessage
-        final Object readMember(String member) {
+        final Object readMember(
+                String member) {
             setCanPause();
             return !isPauseDone();
         }
 
         @ExportMessage
-        final boolean isMemberReadable(String member) {
+        final boolean isMemberReadable(
+                String member) {
             return true;
         }
 
@@ -440,7 +733,8 @@ public class TclDebugDirectTest {
         }
 
         @ExportMessage
-        final Object getMembers(boolean includeInternal) {
+        final Object getMembers(
+                boolean includeInternal) {
             throw new AssertionError();
         }
 
@@ -448,9 +742,9 @@ public class TclDebugDirectTest {
             synchronized (pauseLock) {
                 while (!canPause) {
                     try {
-                        pauseLock.wait();
-                    } catch (InterruptedException iex) {
-                    }
+                        pauseLock
+                                .wait();
+                    } catch (InterruptedException iex) {}
                 }
             }
         }
@@ -458,7 +752,8 @@ public class TclDebugDirectTest {
         void setCanPause() {
             synchronized (pauseLock) {
                 canPause = true;
-                pauseLock.notifyAll();
+                pauseLock
+                        .notifyAll();
             }
         }
 

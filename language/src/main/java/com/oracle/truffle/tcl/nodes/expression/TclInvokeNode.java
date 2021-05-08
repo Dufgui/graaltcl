@@ -63,22 +63,35 @@ import com.oracle.truffle.tcl.runtime.TclUndefinedNameException;
  * @see InteropLibrary#execute(Object, Object...)
  */
 @NodeInfo(shortName = "invoke")
-public final class TclInvokeNode extends TclExpressionNode {
+public final class TclInvokeNode
+        extends
+        TclExpressionNode {
 
-    @Child private TclExpressionNode functionNode;
-    @Children private final TclExpressionNode[] argumentNodes;
-    @Child private InteropLibrary library;
+    @Child
+    private TclExpressionNode functionNode;
+    @Children
+    private final TclExpressionNode[] argumentNodes;
+    @Child
+    private InteropLibrary library;
 
-    public TclInvokeNode(TclExpressionNode functionNode, TclExpressionNode[] argumentNodes) {
+    public TclInvokeNode(
+            TclExpressionNode functionNode,
+            TclExpressionNode[] argumentNodes) {
         this.functionNode = functionNode;
         this.argumentNodes = argumentNodes;
-        this.library = InteropLibrary.getFactory().createDispatched(3);
+        this.library = InteropLibrary
+                .getFactory()
+                .createDispatched(
+                        3);
     }
 
     @ExplodeLoop
     @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        Object function = functionNode.executeGeneric(frame);
+    public Object executeGeneric(
+            VirtualFrame frame) {
+        Object function = functionNode
+                .executeGeneric(
+                        frame);
 
         /*
          * The number of arguments is constant for one invoke node. During compilation, the loop is
@@ -86,27 +99,42 @@ public final class TclInvokeNode extends TclExpressionNode {
          * ExplodeLoop annotation on the method. The compiler assertion below illustrates that the
          * array length is really constant.
          */
-        CompilerAsserts.compilationConstant(argumentNodes.length);
+        CompilerAsserts
+                .compilationConstant(
+                        argumentNodes.length);
 
         Object[] argumentValues = new Object[argumentNodes.length];
         for (int i = 0; i < argumentNodes.length; i++) {
-            argumentValues[i] = argumentNodes[i].executeGeneric(frame);
+            argumentValues[i] = argumentNodes[i]
+                    .executeGeneric(
+                            frame);
         }
 
         try {
-            return library.execute(function, argumentValues);
-        } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
+            return library
+                    .execute(
+                            function,
+                            argumentValues);
+        } catch (
+                ArityException
+                | UnsupportedTypeException
+                | UnsupportedMessageException e) {
             /* Execute was not successful. */
-            throw TclUndefinedNameException.undefinedFunction(this, function);
+            throw TclUndefinedNameException
+                    .undefinedFunction(
+                            this,
+                            function);
         }
     }
 
     @Override
-    public boolean hasTag(Class<? extends Tag> tag) {
+    public boolean hasTag(
+            Class<? extends Tag> tag) {
         if (tag == StandardTags.CallTag.class) {
             return true;
         }
-        return super.hasTag(tag);
+        return super.hasTag(
+                tag);
     }
 
 }

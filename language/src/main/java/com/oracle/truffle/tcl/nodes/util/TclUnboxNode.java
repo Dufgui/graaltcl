@@ -60,56 +60,85 @@ import com.oracle.truffle.tcl.runtime.TclNull;
  */
 @TypeSystemReference(TclTypes.class)
 @NodeChild
-public abstract class TclUnboxNode extends TclExpressionNode {
+public abstract class TclUnboxNode
+        extends
+        TclExpressionNode {
 
     static final int LIMIT = 5;
 
     @Specialization
-    protected static String fromString(String value) {
+    protected static String fromString(
+            String value) {
         return value;
     }
 
     @Specialization
-    protected static boolean fromBoolean(boolean value) {
+    protected static boolean fromBoolean(
+            boolean value) {
         return value;
     }
 
     @Specialization
-    protected static long fromLong(long value) {
+    protected static long fromLong(
+            long value) {
         return value;
     }
 
     @Specialization
-    protected static TclBigNumber fromBigNumber(TclBigNumber value) {
+    protected static TclBigNumber fromBigNumber(
+            TclBigNumber value) {
         return value;
     }
 
     @Specialization
-    protected static TclFunction fromFunction(TclFunction value) {
+    protected static TclFunction fromFunction(
+            TclFunction value) {
         return value;
     }
 
     @Specialization
-    protected static TclNull fromFunction(TclNull value) {
+    protected static TclNull fromFunction(
+            TclNull value) {
         return value;
     }
 
     @Specialization(limit = "LIMIT")
-    public static Object fromForeign(Object value, @CachedLibrary("value") InteropLibrary interop) {
+    public static Object fromForeign(
+            Object value,
+            @CachedLibrary("value") InteropLibrary interop) {
         try {
-            if (interop.fitsInLong(value)) {
-                return interop.asLong(value);
-            } else if (interop.fitsInDouble(value)) {
-                return (long) interop.asDouble(value);
-            } else if (interop.isString(value)) {
-                return interop.asString(value);
-            } else if (interop.isBoolean(value)) {
-                return interop.asBoolean(value);
-            } else {
-                return value;
-            }
+            if (interop
+                    .fitsInLong(
+                            value)) {
+                return interop
+                        .asLong(value);
+            } else
+                if (interop
+                        .fitsInDouble(
+                                value)) {
+                                    return (long) interop
+                                            .asDouble(
+                                                    value);
+                                } else
+                    if (interop
+                            .isString(
+                                    value)) {
+                                        return interop
+                                                .asString(
+                                                        value);
+                                    } else
+                        if (interop
+                                .isBoolean(
+                                        value)) {
+                                            return interop
+                                                    .asBoolean(
+                                                            value);
+                                        } else {
+                                            return value;
+                                        }
         } catch (UnsupportedMessageException e) {
-            throw shouldNotReachHere(e);
+            throw shouldNotReachHere(
+                    e);
         }
     }
 
