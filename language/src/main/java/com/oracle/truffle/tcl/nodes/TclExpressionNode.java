@@ -107,8 +107,7 @@ public abstract class TclExpressionNode extends TclStatementNode {
     }
 
     public double executeDouble(VirtualFrame frame) throws UnexpectedResultException {
-        //TODO replace by expectDouble when available
-        return TclTypesGen.expectLong(executeGeneric(frame));
+        return TclTypesGen.expectDouble(executeGeneric(frame));
     }
 
     public boolean executeBoolean(VirtualFrame frame) throws UnexpectedResultException {

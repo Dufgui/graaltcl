@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * The Universal Permissive License (UPL), Version 1.0
@@ -40,20 +40,31 @@
  */
 package com.oracle.truffle.tcl.builtins;
 
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.dsl.CachedContext;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import com.oracle.truffle.api.source.Source;
+import com.oracle.truffle.tcl.TclLanguage;
+import com.oracle.truffle.tcl.runtime.TclContext;
 
 /**
- * Built-in function that queries if the foreign object has a size. See
- * <link>Messages.HAS_SIZE</link>.
+ * Builtin function to define (or redefine) functions. The provided source code is parsed the same
+ * way as the initial source of the script, so the same syntax applies.
  */
-@NodeInfo(shortName = "hasSize")
-public abstract class TclHasSizeBuiltin extends TclBuiltinNode {
+@NodeInfo(shortName = "proc")
+public abstract class TclProcBuiltin extends TclBuiltinNode {
 
-    @Specialization(limit = "3")
-    public boolean hasSize(Object obj, @CachedLibrary("obj") InteropLibrary arrays) {
-        return arrays.hasArrayElements(obj);
+    @TruffleBoundary
+    @Specialization
+    public String defineFunction(String code, @CachedContext(TclLanguage.class) TclContext context) {
+        // @formatter:off
+        Source source = Source.newBuilder(TclLanguage.ID, code, "[defineFunction]").
+            build();
+        // @formatter:on
+        /* The same parsing code as for parsing the initial source. */
+        context.getFunctionRegistry().register(source);
+
+        return code;
     }
 }

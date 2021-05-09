@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2019, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * The Universal Permissive License (UPL), Version 1.0
@@ -40,26 +40,43 @@
  */
 package com.oracle.truffle.tcl.builtins;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.dsl.CachedContext;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.tcl.TclException;
+import com.oracle.truffle.tcl.TclLanguage;
+import com.oracle.truffle.tcl.runtime.TclContext;
 
 /**
- * Built-in function that queries the size property of a foreign object. See
- * <link>Messages.GET_SIZE</link>.
+ * Builtin function that reads a String from the {@link TclContext#getInput() standard input}.
  */
-@NodeInfo(shortName = "getSize")
-public abstract class TclGetSizeBuiltin extends TclBuiltinNode {
+@NodeInfo(shortName = "gets")
+public abstract class TclGetsBuiltin extends TclBuiltinNode {
 
-    @Specialization(limit = "3")
-    public Object getSize(Object obj, @CachedLibrary("obj") InteropLibrary arrays) {
+    @Specialization
+    public String gets(@CachedContext(TclLanguage.class) TclContext context) {
+        String result = doRead(context.getInput());
+        if (result == null) {
+            /*
+             * We do not have a sophisticated end of file handling, so returning an empty string is
+             * a reasonable alternative. Note that the Java null value should never be used, since
+             * it can interfere with the specialization logic in generated source code.
+             */
+            result = "";
+        }
+        return result;
+    }
+
+    @TruffleBoundary
+    private String doRead(BufferedReader in) {
         try {
-            return arrays.getArraySize(obj);
-        } catch (UnsupportedMessageException e) {
-            throw new TclException("Element is not a valid array.", this);
+            return in.readLine();
+        } catch (IOException ex) {
+            throw new TclException(ex.getMessage(), this);
         }
     }
 }

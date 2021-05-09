@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2020, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * The Universal Permissive License (UPL), Version 1.0
@@ -43,28 +43,32 @@ package com.oracle.truffle.tcl.builtins;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.CachedContext;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.tcl.TclLanguage;
 import com.oracle.truffle.tcl.runtime.TclContext;
+import com.oracle.truffle.tcl.runtime.TclLanguageView;
 
 /**
- * Builtin function to define (or redefine) functions. The provided source code is parsed the same
- * way as the initial source of the script, so the same syntax applies.
+ * Builtin function to write a value to the {@link TclContext#getOutput() standard output}. The
+ * different specialization leverage the typed {@code println} methods available in Java, i.e.,
+ * primitive values are printed without converting them to a {@link String} first.
+ * <p>
+ * Printing involves a lot of Java code, so we need to tell the optimizing system that it should not
+ * unconditionally inline everything reachable from the println() method. This is done via the
+ * {@link TruffleBoundary} annotations.
  */
-@NodeInfo(shortName = "defineFunction")
-public abstract class TclDefineFunctionBuiltin extends TclBuiltinNode {
+@NodeInfo(shortName = "puts")
+public abstract class TclPutsBuiltin extends TclBuiltinNode {
 
-    @TruffleBoundary
     @Specialization
-    public String defineFunction(String code, @CachedContext(TclLanguage.class) TclContext context) {
-        // @formatter:off
-        Source source = Source.newBuilder(TclLanguage.ID, code, "[defineFunction]").
-            build();
-        // @formatter:on
-        /* The same parsing code as for parsing the initial source. */
-        context.getFunctionRegistry().register(source);
-
-        return code;
+    @TruffleBoundary
+    public Object puts(Object value,
+                    @CachedLibrary(limit = "3") InteropLibrary interop,
+                    @CachedContext(TclLanguage.class) TclContext context) {
+        context.getOutput().println(interop.toDisplayString(TclLanguageView.forValue(value)));
+        return value;
     }
+
 }

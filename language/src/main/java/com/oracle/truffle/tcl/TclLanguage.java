@@ -66,11 +66,9 @@ import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.tcl.builtins.TclBuiltinNode;
-import com.oracle.truffle.tcl.builtins.TclDefineFunctionBuiltin;
-import com.oracle.truffle.tcl.builtins.TclNanoTimeBuiltin;
-import com.oracle.truffle.tcl.builtins.TclPrintlnBuiltin;
-import com.oracle.truffle.tcl.builtins.TclReadlnBuiltin;
-import com.oracle.truffle.tcl.builtins.TclStackTraceBuiltin;
+import com.oracle.truffle.tcl.builtins.TclProcBuiltin;
+import com.oracle.truffle.tcl.builtins.TclGetsBuiltin;
+import com.oracle.truffle.tcl.builtins.TclPutsBuiltin;
 import com.oracle.truffle.tcl.nodes.TclEvalRootNode;
 import com.oracle.truffle.tcl.nodes.TclExpressionNode;
 import com.oracle.truffle.tcl.nodes.TclRootNode;
@@ -179,13 +177,13 @@ import com.oracle.truffle.tcl.runtime.TclObject;
  * builtin functions. They are added to the {@link TclFunctionRegistry} when the {@link TclContext} is
  * created. Some of the current builtin functions are
  * <ul>
- * <li>{@link TclReadlnBuiltin readln}: Read a String from the {@link TclContext#getInput() standard
+ * <li>{@link TclGetsBuiltin readln}: Read a String from the {@link TclContext#getInput() standard
  * input}.
- * <li>{@link TclPrintlnBuiltin println}: Write a value to the {@link TclContext#getOutput() standard
+ * <li>{@link TclPutsBuiltin println}: Write a value to the {@link TclContext#getOutput() standard
  * output}.
  * <li>{@link TclNanoTimeBuiltin nanoTime}: Returns the value of a high-resolution time, in
  * nanoseconds.
- * <li>{@link TclDefineFunctionBuiltin defineFunction}: Parses the functions provided as a String
+ * <li>{@link TclProcBuiltin defineFunction}: Parses the functions provided as a String
  * argument and adds them to the function registry. Functions that are already defined are replaced
  * with the new version.
  * <li>{@link TclStackTraceBuiltin stckTrace}: Print all function activations with all local

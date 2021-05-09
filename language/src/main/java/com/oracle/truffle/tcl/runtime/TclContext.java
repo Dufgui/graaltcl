@@ -40,13 +40,6 @@
  */
 package com.oracle.truffle.tcl.runtime;
 
-import static com.oracle.truffle.api.CompilerDirectives.shouldNotReachHere;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.util.List;
-
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.RootCallTarget;
@@ -58,24 +51,18 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.tcl.TclLanguage;
 import com.oracle.truffle.tcl.builtins.TclBuiltinNode;
-import com.oracle.truffle.tcl.builtins.TclDefineFunctionBuiltinFactory;
-import com.oracle.truffle.tcl.builtins.TclEvalBuiltinFactory;
-import com.oracle.truffle.tcl.builtins.TclGetSizeBuiltinFactory;
-import com.oracle.truffle.tcl.builtins.TclHasSizeBuiltinFactory;
-import com.oracle.truffle.tcl.builtins.TclHelloEqualsWorldBuiltinFactory;
-import com.oracle.truffle.tcl.builtins.TclImportBuiltinFactory;
-import com.oracle.truffle.tcl.builtins.TclIsExecutableBuiltinFactory;
-import com.oracle.truffle.tcl.builtins.TclIsInstanceBuiltinFactory;
-import com.oracle.truffle.tcl.builtins.TclIsNullBuiltinFactory;
-import com.oracle.truffle.tcl.builtins.TclNanoTimeBuiltinFactory;
-import com.oracle.truffle.tcl.builtins.TclNewObjectBuiltinFactory;
-import com.oracle.truffle.tcl.builtins.TclPrintlnBuiltin;
-import com.oracle.truffle.tcl.builtins.TclPrintlnBuiltinFactory;
-import com.oracle.truffle.tcl.builtins.TclReadlnBuiltin;
-import com.oracle.truffle.tcl.builtins.TclReadlnBuiltinFactory;
-import com.oracle.truffle.tcl.builtins.TclStackTraceBuiltinFactory;
-import com.oracle.truffle.tcl.builtins.TclTypeOfBuiltinFactory;
-import com.oracle.truffle.tcl.builtins.TclWrapPrimitiveBuiltinFactory;
+import com.oracle.truffle.tcl.builtins.TclGetsBuiltin;
+import com.oracle.truffle.tcl.builtins.TclGetsBuiltinFactory;
+import com.oracle.truffle.tcl.builtins.TclProcBuiltinFactory;
+import com.oracle.truffle.tcl.builtins.TclPutsBuiltin;
+import com.oracle.truffle.tcl.builtins.TclPutsBuiltinFactory;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.util.List;
+
+import static com.oracle.truffle.api.CompilerDirectives.shouldNotReachHere;
 
 /**
  * The run-time state of tcl during execution. The context is created by the
@@ -118,7 +105,7 @@ public final class TclContext {
 	}
 
 	/**
-	 * Returns the default input, i.e., the source for the {@link TclReadlnBuiltin}.
+	 * Returns the default input, i.e., the source for the {@link TclGetsBuiltin}.
 	 * To allow unit testing, we do not use {@link System#in} directly.
 	 */
 	public BufferedReader getInput() {
@@ -126,7 +113,7 @@ public final class TclContext {
 	}
 
 	/**
-	 * The default default, i.e., the output for the {@link TclPrintlnBuiltin}. To
+	 * The default default, i.e., the output for the {@link TclPutsBuiltin}. To
 	 * allow unit testing, we do not use {@link System#out} directly.
 	 */
 	public PrintWriter getOutput() {
@@ -145,22 +132,9 @@ public final class TclContext {
 	 * lists all {@link TclBuiltinNode builtin implementation classes}.
 	 */
 	private void installBuiltins() {
-		installBuiltin(TclReadlnBuiltinFactory.getInstance());
-		installBuiltin(TclPrintlnBuiltinFactory.getInstance());
-		installBuiltin(TclNanoTimeBuiltinFactory.getInstance());
-		installBuiltin(TclDefineFunctionBuiltinFactory.getInstance());
-		installBuiltin(TclStackTraceBuiltinFactory.getInstance());
-		installBuiltin(TclHelloEqualsWorldBuiltinFactory.getInstance());
-		installBuiltin(TclNewObjectBuiltinFactory.getInstance());
-		installBuiltin(TclEvalBuiltinFactory.getInstance());
-		installBuiltin(TclImportBuiltinFactory.getInstance());
-		installBuiltin(TclGetSizeBuiltinFactory.getInstance());
-		installBuiltin(TclHasSizeBuiltinFactory.getInstance());
-		installBuiltin(TclIsExecutableBuiltinFactory.getInstance());
-		installBuiltin(TclIsNullBuiltinFactory.getInstance());
-		installBuiltin(TclWrapPrimitiveBuiltinFactory.getInstance());
-		installBuiltin(TclTypeOfBuiltinFactory.getInstance());
-		installBuiltin(TclIsInstanceBuiltinFactory.getInstance());
+		installBuiltin( TclGetsBuiltinFactory.getInstance());
+		installBuiltin( TclPutsBuiltinFactory.getInstance());
+		installBuiltin( TclProcBuiltinFactory.getInstance());
 	}
 
 	public void installBuiltin(NodeFactory<? extends TclBuiltinNode> factory) {
