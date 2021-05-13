@@ -145,10 +145,10 @@ if_statement [boolean inLoop] returns [TclStatementNode result]
 i='if'
 '{'
 condition=expression
-'}' 'then'
+'}' 'then'?
 then=block[inLoop]                              { TclStatementNode elsePart = null; }
 (
-    'else'
+    'else'?
     block[inLoop]                               { elsePart = $block.result; }
 )?                                              { $result = factory.createIf($i, $condition.result, $then.result, elsePart); }
 ;
@@ -160,7 +160,7 @@ r='return'                                      { TclExpressionNode value = null
 (
     expression                                  { value = $expression.result; }
 )?                                              { $result = factory.createReturn($r, value); }
-';'
+';'?
 ;
 
 
@@ -226,6 +226,8 @@ term                                            { $result = $term.result; }
 term returns [TclExpressionNode result]
 :
 (
+    '$' IDENTIFIER                              { TclExpressionNode assignmentName = factory.createStringLiteral($IDENTIFIER, false); }
+|
     IDENTIFIER                                  { TclExpressionNode assignmentName = factory.createStringLiteral($IDENTIFIER, false); }
     (
         member_expression[null, null, assignmentName] { $result = $member_expression.result; }
