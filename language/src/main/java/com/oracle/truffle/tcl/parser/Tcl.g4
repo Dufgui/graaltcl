@@ -273,7 +273,7 @@ member_expression [TclExpressionNode r, TclExpressionNode assignmentReceiver, Tc
                                                       $result = factory.createWriteProperty(assignmentReceiver, assignmentName, $expression.result);
                                                   } }
 |
-    '.'                                         { if (receiver == null) {
+    '::'                                         { if (receiver == null) {
                                                        receiver = factory.createRead(assignmentName);
                                                   } }
     IDENTIFIER

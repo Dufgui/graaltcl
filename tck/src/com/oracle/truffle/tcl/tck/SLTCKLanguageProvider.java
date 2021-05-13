@@ -59,15 +59,14 @@ import org.junit.Assert;
 
 public class TclTCKLanguageProvider implements LanguageProvider {
     private static final String ID = "tcl";
-    private static final String PATTERN_VALUE_FNC = "function %s() {return %s;}";
-    private static final String PATTERN_BIN_OP_FNC = "function %s(a,b) {return a %s b;}";
-    private static final String PATTERN_POST_OP_FNC = "function %s(a) {a %s;}";
-    private static final String PATTERN_BUILTIN0 = "function %sBuiltin0() {return %s();}";
-    private static final String PATTERN_BUILTIN1 = "function %sBuiltin1(a) {return %s(a);}";
-    private static final String PATTERN_BUILTIN2 = "function %sBuiltin2(a, b) {return %s(a, b);}";
+    private static final String PATTERN_VALUE_FNC = "proc %s{} {return %s}";
+    private static final String PATTERN_BIN_OP_FNC = "proc %s{a,b} {return [expr {$a %s $b}]}";
+    private static final String PATTERN_BUILTIN0 = "proc %sBuiltin0{} {return [expr {%s()}]}";
+    private static final String PATTERN_BUILTIN1 = "proc %sBuiltin1{a} {return [expr {%s(a)}]}";
+    private static final String PATTERN_BUILTIN2 = "proc %sBuiltin2{a, b} {return [expr {%s(a, b)}]}";
     private static final String[] PATTERN_STATEMENTS = {
-                    "function %s() {r = 0;\n%s\nreturn r;\n}",
-                    "function %s(p1) {r = 0;\n%s\nreturn r;\n}",
+                    "proc %s{} {set r 0;\n%s\nreturn $r;\n}",
+                    "proc %s{p1} {set r 0;\n%s\nreturn $r;\n}",
     };
 
     private static final TypeDescriptor NUMBER_RETURN = TypeDescriptor.union(TypeDescriptor.NUMBER, TypeDescriptor.intersection());
@@ -79,7 +78,7 @@ public class TclTCKLanguageProvider implements LanguageProvider {
 
     @Override
     public Value createIdentityFunction(Context context) {
-        return eval(context, "function id (a) {return a;}", "id");
+        return eval(context, "function id {a} {return a;}", "id");
     }
 
     @Override
@@ -190,9 +189,6 @@ public class TclTCKLanguageProvider implements LanguageProvider {
                 Assert.assertTrue(TypeDescriptor.BOOLEAN.isAssignable(TypeDescriptor.forValue(snippetRun.getResult())));
             }
         }).build());
-        res.add(createPostfixOperator(context, "()", "callNoArg", TypeDescriptor.NULL, TypeDescriptor.executable(TypeDescriptor.ANY)).build());
-        res.add(createPostfixOperator(context, "(1)", "callOneArg", TypeDescriptor.NULL, TypeDescriptor.executable(TypeDescriptor.ANY, TypeDescriptor.NUMBER)).build());
-        res.add(createPostfixOperator(context, "(1, \"\")", "callTwoArgs", TypeDescriptor.NULL, TypeDescriptor.executable(TypeDescriptor.ANY, TypeDescriptor.NUMBER, TypeDescriptor.STRING)).build());
 
         return Collections.unmodifiableCollection(res);
     }
@@ -224,6 +220,7 @@ public class TclTCKLanguageProvider implements LanguageProvider {
         final Collection<Snippet> res = new ArrayList<>();
         res.add(loadScript(context, "resources/Ackermann.tcl", TypeDescriptor.NULL, null));
         res.add(loadScript(context, "resources/Fibonacci.tcl", TypeDescriptor.NULL, null));
+        res.add(loadScript(context, "resources/hello.tcl", TypeDescriptor.NULL, null));
         return Collections.unmodifiableCollection(res);
     }
 
@@ -231,8 +228,7 @@ public class TclTCKLanguageProvider implements LanguageProvider {
     public Collection<? extends Source> createInvalidSyntaxScripts(Context context) {
         try {
             final Collection<Source> res = new ArrayList<>();
-            res.add(createSource("resources/InvalidSyntax01.tcl"));
-            res.add(createSource("resources/InvalidSyntax02.tcl"));
+            res.add(createSource("resources/InvalidSyntax.tcl"));
             return Collections.unmodifiableCollection(res);
         } catch (IOException ioe) {
             throw new AssertionError("IOException while creating a test script.", ioe);
@@ -261,16 +257,6 @@ public class TclTCKLanguageProvider implements LanguageProvider {
                     final TypeDescriptor rtype) {
         final Value fnc = eval(context, String.format(PATTERN_BIN_OP_FNC, functionName, operator), functionName);
         return Snippet.newBuilder(operator, fnc, type).parameterTypes(ltype, rtype);
-    }
-
-    private static Snippet.Builder createPostfixOperator(
-                    final Context context,
-                    final String operator,
-                    final String functionName,
-                    final TypeDescriptor type,
-                    final TypeDescriptor ltype) {
-        final Value fnc = eval(context, String.format(PATTERN_POST_OP_FNC, functionName, operator), functionName);
-        return Snippet.newBuilder(operator, fnc, type).parameterTypes(ltype);
     }
 
     private static Snippet createStatement(
