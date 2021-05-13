@@ -69,7 +69,7 @@ public static Map<String, RootCallTarget> parseTcl( TclLanguage language, Source
 
 tcl
 :
-function function* module EOF
+function* module EOF
 ;
 
 
@@ -116,16 +116,16 @@ statement [boolean inLoop] returns [TclStatementNode result]
     while_statement                             { $result = $while_statement.result; }
 |
     b='break'                                   { if (inLoop) { $result = factory.createBreak($b); } else { SemErr($b, "break used outside of loop"); } }
-    ';'
+    ';'?
 |
     c='continue'                                { if (inLoop) { $result = factory.createContinue($c); } else { SemErr($c, "continue used outside of loop"); } }
-    ';'
+    ';'?
 |
     if_statement[inLoop]                        { $result = $if_statement.result; }
 |
     return_statement                            { $result = $return_statement.result; }
 |
-    expression ';'                              { $result = $expression.result; }
+    expression ';'?                              { $result = $expression.result; }
 )
 ;
 
@@ -239,6 +239,8 @@ term returns [TclExpressionNode result]
 |
     DOUBLE_LITERAL                              { $result = factory.createDoubleLiteral($DOUBLE_LITERAL); }
 |
+    BOOLEAN_LITERAL                             { $result = factory.createBooleanLiteral($BOOLEAN_LITERAL); }
+|
     s='('
     expr=expression
     e=')'                                       { $result = factory.createParenExpression($expr.result, $s.getStartIndex(), $e.getStopIndex() - $s.getStartIndex() + 1); }
@@ -250,7 +252,7 @@ member_expression [TclExpressionNode r, TclExpressionNode assignmentReceiver, Tc
 :                                               { TclExpressionNode receiver = r;
                                                   TclExpressionNode nestedAssignmentName = null; }
 (
-    '('                                         { List<TclExpressionNode> parameters = new ArrayList<>();
+    '['                                         { List<TclExpressionNode> parameters = new ArrayList<>();
                                                   if (receiver == null) {
                                                       receiver = factory.createRead(assignmentName);
                                                   } }
@@ -261,17 +263,8 @@ member_expression [TclExpressionNode r, TclExpressionNode assignmentReceiver, Tc
             expression                          { parameters.add($expression.result); }
         )*
     )?
-    e=')'
+    e=']'
                                                 { $result = factory.createCall(receiver, parameters, $e); }
-|
-    '='
-    expression                                  { if (assignmentName == null) {
-                                                      SemErr($expression.start, "invalid assignment target");
-                                                  } else if (assignmentReceiver == null) {
-                                                      $result = factory.createAssignment(assignmentName, $expression.result);
-                                                  } else {
-                                                      $result = factory.createWriteProperty(assignmentReceiver, assignmentName, $expression.result);
-                                                  } }
 |
     '::'                                         { if (receiver == null) {
                                                        receiver = factory.createRead(assignmentName);
@@ -280,13 +273,17 @@ member_expression [TclExpressionNode r, TclExpressionNode assignmentReceiver, Tc
                                                 { nestedAssignmentName = factory.createStringLiteral($IDENTIFIER, false);
                                                   $result = factory.createReadProperty(receiver, nestedAssignmentName); }
 |
-    '['                                         { if (receiver == null) {
+    '('                                         { if (receiver == null) {
                                                       receiver = factory.createRead(assignmentName);
                                                   } }
     expression
                                                 { nestedAssignmentName = $expression.result;
                                                   $result = factory.createReadProperty(receiver, nestedAssignmentName); }
-    ']'
+    ')'
+|
+    '{'
+    expression
+    '}'
 )
 (
     member_expression[$result, receiver, nestedAssignmentName] { $result = $member_expression.result; }
@@ -310,6 +307,7 @@ fragment STRING_CHAR : ~('"' | '\\' | '\r' | '\n');
 IDENTIFIER : LETTER (LETTER | DIGIT)*;
 STRING_LITERAL : '"' STRING_CHAR* '"';
 INTEGER_LITERAL	:	DIGIT+  ;
-DOUBLE_LITERAL	:	DIGIT+ '.' DIGIT+  ;
+DOUBLE_LITERAL	:	DIGIT+ '.' DIGIT+ ;
+BOOLEAN_LITERAL	:	'false' | 'no' | 'n' | 'off' | 'true' | 'yes' | 'y' | 'on';
 
 

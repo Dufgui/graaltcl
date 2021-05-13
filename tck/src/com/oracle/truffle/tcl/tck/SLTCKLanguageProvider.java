@@ -78,7 +78,7 @@ public class TclTCKLanguageProvider implements LanguageProvider {
 
     @Override
     public Value createIdentityFunction(Context context) {
-        return eval(context, "function id {a} {return a;}", "id");
+        return eval(context, "proc id {a} {return $a}", "id");
     }
 
     @Override

@@ -3,7 +3,7 @@
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 
-function main() {  
+proc main() {
   i = 0;  
   while (i < 1000) {
     if (i >= 942) {

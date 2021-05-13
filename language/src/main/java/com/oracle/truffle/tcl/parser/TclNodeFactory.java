@@ -46,6 +46,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.oracle.truffle.tcl.nodes.expression.TclBooleanLiteralNode;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
 
@@ -555,6 +556,32 @@ public class TclNodeFactory {
 		result.addExpressionTag();
 		return result;
 	}
+
+	public TclExpressionNode createBooleanLiteral(Token literalToken) {
+		TclExpressionNode result;
+		try {
+			/* Try if the literal is small enough to fit into a long value. */
+			result = new TclBooleanLiteralNode(parseBoolean(literalToken.getText()));
+		} catch (IllegalArgumentException ex) {
+			/* Overflow of long value, so fall back to BigInteger. */
+			result = new TclStringLiteralNode(literalToken.getText());
+		}
+		srcFromToken(result, literalToken);
+		result.addExpressionTag();
+		return result;
+	}
+
+	private boolean parseBoolean( String text )
+	{
+		if("0".equals(text) || "false".equals(text) || "no".equals(text) || "n".equals(text) || "off".equals(text)) {
+			return false;
+		}
+		if("1".equals(text) || "true".equals(text) || "yes".equals(text) || "y".equals(text) || "on".equals(text)) {
+			return false;
+		}
+		throw new IllegalArgumentException(text+" is not a boolean.");
+	}
+
 
 	public TclExpressionNode createParenExpression(TclExpressionNode expressionNode, int start, int length) {
 		if (expressionNode == null) {

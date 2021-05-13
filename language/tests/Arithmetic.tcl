@@ -3,15 +3,13 @@
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 
-function main() {  
-  println(3 + 4 - 2);  
-  println(3 - 4 + 2);  
-  println(3 - 4 - 2);  
-  println(3 * 4 + 2);  
-  println(3 + 4 * 2);  
-  println(3 + (4 - 2));  
-  println(3 - (4 + 2));  
-  println(3 - (4 - 2));  
-  println(3 * (4 + 2));  
-  println(3 + (4 * 2));  
-}  
+puts [expr {3 + 4 - 2}];
+puts [expr {3 - 4 + 2}];
+puts [expr {3 - 4 - 2}];
+puts [expr {3 * 4 + 2}];
+puts [expr {3 + 4 * 2}];
+puts [expr {3 + (4 - 2)}];
+puts [expr {3 - (4 + 2)}];
+puts [expr {3 - (4 - 2)}];
+puts [expr {3 * (4 + 2)}];
+puts [expr {3 + (4 * 2)}];
