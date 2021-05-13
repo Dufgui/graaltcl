@@ -18,4 +18,6 @@ native/tclnative
 /language/src/main/java/com/oracle/truffle/tcl/parser/Tcl.tokens
 /language/src/main/java/com/oracle/truffle/tcl/parser/TclLexer.interp
 /language/src/main/java/com/oracle/truffle/tcl/parser/TclLexer.tokens
+/language/src/main/java/com/oracle/truffle/tcl/parser/TclLexer.java
+/language/src/main/java/com/oracle/truffle/tcl/parser/TclParser.java
 *.jar
