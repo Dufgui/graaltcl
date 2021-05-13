@@ -83,13 +83,13 @@ import org.junit.runners.model.InitializationError;
 import com.oracle.truffle.api.dsl.NodeFactory;
 import com.oracle.truffle.tcl.TclLanguage;
 import com.oracle.truffle.tcl.builtins.TclBuiltinNode;
+import com.oracle.truffle.tcl.nodes.util.TclInterpreter;
 import com.oracle.truffle.tcl.test.TclTestRunner.TestCase;
 
 public class TclTestRunner extends ParentRunner<TestCase> {
 
     private static final String SOURCE_SUFFIX = ".tcl";
     private static final String INPUT_SUFFIX = ".input";
-    private static final String OUTPUT_SUFFIX = ".output";
 
     private static final String LF = System.getProperty("line.separator");
 
@@ -181,10 +181,9 @@ public class TclTestRunner extends ParentRunner<TestCase> {
                         testInput = readAllLines(inputFile);
                     }
 
-                    Path outputFile = sourceFile.resolveSibling(baseName + OUTPUT_SUFFIX);
                     String expectedOutput = "";
-                    if (Files.exists(outputFile)) {
-                        expectedOutput = readAllLines(outputFile);
+                    if (Files.exists(sourceFile)) {
+                        expectedOutput = TclInterpreter.interpret(sourceFile);
                     }
 
                     foundCases.add(new TestCase(c, baseName, sourceName, sourceFile, testInput, expectedOutput, options));
