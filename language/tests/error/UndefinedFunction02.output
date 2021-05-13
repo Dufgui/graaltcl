@@ -1,2 +1,7 @@
-f1
-Undefined function: foo
+wrong # args: should be "f1"
+    while executing
+"$f "hello""
+    (procedure "invoke" line 2)
+    invoked from within
+"invoke f1"
+    (file "./error/UndefinedFunction02.tcl" line 12)

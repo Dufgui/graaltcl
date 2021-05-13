@@ -1,1 +1,4 @@
-Undefined function: foo
+invalid command name "foo"
+    while executing
+"foo"
+    (file "./error/UndefinedFunction01.tcl" line 4)

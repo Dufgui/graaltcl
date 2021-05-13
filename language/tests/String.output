@@ -1,10 +1,10 @@
-sNULL
-snull
+s
+s
 sbar
-sfoo
-NULLs
-NULLs
+sbar
+s
+s
 bars
-foos
-2 < 4: true
-Type error at String.tcl line 14 col 34: operation "<" not defined for Number 2, String "4"
+bars
+a < b: 1
+a < b: 1
