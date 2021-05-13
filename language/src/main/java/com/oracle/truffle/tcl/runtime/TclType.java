@@ -54,7 +54,7 @@ import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.tcl.TclLanguage;
 
 /**
- * The builtin type definitions for SimpleLanguage. Tcl has no custom types, so it is not possible
+ * The builtin type definitions for Tcl. Tcl has no custom types, so it is not possible
  * for a guest program to create new instances of TclType.
  * <p>
  * The isInstance type checks are declared using an functional interface and are expressed using the
@@ -89,7 +89,7 @@ public final class TclType implements TruffleObject {
     /*
      * This array is used when all types need to be checked in a certain order. While most interop
      * types like number or string are exclusive, others traits like members might not be. For
-     * example, an object might be a function. In SimpleLanguage we decided to make functions,
+     * example, an object might be a function. In Tcl we decided to make functions,
      * functions and not objects.
      */
     @CompilationFinal(dimensions = 1) public static final TclType[] PRECEDENCE = new TclType[]{NULL, NUMBER, STRING, BOOLEAN, FUNCTION, OBJECT};

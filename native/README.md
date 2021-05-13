@@ -1,4 +1,4 @@
-# The simple language native image
+# The tcl native image
 
 Truffle language implementations can be AOT compiled using the GraalVM
 [native-image](https://www.graalvm.org/docs/reference-manual/aot-compilation/)

@@ -46,7 +46,7 @@
     <artifactId>tcl-parent</artifactId>
     <version>${graalvm.version}</version>
   </parent>
-  <artifactId>simplelanguage-graalvm-native</artifactId>
+  <artifactId>tcl-graalvm-native</artifactId>
   <packaging>pom</packaging>
   <build>
     <plugins>

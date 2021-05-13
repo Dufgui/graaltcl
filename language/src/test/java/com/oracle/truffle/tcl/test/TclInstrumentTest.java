@@ -486,7 +486,7 @@ public class TclInstrumentTest {
         String fullOutput = "5\n4\n3\n2\n1\n120\n";
         String fullLines = "[5, 4, 3, 2, 1, 120]";
         // Pure exec:
-        Source source = Source.newBuilder("sl", code, "testing").build();
+        Source source = Source.newBuilder("tcl", code, "testing").build();
         ByteArrayOutputStream engineOut = new ByteArrayOutputStream();
         Engine engine = Engine.newBuilder().out(engineOut).build();
         Context context = Context.newBuilder().engine(engine).build();
