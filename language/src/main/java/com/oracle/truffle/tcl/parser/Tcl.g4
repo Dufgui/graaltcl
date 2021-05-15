@@ -69,7 +69,10 @@ public static Map<String, RootCallTarget> parseTcl( TclLanguage language, Source
 
 tcl
 :
-function* module EOF
+CR*
+function* module
+CR*
+EOF
 ;
 
 
@@ -95,47 +98,52 @@ body=block[false]                               { factory.finishFunction($body.r
 block [boolean inLoop] returns [TclStatementNode result]
 :                                               { factory.startBlock();
                                                   List<TclStatementNode> body = new ArrayList<>(); }
-s='{'
+s='{' CR*
 (
     statement[inLoop]                           { body.add($statement.result); }
+)?
+(
+    CR+
+    statement[inLoop]                           { body.add($statement.result); }
 )*
+CR*
 e='}'
                                                 { $result = factory.finishBlock(body, $s.getStartIndex(), $e.getStopIndex() - $s.getStartIndex() + 1); }
+CR*
 ;
 
 module
 :
 (
     statement[false]                           { factory.addModuleStatement($statement.result); }
+    CR+
 )*
 ;
 
+//it's a TCL command
 statement [boolean inLoop] returns [TclStatementNode result]
 :
 (
     while_statement                             { $result = $while_statement.result; }
 |
     b='break'                                   { if (inLoop) { $result = factory.createBreak($b); } else { SemErr($b, "break used outside of loop"); } }
-    ';'?
 |
     c='continue'                                { if (inLoop) { $result = factory.createContinue($c); } else { SemErr($c, "continue used outside of loop"); } }
-    ';'?
 |
     if_statement[inLoop]                        { $result = $if_statement.result; }
 |
     return_statement                            { $result = $return_statement.result; }
 |
-    expression ';'?                              { $result = $expression.result; }
+    expression                                  { $result = $expression.result; }
 )
+';'?
 ;
 
 
 while_statement returns [TclStatementNode result]
 :
 w='while'
-'{'
 condition=expression
-'}'
 body=block[true]                                { $result = factory.createWhile($w, $condition.result, $body.result); }
 ;
 
@@ -143,10 +151,15 @@ body=block[true]                                { $result = factory.createWhile(
 if_statement [boolean inLoop] returns [TclStatementNode result]
 :
 i='if'
-'{'
 condition=expression
-'}' 'then'?
+'then'?
 then=block[inLoop]                              { TclStatementNode elsePart = null; }
+(
+'elseif'
+condition2=expression                           //TODO manage elseif
+'then'?
+then2=block[inLoop]
+)*
 (
     'else'?
     block[inLoop]                               { elsePart = $block.result; }
@@ -163,9 +176,16 @@ r='return'                                      { TclExpressionNode value = null
 ';'?
 ;
 
-
 expression returns [TclExpressionNode result]
 :
+'{'
+logic_term                                      { $result = $logic_term.result; }
+(
+    op='||'
+    logic_term                                  { $result = factory.createBinary($op, $result, $logic_term.result); }
+)*
+'}'
+|
 logic_term                                      { $result = $logic_term.result; }
 (
     op='||'
@@ -229,12 +249,19 @@ term returns [TclExpressionNode result]
     '$' IDENTIFIER                              { TclExpressionNode assignmentName = factory.createStringLiteral($IDENTIFIER, false); }
 |
     IDENTIFIER                                  { TclExpressionNode assignmentName = factory.createStringLiteral($IDENTIFIER, false); }
-    (
-        member_expression[null, null, assignmentName] { $result = $member_expression.result; }
-    |
-                                                { $result = factory.createRead(assignmentName); }
-    )
+    member_expression[$IDENTIFIER, assignmentName] { $result = $member_expression.result; }
 |
+    word
+|
+    s='['
+    expr=statement[false]
+    e=']'                                       { $result = factory.createParenExpression($expr.result, $s.getStartIndex(), $e.getStopIndex() - $s.getStartIndex() + 1); }
+)
+;
+
+word returns [TclExpressionNode result]
+:
+(
     STRING_LITERAL                              { $result = factory.createStringLiteral($STRING_LITERAL, true); }
 |
     INTEGER_LITERAL                             { $result = factory.createIntegerLiteral($INTEGER_LITERAL); }
@@ -242,32 +269,14 @@ term returns [TclExpressionNode result]
     DOUBLE_LITERAL                              { $result = factory.createDoubleLiteral($DOUBLE_LITERAL); }
 |
     BOOLEAN_LITERAL                             { $result = factory.createBooleanLiteral($BOOLEAN_LITERAL); }
-|
-    s='('
-    expr=expression
-    e=')'                                       { $result = factory.createParenExpression($expr.result, $s.getStartIndex(), $e.getStopIndex() - $s.getStartIndex() + 1); }
 )
 ;
 
 
-member_expression [TclExpressionNode r, TclExpressionNode assignmentReceiver, TclExpressionNode assignmentName] returns [TclExpressionNode result]
+member_expression [Token start, TclExpressionNode assignmentName] returns [TclExpressionNode result]
 :                                               { TclExpressionNode receiver = r;
                                                   TclExpressionNode nestedAssignmentName = null; }
 (
-    '['                                         { List<TclExpressionNode> parameters = new ArrayList<>();
-                                                  if (receiver == null) {
-                                                      receiver = factory.createRead(assignmentName);
-                                                  } }
-    (
-        expression                              { parameters.add($expression.result); }
-        (
-            ','
-            expression                          { parameters.add($expression.result); }
-        )*
-    )?
-    e=']'
-                                                { $result = factory.createCall(receiver, parameters, $e); }
-|
     '::'                                         { if (receiver == null) {
                                                        receiver = factory.createRead(assignmentName);
                                                   } }
@@ -283,19 +292,24 @@ member_expression [TclExpressionNode r, TclExpressionNode assignmentReceiver, Tc
                                                   $result = factory.createReadProperty(receiver, nestedAssignmentName); }
     ')'
 |
-    '{'
-    expression
-    '}'
+                                             { List<TclExpressionNode> parameters = new ArrayList<>();
+                                                  Token end = start;
+                                                  if (receiver == null) {
+                                                      receiver = factory.createRead(assignmentName);
+                                                  } }
+    (
+        end=expression                              { parameters.add($expression.result); }
+    )*
+
+                                                { $result = factory.createCall(receiver, parameters, end); }
 )
-(
-    member_expression[$result, receiver, nestedAssignmentName] { $result = $member_expression.result; }
-)?
 ;
 
 // lexer
 
 COMMENT	:	'#' ~[\r\n]*	->	skip  ;
-WS : [ \t\r\n\u000C]+ -> skip;
+WS : [ \t\u000C]+ -> skip;
+CR : [\r\n]+;
 
 fragment LETTER : [A-Z] | [a-z] | '_';
 fragment NON_ZERO_DIGIT : [1-9];

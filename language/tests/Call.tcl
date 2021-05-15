@@ -1,21 +1,18 @@
-/*
- * Copyright (c) 2020, Oracle and/or its affiliates. All rights reserved.
- * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
- */
+# Copyright (c) 2021, Guillaume Dufour. All rights reserved.
+# Licensed under the Apache License v 2.0 as shown at http://www.apache.org/licenses/.
 
-function ret(a) { return a; } 
-function dub(a) { return a * 2; } 
-function inc(a) { return a + 1; } 
-function dec(a) { return a - 1; } 
-function call(f, v) { return f(v); }
- 
-function main() {  
-  println(ret(42));
-  println(dub(21));
-  println(inc(41));
-  println(dec(43));
-  println(call(ret, 42));
-  println(call(dub, 21));
-  println(call(inc, 41));
-  println(call(dec, 43));
-}  
+proc ret{a} { return a; }
+proc dub{a} { return a * 2; }
+proc inc{a} { return a + 1; }
+proc dec{a} { return a - 1; }
+proc call{f, v} { return [f v] }
+
+puts [ret 42];
+puts [dub 21];
+puts [inc 41];
+puts [dec 43];
+puts [call "ret" 42];
+puts [call "dub" 21];
+puts [call "inc" 41];
+puts [call "dec" 43];
+

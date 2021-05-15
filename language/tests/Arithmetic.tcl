@@ -1,7 +1,5 @@
-/*
- * Copyright (c) 2020, Oracle and/or its affiliates. All rights reserved.
- * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
- */
+# Copyright (c) 2021, Guillaume Dufour. All rights reserved.
+# Licensed under the Apache License v 2.0 as shown at http://www.apache.org/licenses/.
 
 puts [expr {3 + 4 - 2}];
 puts [expr {3 - 4 + 2}];
