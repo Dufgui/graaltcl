@@ -583,7 +583,7 @@ public class TclNodeFactory {
 	}
 
 
-	public TclExpressionNode createParenExpression(TclExpressionNode expressionNode, int start, int length) {
+	public TclExpressionNode createParentExpression(TclExpressionNode expressionNode, int start, int length) {
 		if (expressionNode == null) {
 			return null;
 		}

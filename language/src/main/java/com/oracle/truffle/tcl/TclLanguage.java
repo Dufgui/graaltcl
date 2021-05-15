@@ -297,12 +297,12 @@ public final class TclLanguage extends TruffleLanguage<TclContext> {
             functions = TclParser.parseTcl(this, source);
         } else {
             StringBuilder sb = new StringBuilder();
-            sb.append("proc main{");
+            sb.append("proc main {");
             String sep = "";
             for (String argumentName : request.getArgumentNames()) {
                 sb.append(sep);
                 sb.append(argumentName);
-                sep = ",";
+                sep = " ";
             }
             sb.append("} { return ");
             sb.append(source.getCharacters());

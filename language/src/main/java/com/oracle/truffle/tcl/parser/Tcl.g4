@@ -100,11 +100,11 @@ block [boolean inLoop] returns [TclStatementNode result]
                                                   List<TclStatementNode> body = new ArrayList<>(); }
 s='{' CR*
 (
-    statement[inLoop]                           { body.add($statement.result); }
+    command[inLoop]                           { body.add($command.result); }
 )?
 (
     CR+
-    statement[inLoop]                           { body.add($statement.result); }
+    command[inLoop]                           { body.add($command.result); }
 )*
 CR*
 e='}'
@@ -115,24 +115,23 @@ CR*
 module
 :
 (
-    statement[false]                           { factory.addModuleStatement($statement.result); }
+    command[false]                           { factory.addModuleStatement($command.result); }
     CR+
 )*
 ;
 
-//it's a TCL command
-statement [boolean inLoop] returns [TclStatementNode result]
+command [boolean inLoop] returns [TclStatementNode result]
 :
 (
-    while_statement                             { $result = $while_statement.result; }
+    while_command                               { $result = $while_command.result; }
 |
     b='break'                                   { if (inLoop) { $result = factory.createBreak($b); } else { SemErr($b, "break used outside of loop"); } }
 |
     c='continue'                                { if (inLoop) { $result = factory.createContinue($c); } else { SemErr($c, "continue used outside of loop"); } }
 |
-    if_statement[inLoop]                        { $result = $if_statement.result; }
+    if_command[inLoop]                        { $result = $if_command.result; }
 |
-    return_statement                            { $result = $return_statement.result; }
+    return_command                            { $result = $return_command.result; }
 |
     expression                                  { $result = $expression.result; }
 )
@@ -140,7 +139,7 @@ statement [boolean inLoop] returns [TclStatementNode result]
 ;
 
 
-while_statement returns [TclStatementNode result]
+while_command returns [TclStatementNode result]
 :
 w='while'
 condition=expression
@@ -148,7 +147,7 @@ body=block[true]                                { $result = factory.createWhile(
 ;
 
 
-if_statement [boolean inLoop] returns [TclStatementNode result]
+if_command [boolean inLoop] returns [TclStatementNode result]
 :
 i='if'
 condition=expression
@@ -167,7 +166,7 @@ then2=block[inLoop]
 ;
 
 
-return_statement returns [TclStatementNode result]
+return_command returns [TclStatementNode result]
 :
 r='return'                                      { TclExpressionNode value = null; }
 (
@@ -249,13 +248,16 @@ term returns [TclExpressionNode result]
     '$' IDENTIFIER                              { TclExpressionNode assignmentName = factory.createStringLiteral($IDENTIFIER, false); }
 |
     IDENTIFIER                                  { TclExpressionNode assignmentName = factory.createStringLiteral($IDENTIFIER, false); }
-    member_expression[$IDENTIFIER, assignmentName] { $result = $member_expression.result; }
+    member_expression[null, null, assignmentName] { $result = $member_expression.result; }
+|
+    IDENTIFIER                                  { TclExpressionNode assignmentName = factory.createStringLiteral($IDENTIFIER, false); }
+    command_parameters[$IDENTIFIER, assignmentName] { $result = $member_expression.result; }
 |
     word
 |
     s='['
-    expr=statement[false]
-    e=']'                                       { $result = factory.createParenExpression($expr.result, $s.getStartIndex(), $e.getStopIndex() - $s.getStartIndex() + 1); }
+    exp=expression
+    e=']'                                       { $result = factory.createParentExpression($exp.result, $s.getStartIndex(), $e.getStopIndex() - $s.getStartIndex() + 1); }
 )
 ;
 
@@ -273,7 +275,7 @@ word returns [TclExpressionNode result]
 ;
 
 
-member_expression [Token start, TclExpressionNode assignmentName] returns [TclExpressionNode result]
+member_expression [TclExpressionNode r, TclExpressionNode assignmentReceiver, TclExpressionNode assignmentName] returns [TclExpressionNode result]
 :                                               { TclExpressionNode receiver = r;
                                                   TclExpressionNode nestedAssignmentName = null; }
 (
@@ -291,19 +293,26 @@ member_expression [Token start, TclExpressionNode assignmentName] returns [TclEx
                                                 { nestedAssignmentName = $expression.result;
                                                   $result = factory.createReadProperty(receiver, nestedAssignmentName); }
     ')'
-|
+)
+(
+    member_expression[$result, receiver, nestedAssignmentName] { $result = $member_expression.result; }
+)?
+;
+
+command_parameters [Token start, TclExpressionNode assignmentName] returns [TclExpressionNode result]
+:                                               { TclExpressionNode nestedAssignmentName = null; }
+
                                              { List<TclExpressionNode> parameters = new ArrayList<>();
                                                   Token end = start;
-                                                  if (receiver == null) {
-                                                      receiver = factory.createRead(assignmentName);
-                                                  } }
+                                                  TclExpressionNode receiver = factory.createRead(assignmentName);
+                                             }
     (
         end=expression                              { parameters.add($expression.result); }
     )*
 
-                                                { $result = factory.createCall(receiver, parameters, end); }
-)
+                                                { $result = factory.createCall(null, parameters, end); }
 ;
+
 
 // lexer
 
