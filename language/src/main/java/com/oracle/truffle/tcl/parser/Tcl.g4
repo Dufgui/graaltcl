@@ -70,11 +70,15 @@ public static Map<String, RootCallTarget> parseTcl( TclLanguage language, Source
 tcl
 :
 CR*
-function* module
+(
+function
+|
+command[false]                                  { factory.addModuleStatement($command.result); }
+CR+
+)*
 CR*
-EOF
+EOF                                             { factory.endModule(); }
 ;
-
 
 function
 :
@@ -110,14 +114,6 @@ CR*
 e='}'
                                                 { $result = factory.finishBlock(body, $s.getStartIndex(), $e.getStopIndex() - $s.getStartIndex() + 1); }
 CR*
-;
-
-module
-:
-(
-    command[false]                           { factory.addModuleStatement($command.result); }
-    CR+
-)*
 ;
 
 command [boolean inLoop] returns [TclStatementNode result]

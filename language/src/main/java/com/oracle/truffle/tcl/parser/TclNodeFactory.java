@@ -125,6 +125,12 @@ public class TclNodeFactory {
 	/* State while parsing a source unit. */
 	private final Source source;
 	private final Map<String, RootCallTarget> allFunctions;
+	private final FrameDescriptor moduleFrameDescriptor;
+	private final List<TclStatementNode> moduleNodes;
+
+	/* State while parsing a module. */
+	private int moduleStartPos;
+	private RootCallTarget module;
 
 	/* State while parsing a function. */
 	private int functionStartPos;
@@ -142,6 +148,9 @@ public class TclNodeFactory {
 		this.language = language;
 		this.source = source;
 		this.allFunctions = new HashMap<>();
+		this.moduleFrameDescriptor = new FrameDescriptor();
+		this.moduleNodes = new ArrayList<>();
+		this.lexicalScope = new LexicalScope(null);
 	}
 
 	public Map<String, RootCallTarget> getAllFunctions() {
@@ -154,7 +163,6 @@ public class TclNodeFactory {
 		assert functionBodyStartPos == 0;
 		assert parameterCount == 0;
 		assert frameDescriptor == null;
-		assert lexicalScope == null;
 
 		functionStartPos = nameToken.getStartIndex();
 		functionName = nameToken.getText();
@@ -187,7 +195,6 @@ public class TclNodeFactory {
 			final SourceSection functionSrc = source.createSection(functionStartPos, bodyEndPos - functionStartPos);
 			final TclStatementNode methodBlock = finishBlock(methodNodes, parameterCount, functionBodyStartPos,
 					bodyEndPos - functionBodyStartPos);
-			assert lexicalScope == null : "Wrong scoping of blocks in parser";
 
 			final TclFunctionBodyNode functionBodyNode = new TclFunctionBodyNode(methodBlock);
 			functionBodyNode.setSourceSection(functionSrc.getCharIndex(), functionSrc.getCharLength());
@@ -202,7 +209,6 @@ public class TclNodeFactory {
 		functionBodyStartPos = 0;
 		parameterCount = 0;
 		frameDescriptor = null;
-		lexicalScope = null;
 	}
 
 	public void startBlock() {
@@ -401,7 +407,12 @@ public class TclNodeFactory {
 		return result;
 	}
 
+	public void endModule() {
+
+	}
+
 	public void addModuleStatement(TclStatementNode node) {
+		moduleStartPos = node.getSourceCharIndex();
 	}
 
 	/**
