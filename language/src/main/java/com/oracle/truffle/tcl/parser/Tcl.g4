@@ -77,7 +77,7 @@ command[false]                                  { factory.addModuleStatement($co
 CR+
 )*
 CR*
-EOF                                             { factory.endModule(); }
+EOF                                             { factory.finishModule(); }
 ;
 
 function
@@ -247,7 +247,7 @@ term returns [TclExpressionNode result]
     member_expression[null, null, assignmentName] { $result = $member_expression.result; }
 |
     IDENTIFIER                                  { TclExpressionNode assignmentName = factory.createStringLiteral($IDENTIFIER, false); }
-    command_parameters[$IDENTIFIER, assignmentName] { $result = $member_expression.result; }
+    command_parameters[$IDENTIFIER, assignmentName] { $result = $command_parameters.result; }
 |
     word
 |
@@ -306,7 +306,7 @@ command_parameters [Token start, TclExpressionNode assignmentName] returns [TclE
         end=expression                              { parameters.add($expression.result); }
     )*
 
-                                                { $result = factory.createCall(null, parameters, end); }
+                                                { $result = factory.createCall(receiver, parameters, end); }
 ;
 
 
