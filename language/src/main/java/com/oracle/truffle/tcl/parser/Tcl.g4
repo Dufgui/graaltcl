@@ -249,7 +249,7 @@ term returns [TclExpressionNode result]
     IDENTIFIER                                  { TclExpressionNode assignmentName = factory.createStringLiteral($IDENTIFIER, false); }
     command_parameters[$IDENTIFIER, assignmentName] { $result = $command_parameters.result; }
 |
-    word
+    word                                        { $result = $word.result; }
 |
     s='['
     exp=expression
