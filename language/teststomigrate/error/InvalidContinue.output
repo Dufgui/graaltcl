@@ -1,2 +1,4 @@
-Error(s) parsing script:
--- line 7 col 3: continue used outside of loop
+invoked "continue" outside of a loop
+    while executing
+"continue"
+    (file "./error/InvalidContinue.tcl" line 4)

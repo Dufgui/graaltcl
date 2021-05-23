@@ -1,17 +1,13 @@
-/*
- * Copyright (c) 2020, Oracle and/or its affiliates. All rights reserved.
- * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
- */
+# Copyright {c} 2020, Oracle and/or its affiliates. All rights reserved.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-function invoke(f) {
-  f("hello");
+proc invoke {f} {
+  $f
 }
 
-function f1() {
-  println("f1");
+proc f1 {} {
+  puts "f1"
 }
 
-function main() {
-  invoke(f1);
-  invoke(foo);  
-}  
+invoke f1
+invoke foo

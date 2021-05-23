@@ -1,0 +1,11 @@
+42
+42
+why
+zzz
+obj(prop)
+obj(prop)
+obj(prop)
+can't read "obj5(x)": no such element in array
+    while executing
+"puts $obj5(x)"
+    (file "./Array.tcl" line 40)

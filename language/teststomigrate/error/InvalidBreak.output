@@ -1,2 +1,4 @@
-Error(s) parsing script:
--- line 7 col 3: break used outside of loop
+invoked "break" outside of a loop
+    while executing
+"break"
+    (file "./error/InvalidBreak.tcl" line 4)

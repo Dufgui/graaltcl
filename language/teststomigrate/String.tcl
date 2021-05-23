@@ -1,30 +1,23 @@
-/*
- * Copyright (c) 2020, Oracle and/or its affiliates. All rights reserved.
- * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
- */
+# Copyright {c} 2020, Oracle and/or its affiliates. All rights reserved.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-function null() {
+proc foo {} {
+  return "bar"
 }
 
-function foo() {
-  return "bar";
+proc f {a b} {
+  return "a < b: [expr {$a < $b}]"
 }
 
-function f(a, b) {
-  return a + " < " + b + ": " + (a < b);
-}
+puts [concat "s" ""]
+puts [concat "s" ""]
+puts "s[foo]"
+puts "s[foo]"
 
-function main() {  
-  println("s" + null());  
-  println("s" + null);  
-  println("s" + foo());  
-  println("s" + foo);
-    
-  println(null() + "s");  
-  println(null() + "s");  
-  println(foo() + "s");  
-  println(foo + "s");
+puts [concat "" "s"]
+puts [concat "" "s"]
+puts "[foo]s"
+puts "[foo]s"
 
-  println(f(2, 4));
-  println(f(2, "4"));
-}  
+puts [f 2 4]
+puts [f 2 "4"]
