@@ -297,22 +297,18 @@ public final class TclLanguage extends TruffleLanguage<TclContext> {
             functions = TclParser.parseTcl(this, source);
         } else {
             StringBuilder sb = new StringBuilder();
-            sb.append("proc main {");
-            String sep = "";
+            sb.append("set argc ").append( request.getArgumentNames().size() ).append("\n");
+            sb.append("set argv [list");
             for (String argumentName : request.getArgumentNames()) {
-                sb.append(sep);
-                sb.append(argumentName);
-                sep = " ";
+                sb.append(" \"").append(argumentName).append('"');
             }
-            sb.append("} { return ");
-            sb.append(source.getCharacters());
-            sb.append(";}");
+            sb.append( "]\n" );
             String language = source.getLanguage() == null ? ID : source.getLanguage();
             Source decoratedSource = Source.newBuilder(language, sb.toString(), source.getName()).build();
             functions = TclParser.parseTcl(this, decoratedSource);
         }
 
-        RootCallTarget main = functions.get("main");
+        RootCallTarget main = functions.get(source.getName()+"...");
         RootNode evalMain;
         if (main != null) {
             /*

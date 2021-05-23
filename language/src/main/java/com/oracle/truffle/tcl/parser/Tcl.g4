@@ -69,12 +69,16 @@ public static Map<String, RootCallTarget> parseTcl( TclLanguage language, Source
 
 tcl
 :
-CR*
-function* module
-CR*
-EOF
+NL*
+(
+function
+|
+command[false]                                  { factory.addModuleStatement($command.result); }
+NL+
+)*
+NL*
+EOF                                             { factory.finishModule(); }
 ;
-
 
 function
 :
@@ -98,26 +102,18 @@ body=block[false]                               { factory.finishFunction($body.r
 block [boolean inLoop] returns [TclStatementNode result]
 :                                               { factory.startBlock();
                                                   List<TclStatementNode> body = new ArrayList<>(); }
-s='{' CR*
+s='{' NL*
 (
     command[inLoop]                           { body.add($command.result); }
 )?
 (
-    CR+
+    NL+
     command[inLoop]                           { body.add($command.result); }
 )*
-CR*
+NL*
 e='}'
                                                 { $result = factory.finishBlock(body, $s.getStartIndex(), $e.getStopIndex() - $s.getStartIndex() + 1); }
-CR*
-;
-
-module
-:
-(
-    command[false]                           { factory.addModuleStatement($command.result); }
-    CR+
-)*
+NL*
 ;
 
 command [boolean inLoop] returns [TclStatementNode result]
@@ -178,86 +174,56 @@ r='return'                                      { TclExpressionNode value = null
 expression returns [TclExpressionNode result]
 :
 '{'
-logic_term                                      { $result = $logic_term.result; }
-(
-    op='||'
-    logic_term                                  { $result = factory.createBinary($op, $result, $logic_term.result); }
-)*
+expression                                      { $result = $expression.result; }
 '}'
 |
-logic_term                                      { $result = $logic_term.result; }
-(
-    op='||'
-    logic_term                                  { $result = factory.createBinary($op, $result, $logic_term.result); }
-)*
-;
-
-
-logic_term returns [TclExpressionNode result]
-:
-logic_factor                                    { $result = $logic_factor.result; }
-(
-    op='&&'
-    logic_factor                                { $result = factory.createBinary($op, $result, $logic_factor.result); }
-)*
-;
-
-
-logic_factor returns [TclExpressionNode result]
-:
-arithmetic                                      { $result = $arithmetic.result; }
-(
-    op=('<' | '<=' | '>' | '>=' | '==' | '!=' | 'eq' | 'ne' )
-    arithmetic                                  { $result = factory.createBinary($op, $result, $arithmetic.result); }
-)?
-;
-
-
-arithmetic returns [TclExpressionNode result]
-:
-term_add                                        { $result = $term_add.result; }
-(
-    op=('+' | '-')
-    term_add                                    { $result = factory.createBinary($op, $result, $term_add.result); }
-)*
-;
-
-
-term_add returns [TclExpressionNode result]
-:
-term_pot                                        { $result = $term_pot.result; }
-(
-    op=('*' | '/' | '%')
-    term_pot                                    { $result = factory.createBinary($op, $result, $term_pot.result); }
-)*
-;
-
-term_pot returns [TclExpressionNode result]
-:
+'('
+expression                                      { $result = $expression.result; }
+')'
+|
+left=expression op='||' right=expression        { $result = factory.createBinary($op, $left.result, $right.result); }
+|
+left=expression op='&&' right=expression        { $result = factory.createBinary($op, $left.result, $right.result); }
+|
+left=expression
+op=('<' | '<=' | '>' | '>=' | '==' | '!=' | 'eq' | 'ne' )
+right=expression                                { $result = factory.createBinary($op, $left.result, $right.result); }
+|
+left=expression
+op=('*' | '/' | '%')
+right=expression                                { $result = factory.createBinary($op, $left.result, $right.result); }
+|
+left=expression
+op=('+' | '-')
+right=expression                                { $result = factory.createBinary($op, $left.result, $right.result); }
+|
+left=expression op='**' right=expression        { $result = factory.createBinary($op, $left.result, $right.result); }
+|
 term                                            { $result = $term.result; }
-(
-    op='**'
-    term                                        { $result = factory.createBinary($op, $result, $term.result); }
-)*
 ;
-
 
 term returns [TclExpressionNode result]
 :
 (
-    '$' IDENTIFIER                              { TclExpressionNode assignmentName = factory.createStringLiteral($IDENTIFIER, false); }
+    '$' IDENTIFIER                              { TclExpressionNode assignmentName = factory.createStringLiteral($IDENTIFIER, false);
+                                                    $result = factory.createRead(assignmentName);
+                                                }
 |
     IDENTIFIER                                  { TclExpressionNode assignmentName = factory.createStringLiteral($IDENTIFIER, false); }
+    (
     member_expression[null, null, assignmentName] { $result = $member_expression.result; }
+    |
+                                                { $result = factory.createIdentifier(assignmentName); }
+    )
 |
     IDENTIFIER                                  { TclExpressionNode assignmentName = factory.createStringLiteral($IDENTIFIER, false); }
-    command_parameters[$IDENTIFIER, assignmentName] { $result = $member_expression.result; }
-|
-    word
+    command_parameters[$IDENTIFIER, assignmentName] { $result = $command_parameters.result; }
 |
     s='['
     exp=expression
     e=']'                                       { $result = factory.createParentExpression($exp.result, $s.getStartIndex(), $e.getStopIndex() - $s.getStartIndex() + 1); }
+|
+    word                                        { $result = $word.result; }
 )
 ;
 
@@ -271,6 +237,8 @@ word returns [TclExpressionNode result]
     DOUBLE_LITERAL                              { $result = factory.createDoubleLiteral($DOUBLE_LITERAL); }
 |
     BOOLEAN_LITERAL                             { $result = factory.createBooleanLiteral($BOOLEAN_LITERAL); }
+|
+    ANY_STRING                                  { $result = factory.createStringLiteral($ANY_STRING, false); }
 )
 ;
 
@@ -308,9 +276,9 @@ command_parameters [Token start, TclExpressionNode assignmentName] returns [TclE
                                              }
     (
         end=expression                              { parameters.add($expression.result); }
-    )*
+    )+
 
-                                                { $result = factory.createCall(null, parameters, end); }
+                                                { $result = factory.createCall(receiver, parameters, end); }
 ;
 
 
@@ -318,7 +286,7 @@ command_parameters [Token start, TclExpressionNode assignmentName] returns [TclE
 
 COMMENT	:	'#' ~[\r\n]*	->	skip  ;
 WS : [ \t\u000C]+ -> skip;
-CR : [\r\n]+;
+NL : [\r\n]+;
 
 fragment LETTER : [A-Z] | [a-z] | '_';
 fragment NON_ZERO_DIGIT : [1-9];
@@ -331,6 +299,7 @@ fragment STRING_CHAR : ~('"' | '\\' | '\r' | '\n');
 
 IDENTIFIER : LETTER (LETTER | DIGIT)*;
 STRING_LITERAL : '"' STRING_CHAR* '"';
+ANY_STRING : (LETTER+ DIGIT+ | DIGIT+ LETTER+ | LETTER+)*;
 INTEGER_LITERAL	:	DIGIT+  ;
 DOUBLE_LITERAL	:	DIGIT+ '.' DIGIT+ ;
 BOOLEAN_LITERAL	:	'false' | 'no' | 'n' | 'off' | 'true' | 'yes' | 'y' | 'on';
