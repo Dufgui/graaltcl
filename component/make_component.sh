@@ -59,7 +59,7 @@ fi
 rm -rf COMPONENT_DIR
 
 mkdir -p "$LANGUAGE_PATH"
-cp ../language/target/simplelanguage.jar "$LANGUAGE_PATH"
+cp ../language/target/tcl.jar "$LANGUAGE_PATH"
 
 mkdir -p "$LANGUAGE_PATH/launcher"
 cp ../launcher/target/tcl-launcher.jar "$LANGUAGE_PATH/launcher/"
