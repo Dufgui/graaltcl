@@ -1,27 +1,21 @@
-/*
- * Copyright (c) 2020, Oracle and/or its affiliates. All rights reserved.
- * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
- */
+# Copyright {c} 2020, Oracle and/or its affiliates. All rights reserved.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-function add(a, b) {
-  return a + b;
+proc add {a b} {
+  return [expr {$a + $b}]
 }
 
-function loop(n) {
-  i = 0;
-  while (i < n) {
-    i = add(i, 1); 
+proc loop {n} {
+  set i 0
+  while {$i < $n} {
+    set i [add $i 1]
   }
-  return i;
+  return $i
 }
 
-function main() {
-  add("a", "b");
-
-  i = 0;
-  while (i < 20) {
-    loop(1000);
-    i = i + 1;
-  }
-  println(loop(1000));  
+set i 0
+while {$i < 20} {
+  loop 1000
+  incr i
 }
+puts [loop 1000]

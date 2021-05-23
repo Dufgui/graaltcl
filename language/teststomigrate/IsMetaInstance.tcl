@@ -1,34 +1,39 @@
-/*
- * Copyright (c) 2020, Oracle and/or its affiliates. All rights reserved.
- * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
- */
+# Copyright {c} 2020, Oracle and/or its affiliates. All rights reserved.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-function printTypes(type) {
-  println(isInstance(type, 42));
-  println(isInstance(type, 42000000000000000000000000000000000000000));
-  println(isInstance(type, "42"));
-  println(isInstance(type, 42 == 42));
-  println(isInstance(type, new()));
-  println(isInstance(type, null));
-  println(isInstance(type, null()));
-  println("");
+proc printTypes {type} {
+  puts [string is $type -strict 42]
+  puts [string is $type -strict 42000000000000000000000000000000000000000]
+  puts [string is $type -strict "42"]
+  puts [string is $type -strict [expr {42 == 42}]]
+  puts [string is $type -strict [expr {42 != 42}]]
+  puts [string is $type -strict 42.42]
+  puts [string is $type -strict ""]
+  puts [string is $type -strict " "]
+  puts [string is $type -strict "A"]
+  puts [string is $type -strict "a"]
+  puts [string is $type -strict "aaa"]
+  puts [string is $type -strict "AAA"]
+  puts [string is $type -strict ","]
+  puts [string is $type -strict "\0"]
+  puts ""
 }
 
-function null() {
-}
-
-function main() {
-  number = typeOf(42);
-  string = typeOf("42");
-  boolean = typeOf(42 == 42);
-  object = typeOf(new());
-  f = typeOf(null);
-  null = typeOf(null());
-  
-  printTypes(number);
-  printTypes(string);
-  printTypes(boolean);
-  printTypes(object);
-  printTypes(f);
-  printTypes(null);
-}
+printTypes alnum
+printTypes alpha
+printTypes ascii
+printTypes boolean
+printTypes control
+printTypes digit
+printTypes double
+printTypes false
+printTypes graph
+printTypes integer
+printTypes lower
+printTypes print
+printTypes punct
+printTypes space
+printTypes true
+printTypes upper
+printTypes wordchar
+printTypes xdigit
