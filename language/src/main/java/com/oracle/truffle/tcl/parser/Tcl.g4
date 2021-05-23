@@ -20,7 +20,7 @@ import com.oracle.truffle.tcl.parser.TclParseError;
 
 @lexer::header
 {
-// DO NOT MODIFY - generated from SimpleLanguage.g4 using "mx create-tcl-parser"
+// DO NOT MODIFY - generated from Tcl.g4 using "mx create-tcl-parser"
 }
 
 @parser::members
