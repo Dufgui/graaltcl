@@ -438,6 +438,9 @@ public class TclNodeFactory
 
     public void finishModule()
     {
+        if(moduleNodes.isEmpty()) {
+            return;
+        }
         final int moduleEndPos = moduleNodes.get( moduleNodes.size() - 1 ).getSourceEndIndex();
         final SourceSection functionSrc = source.createSection( moduleStartPos, moduleEndPos - moduleStartPos );
         final TclStatementNode methodBlock = finishBlock( moduleNodes, 0, moduleStartPos,
@@ -550,6 +553,47 @@ public class TclNodeFactory
      * </ul>
      */
     public TclExpressionNode createRead( TclExpressionNode nameNode )
+    {
+        if ( nameNode == null )
+        {
+            return null;
+        }
+
+        String name = ( (TclStringLiteralNode) nameNode ).executeGeneric( null );
+        final TclExpressionNode result;
+        final FrameSlot frameSlot = lexicalScope.locals.get( name );
+        if ( frameSlot != null )
+        {
+            /* Read of a local variable. */
+            result = TclReadLocalVariableNodeGen.create( frameSlot );
+        }
+        else
+        {
+            /*
+             * Read of a global name. In our language, the only global names are functions.
+             */
+            result = new TclFunctionLiteralNode( name );
+        }
+        result.setSourceSection( nameNode.getSourceCharIndex(), nameNode.getSourceLength() );
+        result.addExpressionTag();
+        return result;
+    }
+
+    /**
+     * Returns a {@link TclReadLocalVariableNode} if this read is a local variable or a {@link TclFunctionLiteralNode}
+     * if this read is global. In tcl, the only global names are functions.
+     *
+     * @param nameNode The name of the variable/function being read
+     * @return either:
+     * <ul>
+     * <li>A TclReadLocalVariableNode representing the local variable being
+     * read.</li>
+     * <li>A TclFunctionLiteralNode representing the function
+     * definition.</li>
+     * <li>null if nameNode is null.</li>
+     * </ul>
+     */
+    public TclExpressionNode createIdentifier( TclExpressionNode nameNode )
     {
         if ( nameNode == null )
         {
