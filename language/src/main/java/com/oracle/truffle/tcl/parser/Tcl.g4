@@ -89,7 +89,6 @@ s='{'
 (
     IDENTIFIER                                  { factory.addFormalParameter($IDENTIFIER); }
     (
-        ','
         IDENTIFIER                              { factory.addFormalParameter($IDENTIFIER); }
     )*
 )?
@@ -205,7 +204,7 @@ term                                            { $result = $term.result; }
 term returns [TclExpressionNode result]
 :
 (
-    '$' IDENTIFIER                              { TclExpressionNode assignmentName = factory.createStringLiteral($IDENTIFIER, false);
+    '$' ANY_STRING                              { TclExpressionNode assignmentName = factory.createStringLiteral($ANY_STRING, false);
                                                     $result = factory.createRead(assignmentName);
                                                 }
 |
@@ -299,7 +298,7 @@ fragment STRING_CHAR : ~('"' | '\\' | '\r' | '\n');
 
 IDENTIFIER : LETTER (LETTER | DIGIT)*;
 STRING_LITERAL : '"' STRING_CHAR* '"';
-ANY_STRING : (LETTER+ DIGIT+ | DIGIT+ LETTER+ | LETTER+)*;
+ANY_STRING : (LETTER+ DIGIT+ | DIGIT+ LETTER+ | LETTER+)+;
 INTEGER_LITERAL	:	DIGIT+  ;
 DOUBLE_LITERAL	:	DIGIT+ '.' DIGIT+ ;
 BOOLEAN_LITERAL	:	'false' | 'no' | 'n' | 'off' | 'true' | 'yes' | 'y' | 'on';

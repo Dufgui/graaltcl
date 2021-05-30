@@ -135,7 +135,7 @@ public final class TclLanguageView implements TruffleObject {
                     if (type == TclType.NUMBER) {
                         return longToString(interop.asLong(delegate));
                     } else if (type == TclType.BOOLEAN) {
-                        return Boolean.toString(interop.asBoolean(delegate));
+                        return interop.asBoolean(delegate)?"1":"0";
                     } else if (type == TclType.STRING) {
                         return interop.asString(delegate);
                     } else {
