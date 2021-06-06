@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.oracle.truffle.tcl.nodes.expression.TclBooleanLiteralNode;
+import com.oracle.truffle.tcl.nodes.expression.TclModuloNodeGen;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
 
@@ -413,9 +414,11 @@ public class TclNodeFactory
                 result = TclLogicalNotNodeGen.create( TclLessThanNodeGen.create( leftUnboxed, rightUnboxed ) );
                 break;
             case "==":
+            case "eq":
                 result = TclEqualNodeGen.create( leftUnboxed, rightUnboxed );
                 break;
             case "!=":
+            case "ne":
                 result = TclLogicalNotNodeGen.create( TclEqualNodeGen.create( leftUnboxed, rightUnboxed ) );
                 break;
             case "&&":
@@ -423,6 +426,9 @@ public class TclNodeFactory
                 break;
             case "||":
                 result = new TclLogicalOrNode( leftUnboxed, rightUnboxed );
+                break;
+            case "%":
+                result = TclModuloNodeGen.create( leftUnboxed, rightUnboxed );
                 break;
             default:
                 throw new RuntimeException( "unexpected operation: " + opToken.getText() );

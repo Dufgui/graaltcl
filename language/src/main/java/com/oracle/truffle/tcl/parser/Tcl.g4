@@ -104,8 +104,12 @@ block [boolean inLoop] returns [TclStatementNode result]
 s='{' NL*
 (
     command[inLoop]                           { body.add($command.result); }
+)?
+(
     NL+
+    command[inLoop]                           { body.add($command.result); }
 )*
+NL*
 e='}'
                                                 { $result = factory.finishBlock(body, $s.getStartIndex(), $e.getStopIndex() - $s.getStartIndex() + 1); }
 NL*

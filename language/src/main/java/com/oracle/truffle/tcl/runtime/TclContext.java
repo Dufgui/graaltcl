@@ -51,6 +51,7 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.tcl.TclLanguage;
 import com.oracle.truffle.tcl.builtins.TclBuiltinNode;
+import com.oracle.truffle.tcl.builtins.TclConcatBuiltinFactory;
 import com.oracle.truffle.tcl.builtins.TclExprBuiltinFactory;
 import com.oracle.truffle.tcl.builtins.TclGetsBuiltin;
 import com.oracle.truffle.tcl.builtins.TclGetsBuiltinFactory;
@@ -140,6 +141,7 @@ public final class TclContext {
 		installBuiltin( TclProcBuiltinFactory.getInstance());
 		installBuiltin( TclExprBuiltinFactory.getInstance());
 		installBuiltin( TclSetBuiltinFactory.getInstance());
+		installBuiltin( TclConcatBuiltinFactory.getInstance());
 	}
 
 	public void installBuiltin(NodeFactory<? extends TclBuiltinNode> factory) {
