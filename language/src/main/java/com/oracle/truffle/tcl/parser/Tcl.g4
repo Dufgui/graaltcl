@@ -104,12 +104,8 @@ block [boolean inLoop] returns [TclStatementNode result]
 s='{' NL*
 (
     command[inLoop]                           { body.add($command.result); }
-)?
-(
     NL+
-    command[inLoop]                           { body.add($command.result); }
 )*
-NL*
 e='}'
                                                 { $result = factory.finishBlock(body, $s.getStartIndex(), $e.getStopIndex() - $s.getStartIndex() + 1); }
 NL*
@@ -204,7 +200,7 @@ term                                            { $result = $term.result; }
 term returns [TclExpressionNode result]
 :
 (
-    '$' ANY_STRING                              { TclExpressionNode assignmentName = factory.createStringLiteral($ANY_STRING, false);
+    '$' var=(IDENTIFIER|INTEGER_LITERAL)                              { TclExpressionNode assignmentName = factory.createStringLiteral($var, false);
                                                     $result = factory.createRead(assignmentName);
                                                 }
 |
@@ -214,9 +210,9 @@ term returns [TclExpressionNode result]
     |
                                                 { $result = factory.createIdentifier(assignmentName); }
     )
-|
-    IDENTIFIER                                  { TclExpressionNode assignmentName = factory.createStringLiteral($IDENTIFIER, false); }
+    (
     command_parameters[$IDENTIFIER, assignmentName] { $result = $command_parameters.result; }
+    )
 |
     s='['
     exp=expression
@@ -237,7 +233,7 @@ word returns [TclExpressionNode result]
 |
     BOOLEAN_LITERAL                             { $result = factory.createBooleanLiteral($BOOLEAN_LITERAL); }
 |
-    ANY_STRING                                  { $result = factory.createStringLiteral($ANY_STRING, false); }
+    IDENTIFIER                                  { $result = factory.createStringLiteral($IDENTIFIER, false); }
 )
 ;
 
@@ -252,6 +248,9 @@ member_expression [TclExpressionNode r, TclExpressionNode assignmentReceiver, Tc
     IDENTIFIER
                                                 { nestedAssignmentName = factory.createStringLiteral($IDENTIFIER, false);
                                                   $result = factory.createReadProperty(receiver, nestedAssignmentName); }
+(
+    member_expression[$result, receiver, nestedAssignmentName] { $result = $member_expression.result; }
+)?
 |
     '('                                         { if (receiver == null) {
                                                       receiver = factory.createRead(assignmentName);
@@ -261,9 +260,6 @@ member_expression [TclExpressionNode r, TclExpressionNode assignmentReceiver, Tc
                                                   $result = factory.createReadProperty(receiver, nestedAssignmentName); }
     ')'
 )
-(
-    member_expression[$result, receiver, nestedAssignmentName] { $result = $member_expression.result; }
-)?
 ;
 
 command_parameters [Token start, TclExpressionNode assignmentName] returns [TclExpressionNode result]
@@ -296,9 +292,8 @@ fragment BINARY_DIGIT : '0' | '1';
 fragment TAB : '\t';
 fragment STRING_CHAR : ~('"' | '\\' | '\r' | '\n');
 
-IDENTIFIER : LETTER (LETTER | DIGIT)*;
 STRING_LITERAL : '"' STRING_CHAR* '"';
-ANY_STRING : (LETTER+ DIGIT+ | DIGIT+ LETTER+ | LETTER+)+;
+IDENTIFIER : (LETTER+ DIGIT+ | DIGIT+ LETTER+ | LETTER+)+;
 INTEGER_LITERAL	:	DIGIT+  ;
 DOUBLE_LITERAL	:	DIGIT+ '.' DIGIT+ ;
 BOOLEAN_LITERAL	:	'false' | 'no' | 'n' | 'off' | 'true' | 'yes' | 'y' | 'on';
