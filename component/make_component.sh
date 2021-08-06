@@ -50,7 +50,7 @@ else
     echo "Unkown java version: $JAVA_VERSION"
     exit 1
 fi
-readonly COMPONENT_DIR="component_temp_dir"
+readonly COMPONENT_DIR="target/component_temp_dir"
 readonly LANGUAGE_PATH="$COMPONENT_DIR/$JRE/languages/tcl"
 if [[ -f ../native/tclnative ]]; then
     INCLUDE_TCLNATIVE="TRUE"

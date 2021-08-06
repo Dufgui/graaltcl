@@ -27,7 +27,6 @@
       ["$JAVA_HOME/bin/tclnative", 'language/tests/Add.tcl'],
       ["$JAVA_HOME/bin/polyglot", '--jvm', '--language', 'tcl', '--file', 'language/tests/Add.tcl'],
       ["$JAVA_HOME/bin/gu", 'remove', 'tcl'],
-      ['./generate_parser.sh'],
       ['mvn', 'package'],
       ['./tcl', 'language/tests/Add.tcl'],
     ]

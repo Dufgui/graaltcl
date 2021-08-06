@@ -68,16 +68,6 @@
               </arguments>
             </configuration>
           </execution>
-          <execution>
-            <id>clean_component</id>
-            <phase>clean</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>${basedir}/clean_component.sh</executable>
-            </configuration>
-          </execution>
         </executions>
       </plugin>
     </plugins>
