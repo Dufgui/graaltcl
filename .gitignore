@@ -1,21 +1,79 @@
-*~
-*.cfg
-*.iml
-target/
-graalvm/
+#-------------------- Ignore Eclipse --------------------
+
+
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
 .settings/
-./.project
+.loadpath
+.recommenders
+
+# External tool builders
+.externalToolBuilders/
+
+# Locally stored "Eclipse launch configurations"
+*.launch
+
+# PyDev specific (Python IDE for Eclipse)
+*.pydevproject
+
+# CDT-specific (C/C++ Development Tooling)
+.cproject
+
+# CDT- autotools
+.autotools
+
+# Java annotation processor (APT)
 .factorypath
-.classpath
-.idea/
-.project
-/bin/
-/Coco.jar
-component/tcl-component.jar
-language/dependency-reduced-pom.xml
-native/tclnative
-/language/src/main/java/com/oracle/truffle/tcl/parser/Tcl.interp
-/language/src/main/java/com/oracle/truffle/tcl/parser/Tcl.tokens
-/language/src/main/java/com/oracle/truffle/tcl/parser/TclLexer.interp
-/language/src/main/java/com/oracle/truffle/tcl/parser/TclLexer.tokens
-*.jar
+
+# PDT-specific (PHP Development Tools)
+.buildpath
+
+# sbteclipse plugin
+.target
+
+# Tern plugin
+.tern-project
+
+# TeXlipse plugin
+.texlipse
+
+# STS (Spring Tool Suite)
+.springBeans
+
+# Code Recommenders
+.recommenders/
+
+# Annotation Processing
+.apt_generated/
+.apt_generated_test/
+
+# Scala IDE specific (Scala & Java development for Eclipse)
+.cache-main
+.scala_dependencies
+.worksheet
+
+# Uncomment this line if you wish to ignore the project description file.
+# Typically, this file would be tracked if it contains build/dependency configurations:
+#.project
+
+
+#-------------------- Ignore Maven --------------------
+
+
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+# https://github.com/takari/maven-wrapper#usage-without-binary-jar
+.mvn/wrapper/maven-wrapper.jar
