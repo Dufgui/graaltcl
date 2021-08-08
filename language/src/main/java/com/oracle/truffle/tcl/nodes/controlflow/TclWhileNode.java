@@ -48,7 +48,7 @@ import com.oracle.truffle.tcl.nodes.TclExpressionNode;
 import com.oracle.truffle.tcl.nodes.TclStatementNode;
 
 @NodeInfo(shortName = "while", description = "The node implementing a while loop")
-public final class TclWhileNode extends TclStatementNode {
+public final class TclWhileNode extends TclExpressionNode {
 
     @Child private LoopNode loopNode;
 
@@ -57,8 +57,9 @@ public final class TclWhileNode extends TclStatementNode {
     }
 
     @Override
-    public void executeVoid(VirtualFrame frame) {
+    public Object executeGeneric(VirtualFrame frame) {
         loopNode.execute(frame);
+        return "";
     }
 
 }

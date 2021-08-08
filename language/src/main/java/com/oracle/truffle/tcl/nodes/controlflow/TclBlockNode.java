@@ -57,6 +57,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.NodeUtil;
 import com.oracle.truffle.api.nodes.NodeVisitor;
 
+import com.oracle.truffle.tcl.nodes.TclExpressionNode;
 import com.oracle.truffle.tcl.nodes.TclStatementNode;
 import com.oracle.truffle.tcl.nodes.local.TclScopedNode;
 import com.oracle.truffle.tcl.nodes.local.TclWriteLocalVariableNode;
@@ -65,7 +66,7 @@ import com.oracle.truffle.tcl.nodes.local.TclWriteLocalVariableNode;
  * A statement node that just executes a list of other statements.
  */
 @NodeInfo(shortName = "block", description = "The node implementing a source code block")
-public final class TclBlockNode extends TclStatementNode implements BlockNode.ElementExecutor<TclStatementNode> {
+public final class TclBlockNode extends TclExpressionNode implements BlockNode.ElementExecutor<TclStatementNode> {
 
     /**
      * The block of child nodes. Using the block node allows Truffle to split the block into
@@ -102,10 +103,11 @@ public final class TclBlockNode extends TclStatementNode implements BlockNode.El
      * {@link TclStatementNode#executeVoid} method of all children to be inlined.
      */
     @Override
-    public void executeVoid(VirtualFrame frame) {
+    public Object executeGeneric(VirtualFrame frame) {
         if (this.block != null) {
             this.block.executeVoid(frame, BlockNode.NO_ARGUMENT);
         }
+        return "";
     }
 
     public List<TclStatementNode> getStatements() {

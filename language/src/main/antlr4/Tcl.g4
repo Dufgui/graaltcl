@@ -98,9 +98,9 @@ body=block[false]                               { factory.finishFunction($body.r
 
 
 
-block [boolean inLoop] returns [TclStatementNode result]
+block [boolean inLoop] returns [TclExpressionNode result]
 :                                               { factory.startBlock();
-                                                  List<TclStatementNode> body = new ArrayList<>(); }
+                                                  List<TclExpressionNode> body = new ArrayList<>(); }
 s='{' NL*
 (
     command[inLoop]                           { body.add($command.result); }
@@ -115,7 +115,7 @@ e='}'
 NL*
 ;
 
-command [boolean inLoop] returns [TclStatementNode result]
+command [boolean inLoop] returns [TclExpressionNode result]
 :
 (
     while_command                               { $result = $while_command.result; }
@@ -134,7 +134,7 @@ command [boolean inLoop] returns [TclStatementNode result]
 ;
 
 
-while_command returns [TclStatementNode result]
+while_command returns [TclExpressionNode result]
 :
 w='while'
 condition=expression
@@ -142,12 +142,12 @@ body=block[true]                                { $result = factory.createWhile(
 ;
 
 
-if_command [boolean inLoop] returns [TclStatementNode result]
+if_command [boolean inLoop] returns [TclExpressionNode result]
 :
 i='if'
 condition=expression
 'then'?
-then=block[inLoop]                              { TclStatementNode elsePart = null; }
+then=block[inLoop]                              { TclExpressionNode elsePart = null; }
 (
 'elseif'
 condition2=expression                           //TODO manage elseif
@@ -161,7 +161,7 @@ then2=block[inLoop]
 ;
 
 
-return_command returns [TclStatementNode result]
+return_command returns [TclExpressionNode result]
 :
 r='return'                                      { TclExpressionNode value = null; }
 (
@@ -205,6 +205,11 @@ term returns [TclExpressionNode result]
 :
 (
     '$' var=(IDENTIFIER|INTEGER_LITERAL)                              { TclExpressionNode assignmentName = factory.createStringLiteral($var, false);
+                                                    TclExpressionNode assignmentCommandName = factory.createRead(assignmentName);
+                                                }
+    command_parameters[$var, assignmentCommandName] { $result = $member_expression.result; }
+|
+    '$' var=(IDENTIFIER|INTEGER_LITERAL)                              { TclExpressionNode assignmentName = factory.createStringLiteral($var, false);
                                                     $result = factory.createRead(assignmentName);
                                                 }
 |
@@ -219,7 +224,7 @@ term returns [TclExpressionNode result]
     )
 |
     s='['
-    exp=expression
+    exp=command[false]
     e=']'                                       { $result = factory.createParentExpression($exp.result, $s.getStartIndex(), $e.getStopIndex() - $s.getStartIndex() + 1); }
 |
     word                                        { $result = $word.result; }

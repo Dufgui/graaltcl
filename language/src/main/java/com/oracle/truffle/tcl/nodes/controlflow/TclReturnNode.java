@@ -54,7 +54,7 @@ import com.oracle.truffle.tcl.runtime.TclNull;
  * the return value.
  */
 @NodeInfo(shortName = "return", description = "The node implementing a return statement")
-public final class TclReturnNode extends TclStatementNode {
+public final class TclReturnNode extends TclExpressionNode {
 
     @Child private TclExpressionNode valueNode;
 
@@ -63,7 +63,7 @@ public final class TclReturnNode extends TclStatementNode {
     }
 
     @Override
-    public void executeVoid(VirtualFrame frame) {
+    public Object executeGeneric(VirtualFrame frame) {
         Object result;
         if (valueNode != null) {
             result = valueNode.executeGeneric(frame);

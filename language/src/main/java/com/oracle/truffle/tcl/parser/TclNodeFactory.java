@@ -129,7 +129,7 @@ public class TclNodeFactory
     private final Source source;
     private final Map<String, RootCallTarget> allFunctions;
     private final FrameDescriptor moduleFrameDescriptor;
-    private final List<TclStatementNode> moduleNodes;
+    private final List<TclExpressionNode> moduleNodes;
 
     /* State while parsing a module. */
     private int moduleStartPos = 0;
@@ -140,7 +140,7 @@ public class TclNodeFactory
     private int functionBodyStartPos; // includes parameter list
     private int parameterCount;
     private FrameDescriptor frameDescriptor;
-    private List<TclStatementNode> methodNodes;
+    private List<TclExpressionNode> methodNodes;
 
     /* State while parsing a block. */
     private LexicalScope lexicalScope;
@@ -192,7 +192,7 @@ public class TclNodeFactory
         parameterCount++;
     }
 
-    public void finishFunction( TclStatementNode bodyNode )
+    public void finishFunction( TclExpressionNode bodyNode )
     {
         if ( bodyNode == null )
         {
@@ -204,7 +204,7 @@ public class TclNodeFactory
             methodNodes.add( bodyNode );
             final int bodyEndPos = bodyNode.getSourceEndIndex();
             final SourceSection functionSrc = source.createSection( functionStartPos, bodyEndPos - functionStartPos );
-            final TclStatementNode methodBlock = finishBlock( methodNodes, parameterCount, functionBodyStartPos,
+            final TclExpressionNode methodBlock = finishBlock( methodNodes, parameterCount, functionBodyStartPos,
                     bodyEndPos - functionBodyStartPos );
 
             final TclFunctionBodyNode functionBodyNode = new TclFunctionBodyNode( methodBlock );
@@ -227,12 +227,12 @@ public class TclNodeFactory
         lexicalScope = new LexicalScope( lexicalScope );
     }
 
-    public TclStatementNode finishBlock( List<TclStatementNode> bodyNodes, int startPos, int length )
+    public TclExpressionNode finishBlock( List<TclExpressionNode> bodyNodes, int startPos, int length )
     {
         return finishBlock( bodyNodes, 0, startPos, length );
     }
 
-    public TclStatementNode finishBlock( List<TclStatementNode> bodyNodes, int skipCount, int startPos, int length )
+    public TclExpressionNode finishBlock( List<TclExpressionNode> bodyNodes, int skipCount, int startPos, int length )
     {
         lexicalScope = lexicalScope.outer;
 
@@ -284,7 +284,7 @@ public class TclNodeFactory
      * @param breakToken The token containing the break node's info.
      * @return A TclBreakNode for the given token.
      */
-    public TclStatementNode createBreak( Token breakToken )
+    public TclExpressionNode createBreak( Token breakToken )
     {
         final TclBreakNode breakNode = new TclBreakNode();
         srcFromToken( breakNode, breakToken );
@@ -297,7 +297,7 @@ public class TclNodeFactory
      * @param continueToken The token containing the continue node's info.
      * @return A TclContinueNode built using the given token.
      */
-    public TclStatementNode createContinue( Token continueToken )
+    public TclExpressionNode createContinue( Token continueToken )
     {
         final TclContinueNode continueNode = new TclContinueNode();
         srcFromToken( continueNode, continueToken );
@@ -312,7 +312,7 @@ public class TclNodeFactory
      * @param bodyNode      The body of the while loop
      * @return A TclWhileNode built using the given parameters. null if either conditionNode or bodyNode is null.
      */
-    public TclStatementNode createWhile( Token whileToken, TclExpressionNode conditionNode, TclStatementNode bodyNode )
+    public TclExpressionNode createWhile( Token whileToken, TclExpressionNode conditionNode, TclStatementNode bodyNode )
     {
         if ( conditionNode == null || bodyNode == null )
         {
@@ -336,7 +336,7 @@ public class TclNodeFactory
      * @param elsePartNode  The else part of the if (null if no else part)
      * @return An TclIfNode for the given parameters. null if either conditionNode or thenPartNode is null.
      */
-    public TclStatementNode createIf( Token ifToken, TclExpressionNode conditionNode, TclStatementNode thenPartNode, TclStatementNode elsePartNode )
+    public TclExpressionNode createIf( Token ifToken, TclExpressionNode conditionNode, TclExpressionNode thenPartNode, TclExpressionNode elsePartNode )
     {
         if ( conditionNode == null || thenPartNode == null )
         {
@@ -358,7 +358,7 @@ public class TclNodeFactory
      * @param valueNode The value of the return (null if not returning a value)
      * @return An TclReturnNode for the given parameters.
      */
-    public TclStatementNode createReturn( Token t, TclExpressionNode valueNode )
+    public TclExpressionNode createReturn( Token t, TclExpressionNode valueNode )
     {
         final int start = t.getStartIndex();
         final int length = valueNode == null ? t.getText().length() : valueNode.getSourceEndIndex() - start;
@@ -461,7 +461,7 @@ public class TclNodeFactory
         allFunctions.put( moduleFunctionName, Truffle.getRuntime().createCallTarget( rootNode ));
     }
 
-    public void addModuleStatement( TclStatementNode node )
+    public void addModuleStatement( TclExpressionNode node )
     {
         if ( moduleStartPos != 0 )
         {
@@ -565,7 +565,7 @@ public class TclNodeFactory
             return null;
         }
 
-        String name = ( (TclStringLiteralNode) nameNode ).executeGeneric( null );
+        String name = (String) (nameNode.executeGeneric( null ));
         final TclExpressionNode result;
         final FrameSlot frameSlot = lexicalScope.locals.get( name );
         if ( frameSlot != null )

@@ -50,7 +50,7 @@ import com.oracle.truffle.tcl.nodes.TclStatementNode;
 import com.oracle.truffle.tcl.nodes.util.TclUnboxNodeGen;
 
 @NodeInfo(shortName = "if", description = "The node implementing a condional statement")
-public final class TclIfNode extends TclStatementNode {
+public final class TclIfNode extends TclExpressionNode {
 
     /**
      * The condition of the {@code if}. This in a {@link TclExpressionNode} because we require a
@@ -60,10 +60,10 @@ public final class TclIfNode extends TclStatementNode {
     @Child private TclExpressionNode conditionNode;
 
     /** Statement (or {@link TclBlockNode block}) executed when the condition is true. */
-    @Child private TclStatementNode thenPartNode;
+    @Child private TclExpressionNode thenPartNode;
 
     /** Statement (or {@link TclBlockNode block}) executed when the condition is false. */
-    @Child private TclStatementNode elsePartNode;
+    @Child private TclExpressionNode elsePartNode;
 
     /**
      * Profiling information, collected by the interpreter, capturing the profiling information of
@@ -74,27 +74,28 @@ public final class TclIfNode extends TclStatementNode {
      */
     private final ConditionProfile condition = ConditionProfile.createCountingProfile();
 
-    public TclIfNode(TclExpressionNode conditionNode, TclStatementNode thenPartNode, TclStatementNode elsePartNode) {
+    public TclIfNode(TclExpressionNode conditionNode, TclExpressionNode thenPartNode, TclExpressionNode elsePartNode) {
         this.conditionNode = TclUnboxNodeGen.create(conditionNode);
         this.thenPartNode = thenPartNode;
         this.elsePartNode = elsePartNode;
     }
 
     @Override
-    public void executeVoid(VirtualFrame frame) {
+    public Object executeGeneric(VirtualFrame frame) {
         /*
          * In the interpreter, record profiling information that the condition was executed and with
          * which outcome.
          */
         if (condition.profile(evaluateCondition(frame))) {
             /* Execute the then-branch. */
-            thenPartNode.executeVoid(frame);
+            return thenPartNode.executeGeneric(frame);
         } else {
             /* Execute the else-branch (which is optional according to the tck syntax). */
             if (elsePartNode != null) {
-                elsePartNode.executeVoid(frame);
+                return elsePartNode.executeGeneric(frame);
             }
         }
+        return "";
     }
 
     private boolean evaluateCondition(VirtualFrame frame) {
