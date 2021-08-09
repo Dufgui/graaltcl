@@ -67,16 +67,14 @@ import java.io.IOException;
 @NodeInfo(shortName = "set")
 public abstract class TclSetBuiltin extends TclBuiltinNode {
 
-
     static final int LIBRARY_LIMIT = 3;
 
     @Specialization(guards = "arrays.hasArrayElements(receiver)", limit = "LIBRARY_LIMIT")
     protected Object setArray(Object receiver, Object index, Object value,
-                    @CachedLibrary( "receiver") InteropLibrary arrays,
-                    @CachedLibrary("index") InteropLibrary numbers) {
+            @CachedLibrary("receiver") InteropLibrary arrays, @CachedLibrary("index") InteropLibrary numbers) {
         try {
             arrays.writeArrayElement(receiver, numbers.asLong(index), value);
-        } catch ( UnsupportedMessageException | UnsupportedTypeException | InvalidArrayIndexException e) {
+        } catch (UnsupportedMessageException | UnsupportedTypeException | InvalidArrayIndexException e) {
             // read was not successful. In tcl we only have basic support for errors.
             throw TclUndefinedNameException.undefinedProperty(this, index);
         }
@@ -85,8 +83,7 @@ public abstract class TclSetBuiltin extends TclBuiltinNode {
 
     @Specialization(limit = "LIBRARY_LIMIT")
     protected Object setObject(Object receiver, Object name, Object value,
-                    @CachedLibrary("receiver") InteropLibrary objectLibrary,
-                    @Cached TclToMemberNode asMember) {
+            @CachedLibrary("receiver") InteropLibrary objectLibrary, @Cached TclToMemberNode asMember) {
         try {
             objectLibrary.writeMember(receiver, asMember.execute(name), value);
         } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException e) {

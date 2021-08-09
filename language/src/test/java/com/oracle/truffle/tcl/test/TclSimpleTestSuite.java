@@ -44,7 +44,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(TclTestRunner.class)
-@TclTestSuite({"tests"})
+@TclTestSuite({ "tests" })
 public class TclSimpleTestSuite {
 
     public static void main(String[] args) throws Exception {

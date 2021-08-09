@@ -58,9 +58,8 @@ public abstract class TclExprBuiltin extends TclBuiltinNode {
 
     @Specialization
     @TruffleBoundary
-    public Object expr(Object value,
-                    @CachedLibrary(limit = "3") InteropLibrary interop,
-                    @CachedContext(TclLanguage.class) TclContext context) {
+    public Object expr(Object value, @CachedLibrary(limit = "3") InteropLibrary interop,
+            @CachedContext(TclLanguage.class) TclContext context) {
         //nothing to do it's already done by grammar
         return value;
     }

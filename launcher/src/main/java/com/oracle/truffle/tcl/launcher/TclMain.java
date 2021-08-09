@@ -53,8 +53,7 @@ import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
 
-public final class TclMain
-{
+public final class TclMain {
 
     private static final String TCL = "tcl";
 
@@ -80,7 +79,7 @@ public final class TclMain
             source = Source.newBuilder( TCL, new InputStreamReader(System.in), "<stdin>").build();
             // @formatter:on
         } else {
-            source = Source.newBuilder( TCL, new File(file)).build();
+            source = Source.newBuilder(TCL, new File(file)).build();
         }
 
         System.exit(executeSource(source, System.in, System.out, options));
@@ -90,7 +89,7 @@ public final class TclMain
         Context context;
         PrintStream err = System.err;
         try {
-            context = Context.newBuilder( TCL ).in(in).out(out).options(options).build();
+            context = Context.newBuilder(TCL).in(in).out(out).options(options).build();
         } catch (IllegalArgumentException e) {
             err.println(e.getMessage());
             return 1;
@@ -99,7 +98,7 @@ public final class TclMain
 
         try {
             Value result = context.eval(source);
-            if (context.getBindings( TCL ).getMember("main") == null) {
+            if (context.getBindings(TCL).getMember("main") == null) {
                 err.println("No function main() defined in tcl source file.");
                 return 1;
             }

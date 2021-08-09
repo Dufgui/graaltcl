@@ -74,8 +74,7 @@ public abstract class TclWritePropertyNode extends TclExpressionNode {
 
     @Specialization(guards = "arrays.hasArrayElements(receiver)", limit = "LIBRARY_LIMIT")
     protected Object writeArray(Object receiver, Object index, Object value,
-                    @CachedLibrary("receiver") InteropLibrary arrays,
-                    @CachedLibrary("index") InteropLibrary numbers) {
+            @CachedLibrary("receiver") InteropLibrary arrays, @CachedLibrary("index") InteropLibrary numbers) {
         try {
             arrays.writeArrayElement(receiver, numbers.asLong(index), value);
         } catch (UnsupportedMessageException | UnsupportedTypeException | InvalidArrayIndexException e) {
@@ -87,8 +86,7 @@ public abstract class TclWritePropertyNode extends TclExpressionNode {
 
     @Specialization(limit = "LIBRARY_LIMIT")
     protected Object writeObject(Object receiver, Object name, Object value,
-                    @CachedLibrary("receiver") InteropLibrary objectLibrary,
-                    @Cached TclToMemberNode asMember) {
+            @CachedLibrary("receiver") InteropLibrary objectLibrary, @Cached TclToMemberNode asMember) {
         try {
             objectLibrary.writeMember(receiver, asMember.execute(name), value);
         } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException e) {

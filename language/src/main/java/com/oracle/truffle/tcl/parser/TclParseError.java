@@ -60,7 +60,7 @@ public class TclParseError extends AbstractTruffleException {
     private final int column;
     private final int length;
 
-    public TclParseError( Source source, int line, int column, int length, String message) {
+    public TclParseError(Source source, int line, int column, int length, String message) {
         super(message);
         this.source = source;
         this.line = line;

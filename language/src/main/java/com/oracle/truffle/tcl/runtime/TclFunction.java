@@ -275,13 +275,13 @@ public final class TclFunction implements TruffleObject {
          *            {@link CallTarget} in cachedFunction.
          */
         @Specialization(limit = "INLINE_CACHE_SIZE", //
-                        guards = "function.getCallTarget() == cachedTarget", //
-                        assumptions = "callTargetStable")
+                guards = "function.getCallTarget() == cachedTarget", //
+                assumptions = "callTargetStable")
         @SuppressWarnings("unused")
         protected static Object doDirect(TclFunction function, Object[] arguments,
-                        @Cached("function.getCallTargetStable()") Assumption callTargetStable,
-                        @Cached("function.getCallTarget()") RootCallTarget cachedTarget,
-                        @Cached("create(cachedTarget)") DirectCallNode callNode) {
+                @Cached("function.getCallTargetStable()") Assumption callTargetStable,
+                @Cached("function.getCallTarget()") RootCallTarget cachedTarget,
+                @Cached("create(cachedTarget)") DirectCallNode callNode) {
 
             /* Inline cache hit, we are safe to execute the cached call target. */
             Object returnValue = callNode.call(arguments);
@@ -295,7 +295,7 @@ public final class TclFunction implements TruffleObject {
          */
         @Specialization(replaces = "doDirect")
         protected static Object doIndirect(TclFunction function, Object[] arguments,
-                        @Cached IndirectCallNode callNode) {
+                @Cached IndirectCallNode callNode) {
             /*
              * tcl has a quite simple call lookup: just ask the function for the current call target,
              * and call it.

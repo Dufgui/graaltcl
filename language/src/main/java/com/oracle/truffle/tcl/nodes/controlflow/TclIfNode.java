@@ -57,13 +57,16 @@ public final class TclIfNode extends TclExpressionNode {
      * result value. We do not have a node type that can only return a {@code boolean} value, so
      * {@link #evaluateCondition executing the condition} can lead to a type error.
      */
-    @Child private TclExpressionNode conditionNode;
+    @Child
+    private TclExpressionNode conditionNode;
 
     /** Statement (or {@link TclBlockNode block}) executed when the condition is true. */
-    @Child private TclExpressionNode thenPartNode;
+    @Child
+    private TclExpressionNode thenPartNode;
 
     /** Statement (or {@link TclBlockNode block}) executed when the condition is false. */
-    @Child private TclExpressionNode elsePartNode;
+    @Child
+    private TclExpressionNode elsePartNode;
 
     /**
      * Profiling information, collected by the interpreter, capturing the profiling information of

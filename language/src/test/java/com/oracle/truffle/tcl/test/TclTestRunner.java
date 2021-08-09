@@ -102,7 +102,8 @@ public class TclTestRunner extends ParentRunner<TestCase> {
         protected final Map<String, String> options;
         protected String actualOutput;
 
-        protected TestCase(Class<?> testClass, String baseName, String sourceName, Path path, String testInput, String expectedOutput, Map<String, String> options) {
+        protected TestCase(Class<?> testClass, String baseName, String sourceName, Path path, String testInput,
+                String expectedOutput, Map<String, String> options) {
             this.name = Description.createTestDescription(testClass, baseName);
             this.sourceName = sourceName;
             this.path = path;
@@ -136,7 +137,8 @@ public class TclTestRunner extends ParentRunner<TestCase> {
     protected static List<TestCase> createTests(final Class<?> c) throws IOException, InitializationError {
         TclTestSuite suite = c.getAnnotation(TclTestSuite.class);
         if (suite == null) {
-            throw new InitializationError(String.format("@%s annotation required on class '%s' to run with '%s'.", TclTestSuite.class.getSimpleName(), c.getName(), TclTestRunner.class.getSimpleName()));
+            throw new InitializationError(String.format("@%s annotation required on class '%s' to run with '%s'.",
+                    TclTestSuite.class.getSimpleName(), c.getName(), TclTestRunner.class.getSimpleName()));
         }
 
         String[] paths = suite.value();
@@ -187,7 +189,8 @@ public class TclTestRunner extends ParentRunner<TestCase> {
                         expectedOutput = readAllLines(outputFile);
                     }
 
-                    foundCases.add(new TestCase(c, baseName, sourceName, sourceFile, testInput, expectedOutput, options));
+                    foundCases
+                            .add(new TestCase(c, baseName, sourceName, sourceFile, testInput, expectedOutput, options));
                 }
                 return FileVisitResult.CONTINUE;
             }
@@ -301,7 +304,8 @@ public class TclTestRunner extends ParentRunner<TestCase> {
                 TclLanguage.installBuiltin(builtin);
             }
 
-            Context.Builder builder = Context.newBuilder().allowExperimentalOptions(true).in(new ByteArrayInputStream(testCase.testInput.getBytes("UTF-8"))).out(out);
+            Context.Builder builder = Context.newBuilder().allowExperimentalOptions(true)
+                    .in(new ByteArrayInputStream(testCase.testInput.getBytes("UTF-8"))).out(out);
             for (Map.Entry<String, String> e : testCase.options.entrySet()) {
                 builder.option(e.getKey(), e.getValue());
             }

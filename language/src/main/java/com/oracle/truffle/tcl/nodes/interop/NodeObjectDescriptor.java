@@ -120,7 +120,8 @@ public abstract class NodeObjectDescriptor implements TruffleObject {
     @ExportLibrary(InteropLibrary.class)
     static final class WriteDescriptor extends NodeObjectDescriptor {
 
-        private static final TruffleObject KEYS_WRITE = new NodeObjectDescriptorKeys(StandardTags.WriteVariableTag.NAME);
+        private static final TruffleObject KEYS_WRITE = new NodeObjectDescriptorKeys(
+                StandardTags.WriteVariableTag.NAME);
 
         private final Object nameSymbol;
 

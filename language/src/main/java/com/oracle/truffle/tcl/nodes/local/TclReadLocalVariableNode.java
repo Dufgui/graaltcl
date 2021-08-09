@@ -85,7 +85,7 @@ public abstract class TclReadLocalVariableNode extends TclExpressionNode {
         return FrameUtil.getBooleanSafe(frame, getSlot());
     }
 
-    @Specialization(replaces = {"readLong", "readBoolean"})
+    @Specialization(replaces = { "readLong", "readBoolean" })
     protected Object readObject(VirtualFrame frame) {
         if (!frame.isObject(getSlot())) {
             /*

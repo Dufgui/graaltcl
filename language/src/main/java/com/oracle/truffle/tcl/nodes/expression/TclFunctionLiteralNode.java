@@ -72,20 +72,23 @@ public final class TclFunctionLiteralNode extends TclExpressionNode {
      * first execution}. The {@link CompilationFinal} annotation ensures that the function can still
      * be constant folded during compilation.
      */
-    @CompilationFinal private TclFunction cachedFunction;
+    @CompilationFinal
+    private TclFunction cachedFunction;
 
     /**
      * The stored context reference. Caching the context reference in a field like this always
      * ensures the most efficient context lookup. The {@link TclContext} must not be stored in the
      * AST in the multi-context case.
      */
-    @CompilationFinal private ContextReference<TclContext> contextRef;
+    @CompilationFinal
+    private ContextReference<TclContext> contextRef;
 
     /**
      * It is always safe to store the language in the AST if the language supports
      * {@link ContextPolicy#SHARED shared}.
      */
-    @CompilationFinal private TclLanguage language;
+    @CompilationFinal
+    private TclLanguage language;
 
     public TclFunctionLiteralNode(String functionName) {
         this.functionName = functionName;
@@ -112,7 +115,8 @@ public final class TclFunctionLiteralNode extends TclExpressionNode {
                 /* We are about to change a @CompilationFinal field. */
                 CompilerDirectives.transferToInterpreterAndInvalidate();
                 /* First execution of the node: lookup the function in the function registry. */
-                this.cachedFunction = function = contextReference.get().getFunctionRegistry().lookup(functionName, true);
+                this.cachedFunction = function = contextReference.get().getFunctionRegistry().lookup(functionName,
+                        true);
             }
         } else {
             /*

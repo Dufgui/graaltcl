@@ -55,7 +55,7 @@ public final class TclBooleanLiteralNode extends TclExpressionNode {
 
     private final boolean value;
 
-    public TclBooleanLiteralNode( boolean value) {
+    public TclBooleanLiteralNode(boolean value) {
         this.value = value;
     }
 
