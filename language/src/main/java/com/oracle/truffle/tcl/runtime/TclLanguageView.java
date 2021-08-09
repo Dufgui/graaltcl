@@ -54,14 +54,16 @@ import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.tcl.TclLanguage;
 
 /**
- * Language views are needed in order to allow tools to have a consistent perspective on primitive
- * or foreign values from the perspective of this language. The interop interpretation for primitive
- * values like Integer or String is not language specific by default. Therefore this language view
- * calls routines to print such values the Tcl way. It is important to note that language
- * views are not passed as normal values through the interpreter execution. It is designed only as a
- * temporary helper for tools.
+ * Language views are needed in order to allow tools to have a consistent
+ * perspective on primitive or foreign values from the perspective of this
+ * language. The interop interpretation for primitive values like Integer or
+ * String is not language specific by default. Therefore this language view
+ * calls routines to print such values the Tcl way. It is important to note that
+ * language views are not passed as normal values through the interpreter
+ * execution. It is designed only as a temporary helper for tools.
  * <p>
- * There is more information in {@link TruffleLanguage#getLanguageView(Object, Object)}
+ * There is more information in
+ * {@link TruffleLanguage#getLanguageView(Object, Object)}
  */
 @ExportLibrary(value = InteropLibrary.class, delegateTo = "delegate")
 @SuppressWarnings("static-method")
@@ -79,8 +81,9 @@ public final class TclLanguageView implements TruffleObject {
     }
 
     /*
-     * Language views must always associate with the language they were created for. This allows
-     * tooling to take a primitive or foreign value and create a value of simple language of it.
+     * Language views must always associate with the language they were created for.
+     * This allows tooling to take a primitive or foreign value and create a value
+     * of simple language of it.
      */
     @ExportMessage
     Class<? extends TruffleLanguage<?>> getLanguage() {
@@ -91,14 +94,14 @@ public final class TclLanguageView implements TruffleObject {
     @ExplodeLoop
     boolean hasMetaObject(@CachedLibrary("this.delegate") InteropLibrary interop) {
         /*
-         * We use the isInstance method to find out whether one of the builtin simple language types
-         * apply. If yes, then we can provide a meta object in getMetaObject. The interop contract
-         * requires to be precise.
+         * We use the isInstance method to find out whether one of the builtin simple
+         * language types apply. If yes, then we can provide a meta object in
+         * getMetaObject. The interop contract requires to be precise.
          *
-         * Since language views are only created for primitive values and values of other languages,
-         * values from simple language itself directly implement has/getMetaObject. For example
-         * TclFunction is already associated with the TclLanguage and therefore the language view will
-         * not be used.
+         * Since language views are only created for primitive values and values of
+         * other languages, values from simple language itself directly implement
+         * has/getMetaObject. For example TclFunction is already associated with the
+         * TclLanguage and therefore the language view will not be used.
          */
         for (TclType type : TclType.PRECEDENCE) {
             if (type.isInstance(delegate, interop)) {
@@ -152,8 +155,8 @@ public final class TclLanguageView implements TruffleObject {
     }
 
     /*
-     * Long.toString is not safe for partial evaluation and therefore needs to be called behind a
-     * boundary.
+     * Long.toString is not safe for partial evaluation and therefore needs to be
+     * called behind a boundary.
      */
     @TruffleBoundary
     private static String longToString(long l) {
@@ -166,7 +169,8 @@ public final class TclLanguageView implements TruffleObject {
     }
 
     /*
-     * Language views are intended to be used only for primitives and other language values.
+     * Language views are intended to be used only for primitives and other language
+     * values.
      */
     private static boolean isPrimitiveOrFromOtherLanguage(Object value) {
         InteropLibrary interop = InteropLibrary.getFactory().getUncached(value);
@@ -178,9 +182,10 @@ public final class TclLanguageView implements TruffleObject {
     }
 
     /**
-     * Returns a language view for primitive or foreign values. Returns the same value for values
-     * that are already originating from Tcl. This is useful to view values from the
-     * perspective of simple language in slow paths, for example, printing values in error messages.
+     * Returns a language view for primitive or foreign values. Returns the same
+     * value for values that are already originating from Tcl. This is useful to
+     * view values from the perspective of simple language in slow paths, for
+     * example, printing values in error messages.
      */
     @TruffleBoundary
     public static Object forValue(Object value) {

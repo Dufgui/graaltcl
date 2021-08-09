@@ -214,7 +214,8 @@ public class TclTestRunner extends ParentRunner<TestCase> {
     }
 
     /**
-     * Unpacks a jar file to a temporary directory that will be removed when the VM exits.
+     * Unpacks a jar file to a temporary directory that will be removed when the VM
+     * exits.
      *
      * @param jarfilePath the path of the jar to unpack
      * @return the path of the temporary directory

@@ -47,7 +47,8 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.tcl.nodes.TclStatementNode;
 
 /**
- * Implementation of the tcl debugger statement. When under the debugger, execution suspends here.
+ * Implementation of the tcl debugger statement. When under the debugger,
+ * execution suspends here.
  */
 @NodeInfo(shortName = "debugger", description = "The node implementing a debugger statement")
 public class TclDebuggerNode extends TclStatementNode {

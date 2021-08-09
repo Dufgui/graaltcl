@@ -40,18 +40,8 @@
  */
 package com.oracle.truffle.tcl.builtins;
 
-import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
-import com.oracle.truffle.api.dsl.CachedContext;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.tcl.TclException;
-import com.oracle.truffle.tcl.TclLanguage;
-import com.oracle.truffle.tcl.runtime.TclContext;
-
-import java.io.BufferedReader;
-import java.io.IOException;
 
 /**
  * Builtin function that concat two Strings.

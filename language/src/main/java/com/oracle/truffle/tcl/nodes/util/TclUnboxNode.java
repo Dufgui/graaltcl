@@ -55,8 +55,8 @@ import com.oracle.truffle.tcl.runtime.TclFunction;
 import com.oracle.truffle.tcl.runtime.TclNull;
 
 /**
- * The node to normalize any value to an tcl value. This is useful to reduce the number of values
- * expression nodes need to expect.
+ * The node to normalize any value to an tcl value. This is useful to reduce the
+ * number of values expression nodes need to expect.
  */
 @TypeSystemReference(TclTypes.class)
 @NodeChild

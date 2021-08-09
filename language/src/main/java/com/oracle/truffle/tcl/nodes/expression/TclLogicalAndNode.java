@@ -54,8 +54,8 @@ public final class TclLogicalAndNode extends TclShortCircuitNode {
     }
 
     /**
-     * The right value does not need to be evaluated if the left value is already <code>false</code>
-     * .
+     * The right value does not need to be evaluated if the left value is already
+     * <code>false</code> .
      */
     @Override
     protected boolean isEvaluateRight(boolean left) {
@@ -63,8 +63,9 @@ public final class TclLogicalAndNode extends TclShortCircuitNode {
     }
 
     /**
-     * Only if left and right value are true the result of the logical and is <code>true</code>. If
-     * the second parameter is not evaluated, <code>false</code> is provided.
+     * Only if left and right value are true the result of the logical and is
+     * <code>true</code>. If the second parameter is not evaluated,
+     * <code>false</code> is provided.
      */
     @Override
     protected boolean execute(boolean left, boolean right) {

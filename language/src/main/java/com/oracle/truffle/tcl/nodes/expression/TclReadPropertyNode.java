@@ -56,7 +56,8 @@ import com.oracle.truffle.tcl.runtime.TclUndefinedNameException;
 /**
  * The node for reading a property of an object. When executed, this node:
  * <ol>
- * <li>evaluates the object expression on the left hand side of the object access operator</li>
+ * <li>evaluates the object expression on the left hand side of the object
+ * access operator</li>
  * <li>evaluated the property name</li>
  * <li>reads the named property</li>
  * </ol>

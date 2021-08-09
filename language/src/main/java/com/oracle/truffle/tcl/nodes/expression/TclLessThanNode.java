@@ -49,8 +49,9 @@ import com.oracle.truffle.tcl.nodes.TclBinaryNode;
 import com.oracle.truffle.tcl.runtime.TclBigNumber;
 
 /**
- * This class is similar to the extensively documented {@link TclAddNode}. The only difference: the
- * specialized methods return {@code boolean} instead of the input types.
+ * This class is similar to the extensively documented {@link TclAddNode}. The
+ * only difference: the specialized methods return {@code boolean} instead of
+ * the input types.
  */
 @NodeInfo(shortName = "<")
 public abstract class TclLessThanNode extends TclBinaryNode {

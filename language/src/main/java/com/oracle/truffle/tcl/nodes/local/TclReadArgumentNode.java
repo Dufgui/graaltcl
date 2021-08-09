@@ -49,9 +49,10 @@ import com.oracle.truffle.tcl.runtime.TclNull;
 /**
  * Reads a function argument. Arguments are passed in as an object array.
  * <p>
- * Arguments are not type-specialized. To ensure that repeated accesses within a method are
- * specialized and can, e.g., be accessed without unboxing, all arguments are loaded into local
- * variables {@link TclNodeFactory#addFormalParameter in the method prologue}.
+ * Arguments are not type-specialized. To ensure that repeated accesses within a
+ * method are specialized and can, e.g., be accessed without unboxing, all
+ * arguments are loaded into local variables
+ * {@link TclNodeFactory#addFormalParameter in the method prologue}.
  */
 public class TclReadArgumentNode extends TclExpressionNode {
 
@@ -59,8 +60,8 @@ public class TclReadArgumentNode extends TclExpressionNode {
     private final int index;
 
     /**
-     * Profiling information, collected by the interpreter, capturing whether the function was
-     * called with fewer actual arguments than formal arguments.
+     * Profiling information, collected by the interpreter, capturing whether the
+     * function was called with fewer actual arguments than formal arguments.
      */
     private final BranchProfile outOfBoundsTaken = BranchProfile.create();
 

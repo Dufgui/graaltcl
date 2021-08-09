@@ -40,6 +40,13 @@
  */
 package com.oracle.truffle.tcl.runtime;
 
+import static com.oracle.truffle.api.CompilerDirectives.shouldNotReachHere;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.util.List;
+
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.RootCallTarget;
@@ -58,15 +65,7 @@ import com.oracle.truffle.tcl.builtins.TclGetsBuiltinFactory;
 import com.oracle.truffle.tcl.builtins.TclProcBuiltinFactory;
 import com.oracle.truffle.tcl.builtins.TclPutsBuiltin;
 import com.oracle.truffle.tcl.builtins.TclPutsBuiltinFactory;
-import com.oracle.truffle.tcl.builtins.TclSetBuiltin;
 import com.oracle.truffle.tcl.builtins.TclSetBuiltinFactory;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.util.List;
-
-import static com.oracle.truffle.api.CompilerDirectives.shouldNotReachHere;
 
 /**
  * The run-time state of tcl during execution. The context is created by the

@@ -43,15 +43,15 @@ package com.oracle.truffle.tcl.nodes.controlflow;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.tcl.nodes.TclExpressionNode;
-import com.oracle.truffle.tcl.nodes.TclStatementNode;
 import com.oracle.truffle.tcl.runtime.TclNull;
 
 /**
- * Implementation of the tcl return statement. We need to unwind an unknown number of interpreter
- * frames that are between this {@link TclReturnNode} and the {@link TclFunctionBodyNode} of the
- * method we are exiting. This is done by throwing an {@link TclReturnException exception} that is
- * caught by the {@link TclFunctionBodyNode#executeGeneric function body}. The exception transports
- * the return value.
+ * Implementation of the tcl return statement. We need to unwind an unknown
+ * number of interpreter frames that are between this {@link TclReturnNode} and
+ * the {@link TclFunctionBodyNode} of the method we are exiting. This is done by
+ * throwing an {@link TclReturnException exception} that is caught by the
+ * {@link TclFunctionBodyNode#executeGeneric function body}. The exception
+ * transports the return value.
  */
 @NodeInfo(shortName = "return", description = "The node implementing a return statement")
 public final class TclReturnNode extends TclExpressionNode {
@@ -70,7 +70,8 @@ public final class TclReturnNode extends TclExpressionNode {
             result = valueNode.executeGeneric(frame);
         } else {
             /*
-             * Return statement that was not followed by an expression, so return the tcl null value.
+             * Return statement that was not followed by an expression, so return the tcl
+             * null value.
              */
             result = TclNull.SINGLETON;
         }

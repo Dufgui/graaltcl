@@ -40,10 +40,7 @@
  */
 package com.oracle.truffle.tcl.builtins;
 
-import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.CachedContext;
-import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.InvalidArrayIndexException;
@@ -52,17 +49,13 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.tcl.TclException;
-import com.oracle.truffle.tcl.TclLanguage;
 import com.oracle.truffle.tcl.nodes.util.TclToMemberNode;
 import com.oracle.truffle.tcl.runtime.TclContext;
 import com.oracle.truffle.tcl.runtime.TclUndefinedNameException;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-
 /**
- * Builtin function that reads a String from the {@link TclContext#getInput() standard input}.
+ * Builtin function that reads a String from the {@link TclContext#getInput()
+ * standard input}.
  */
 @NodeInfo(shortName = "set")
 public abstract class TclSetBuiltin extends TclBuiltinNode {

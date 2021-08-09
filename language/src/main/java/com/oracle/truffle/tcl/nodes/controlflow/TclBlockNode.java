@@ -56,7 +56,6 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.NodeUtil;
 import com.oracle.truffle.api.nodes.NodeVisitor;
-
 import com.oracle.truffle.tcl.nodes.TclExpressionNode;
 import com.oracle.truffle.tcl.nodes.TclStatementNode;
 import com.oracle.truffle.tcl.nodes.local.TclScopedNode;
@@ -69,41 +68,44 @@ import com.oracle.truffle.tcl.nodes.local.TclWriteLocalVariableNode;
 public final class TclBlockNode extends TclExpressionNode implements BlockNode.ElementExecutor<TclStatementNode> {
 
     /**
-     * The block of child nodes. Using the block node allows Truffle to split the block into
-     * multiple groups for compilation if the method is too big. This is an optional API.
-     * Alternatively, you may just use your own block node, with a
-     * {@link com.oracle.truffle.api.nodes.Node.Children @Children} field. However, this prevents
-     * Truffle from compiling big methods, so these methods might fail to compile with a compilation
-     * bailout.
+     * The block of child nodes. Using the block node allows Truffle to split the
+     * block into multiple groups for compilation if the method is too big. This is
+     * an optional API. Alternatively, you may just use your own block node, with a
+     * {@link com.oracle.truffle.api.nodes.Node.Children @Children} field. However,
+     * this prevents Truffle from compiling big methods, so these methods might fail
+     * to compile with a compilation bailout.
      */
     @Child
     private BlockNode<TclStatementNode> block;
 
     /**
-     * All declared variables visible from this block (including all parent blocks). Variables
-     * declared in this block only are from zero index up to {@link #parentBlockIndex} (exclusive).
+     * All declared variables visible from this block (including all parent blocks).
+     * Variables declared in this block only are from zero index up to
+     * {@link #parentBlockIndex} (exclusive).
      */
     @CompilationFinal(dimensions = 1)
     private TclWriteLocalVariableNode[] writeNodesCache;
 
     /**
-     * Index of the parent block's variables in the {@link #writeNodesCache list of variables}.
+     * Index of the parent block's variables in the {@link #writeNodesCache list of
+     * variables}.
      */
     @CompilationFinal
     private int parentBlockIndex = -1;
 
     public TclBlockNode(TclStatementNode[] bodyNodes) {
         /*
-         * Truffle block nodes cannot be empty, that is why we just set the entire block to null if
-         * there are no elements. This is good practice as it safes memory.
+         * Truffle block nodes cannot be empty, that is why we just set the entire block
+         * to null if there are no elements. This is good practice as it safes memory.
          */
         this.block = bodyNodes.length > 0 ? BlockNode.create(bodyNodes, this) : null;
     }
 
     /**
-     * Execute all block statements. The block node makes sure that {@link ExplodeLoop full
-     * unrolling} of the loop is triggered during compilation. This allows the
-     * {@link TclStatementNode#executeVoid} method of all children to be inlined.
+     * Execute all block statements. The block node makes sure that
+     * {@link ExplodeLoop full unrolling} of the loop is triggered during
+     * compilation. This allows the {@link TclStatementNode#executeVoid} method of
+     * all children to be inlined.
      */
     @Override
     public Object executeGeneric(VirtualFrame frame) {
@@ -121,13 +123,15 @@ public final class TclBlockNode extends TclExpressionNode implements BlockNode.E
     }
 
     /**
-     * Truffle nodes don't have a fixed execute signature. The {@link ElementExecutor} interface
-     * tells the framework how block element nodes should be executed. The executor allows to add a
-     * custom exception handler for each element, e.g. to handle a specific
-     * {@link ControlFlowException} or to pass a customizable argument, that allows implement
-     * startsWith semantics if needed. For tcl we don't need to pass any argument as we just have
-     * plain block nodes, therefore we pass {@link BlockNode#NO_ARGUMENT}. In our case the executor
-     * does not need to remember any state so we reuse a singleton instance.
+     * Truffle nodes don't have a fixed execute signature. The
+     * {@link ElementExecutor} interface tells the framework how block element nodes
+     * should be executed. The executor allows to add a custom exception handler for
+     * each element, e.g. to handle a specific {@link ControlFlowException} or to
+     * pass a customizable argument, that allows implement startsWith semantics if
+     * needed. For tcl we don't need to pass any argument as we just have plain
+     * block nodes, therefore we pass {@link BlockNode#NO_ARGUMENT}. In our case the
+     * executor does not need to remember any state so we reuse a singleton
+     * instance.
      */
     @Override
     public void executeVoid(VirtualFrame frame, TclStatementNode node, int index, int argument) {
@@ -135,8 +139,8 @@ public final class TclBlockNode extends TclExpressionNode implements BlockNode.E
     }
 
     /**
-     * All declared local variables accessible in this block. Variables declared in parent blocks
-     * are included.
+     * All declared local variables accessible in this block. Variables declared in
+     * parent blocks are included.
      */
     public TclWriteLocalVariableNode[] getDeclaredLocalVariables() {
         TclWriteLocalVariableNode[] writeNodes = writeNodesCache;
@@ -173,7 +177,8 @@ public final class TclBlockNode extends TclExpressionNode implements BlockNode.E
                 if (!(node instanceof TclBlockNode)) {
                     NodeUtil.forEachChild(node, this);
                 }
-                // Write to a variable is a declaration unless it exists already in a parent scope.
+                // Write to a variable is a declaration unless it exists already in a parent
+                // scope.
                 if (node instanceof TclWriteLocalVariableNode) {
                     TclWriteLocalVariableNode wn = (TclWriteLocalVariableNode) node;
                     if (wn.isDeclaration()) {

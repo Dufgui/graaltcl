@@ -54,30 +54,35 @@ import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.tcl.TclLanguage;
 
 /**
- * The builtin type definitions for Tcl. Tcl has no custom types, so it is not possible
- * for a guest program to create new instances of TclType.
+ * The builtin type definitions for Tcl. Tcl has no custom types, so it is not
+ * possible for a guest program to create new instances of TclType.
  * <p>
- * The isInstance type checks are declared using an functional interface and are expressed using the
- * interoperability libraries. The advantage of this is type checks automatically work for foreign
- * values or primitive values like byte or short.
+ * The isInstance type checks are declared using an functional interface and are
+ * expressed using the interoperability libraries. The advantage of this is type
+ * checks automatically work for foreign values or primitive values like byte or
+ * short.
  * <p>
- * The class implements the interop contracts for {@link InteropLibrary#isMetaObject(Object)} and
- * {@link InteropLibrary#isMetaInstance(Object, Object)}. The latter allows other languages and
- * tools to perform type checks using types of simple language.
+ * The class implements the interop contracts for
+ * {@link InteropLibrary#isMetaObject(Object)} and
+ * {@link InteropLibrary#isMetaInstance(Object, Object)}. The latter allows
+ * other languages and tools to perform type checks using types of simple
+ * language.
  * <p>
  * In order to assign types to guest language values, tcl values implement
- * {@link InteropLibrary#getMetaObject(Object)}. The interop contracts for primitive values cannot
- * be overriden, so in order to assign meta-objects to primitive values, the primitive values are
- * assigned using language views. See {@link TclLanguage#getLanguageView}.
+ * {@link InteropLibrary#getMetaObject(Object)}. The interop contracts for
+ * primitive values cannot be overriden, so in order to assign meta-objects to
+ * primitive values, the primitive values are assigned using language views. See
+ * {@link TclLanguage#getLanguageView}.
  */
 @ExportLibrary(InteropLibrary.class)
 @SuppressWarnings("static-method")
 public final class TclType implements TruffleObject {
 
     /*
-     * These are the sets of builtin types in simple languages. In case of simple language the types
-     * nicely match those of the types in InteropLibrary. This might not be the case and more
-     * additional checks need to be performed (similar to number checking for TclBigNumber).
+     * These are the sets of builtin types in simple languages. In case of simple
+     * language the types nicely match those of the types in InteropLibrary. This
+     * might not be the case and more additional checks need to be performed
+     * (similar to number checking for TclBigNumber).
      */
     public static final TclType NUMBER = new TclType("Number", (l, v) -> l.fitsInLong(v) || v instanceof TclBigNumber);
     public static final TclType NULL = new TclType("NULL", (l, v) -> l.isNull(v));
@@ -87,10 +92,10 @@ public final class TclType implements TruffleObject {
     public static final TclType FUNCTION = new TclType("Function", (l, v) -> l.isExecutable(v));
 
     /*
-     * This array is used when all types need to be checked in a certain order. While most interop
-     * types like number or string are exclusive, others traits like members might not be. For
-     * example, an object might be a function. In Tcl we decided to make functions,
-     * functions and not objects.
+     * This array is used when all types need to be checked in a certain order.
+     * While most interop types like number or string are exclusive, others traits
+     * like members might not be. For example, an object might be a function. In Tcl
+     * we decided to make functions, functions and not objects.
      */
     @CompilationFinal(dimensions = 1)
     public static final TclType[] PRECEDENCE = new TclType[] { NULL, NUMBER, STRING, BOOLEAN, FUNCTION, OBJECT };
@@ -99,8 +104,8 @@ public final class TclType implements TruffleObject {
     private final TypeCheck isInstance;
 
     /*
-     * We don't allow dynamic instances of TclType. Real languages might want to expose this for
-     * types that are user defined.
+     * We don't allow dynamic instances of TclType. Real languages might want to
+     * expose this for types that are user defined.
      */
     private TclType(String name, TypeCheck isInstance) {
         this.name = name;
@@ -108,8 +113,8 @@ public final class TclType implements TruffleObject {
     }
 
     /**
-     * Checks whether this type is of a certain instance. If used on fast-paths it is required to
-     * cast {@link TclType} to a constant.
+     * Checks whether this type is of a certain instance. If used on fast-paths it
+     * is required to cast {@link TclType} to a constant.
      */
     public boolean isInstance(Object value, InteropLibrary interop) {
         CompilerAsserts.partialEvaluationConstant(this);
@@ -127,8 +132,8 @@ public final class TclType implements TruffleObject {
     }
 
     /*
-     * All TclTypes are declared as interop meta-objects. Other example for meta-objects are Java
-     * classes, or JavaScript prototypes.
+     * All TclTypes are declared as interop meta-objects. Other example for
+     * meta-objects are Java classes, or JavaScript prototypes.
      */
     @ExportMessage
     boolean isMetaObject() {
@@ -136,8 +141,8 @@ public final class TclType implements TruffleObject {
     }
 
     /*
-     * tcl does not have the notion of a qualified or simple name, so we return the same type name
-     * for both.
+     * tcl does not have the notion of a qualified or simple name, so we return the
+     * same type name for both.
      */
     @ExportMessage(name = "getMetaQualifiedName")
     @ExportMessage(name = "getMetaSimpleName")
@@ -156,20 +161,22 @@ public final class TclType implements TruffleObject {
     }
 
     /*
-     * The interop message isMetaInstance might be used from other languages or by the {@link
-     * TclIsInstanceBuiltin isInstance} builtin. It checks whether a given value, which might be a
-     * primitive, foreign or tcl value is of a given tcl type. This allows other languages to make
-     * their instanceOf interopable with foreign values.
+     * The interop message isMetaInstance might be used from other languages or by
+     * the {@link TclIsInstanceBuiltin isInstance} builtin. It checks whether a
+     * given value, which might be a primitive, foreign or tcl value is of a given
+     * tcl type. This allows other languages to make their instanceOf interopable
+     * with foreign values.
      */
     @ExportMessage
     static class IsMetaInstance {
 
         /*
-         * We assume that the same type is checked at a source location. Therefore we use an inline
-         * cache to specialize for observed types to be constant. The limit of "3" specifies that we
-         * specialize for 3 different types until we rewrite to the doGeneric case. The limit in
-         * this example is somewhat arbitrary and should be determined using careful tuning with
-         * real world benchmarks.
+         * We assume that the same type is checked at a source location. Therefore we
+         * use an inline cache to specialize for observed types to be constant. The
+         * limit of "3" specifies that we specialize for 3 different types until we
+         * rewrite to the doGeneric case. The limit in this example is somewhat
+         * arbitrary and should be determined using careful tuning with real world
+         * benchmarks.
          */
         @Specialization(guards = "type == cachedType", limit = "3")
         static boolean doCached(@SuppressWarnings("unused") TclType type, Object value,
@@ -185,8 +192,8 @@ public final class TclType implements TruffleObject {
     }
 
     /*
-     * A convenience interface for type checks. Alternatively this could have been solved using
-     * subtypes of TclType.
+     * A convenience interface for type checks. Alternatively this could have been
+     * solved using subtypes of TclType.
      */
     @FunctionalInterface
     interface TypeCheck {

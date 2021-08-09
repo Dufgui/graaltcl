@@ -47,15 +47,16 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.tcl.TclLanguage;
 import com.oracle.truffle.tcl.parser.TclParser;
 
 /**
- * Manages the mapping from function names to {@link TclFunction function objects}.
+ * Manages the mapping from function names to {@link TclFunction function
+ * objects}.
  */
 public final class TclFunctionRegistry {
 
@@ -68,8 +69,8 @@ public final class TclFunctionRegistry {
     }
 
     /**
-     * Returns the canonical {@link TclFunction} object for the given name. If it does not exist yet,
-     * it is created.
+     * Returns the canonical {@link TclFunction} object for the given name. If it
+     * does not exist yet, it is created.
      */
     @TruffleBoundary
     public TclFunction lookup(String name, boolean createIfNotPresent) {
@@ -82,9 +83,10 @@ public final class TclFunctionRegistry {
     }
 
     /**
-     * Associates the {@link TclFunction} with the given name with the given implementation root
-     * node. If the function did not exist before, it defines the function. If the function existed
-     * before, it redefines the function and the old implementation is discarded.
+     * Associates the {@link TclFunction} with the given name with the given
+     * implementation root node. If the function did not exist before, it defines
+     * the function. If the function existed before, it redefines the function and
+     * the old implementation is discarded.
      */
     TclFunction register(String name, RootCallTarget callTarget) {
         TclFunction result = functionsObject.functions.get(name);
@@ -98,9 +100,9 @@ public final class TclFunctionRegistry {
     }
 
     /**
-     * Registers a map of functions. The once registered map must not change in order to allow to
-     * cache the registration for the entire map. If the map is changed after registration the
-     * functions might not get registered.
+     * Registers a map of functions. The once registered map must not change in
+     * order to allow to cache the registration for the entire map. If the map is
+     * changed after registration the functions might not get registered.
      */
     @TruffleBoundary
     public void register(Map<String, RootCallTarget> newFunctions) {

@@ -51,12 +51,13 @@ import com.oracle.truffle.tcl.runtime.TclContext;
 import com.oracle.truffle.tcl.runtime.TclFunctionRegistry;
 
 /**
- * Base class for all builtin functions. It contains the Truffle DSL annotation {@link NodeChild}
- * that defines the function arguments.<br>
- * The builtin functions are registered in {@link TclContext#installBuiltins}. Every builtin node
- * subclass is instantiated there, wrapped into a function, and added to the
- * {@link TclFunctionRegistry}. This ensures that builtin functions can be called like user-defined
- * functions; there is no special function lookup or call node for builtin functions.
+ * Base class for all builtin functions. It contains the Truffle DSL annotation
+ * {@link NodeChild} that defines the function arguments.<br>
+ * The builtin functions are registered in {@link TclContext#installBuiltins}.
+ * Every builtin node subclass is instantiated there, wrapped into a function,
+ * and added to the {@link TclFunctionRegistry}. This ensures that builtin
+ * functions can be called like user-defined functions; there is no special
+ * function lookup or call node for builtin functions.
  */
 @NodeChild(value = "arguments", type = TclExpressionNode[].class)
 @GenerateNodeFactory

@@ -43,13 +43,13 @@ package com.oracle.truffle.tcl.nodes.controlflow;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.tcl.nodes.TclExpressionNode;
-import com.oracle.truffle.tcl.nodes.TclStatementNode;
 
 /**
- * Implementation of the tcl continue statement. We need to unwind an unknown number of interpreter
- * frames that are between this {@link TclContinueNode} and the {@link TclWhileNode} of the loop we
- * are continuing. This is done by throwing an {@link TclContinueException exception} that is caught
- * by the {@link TclWhileNode#executeVoid loop node}.
+ * Implementation of the tcl continue statement. We need to unwind an unknown
+ * number of interpreter frames that are between this {@link TclContinueNode}
+ * and the {@link TclWhileNode} of the loop we are continuing. This is done by
+ * throwing an {@link TclContinueException exception} that is caught by the
+ * {@link TclWhileNode#executeVoid loop node}.
  */
 @NodeInfo(shortName = "continue", description = "The node implementing a continue statement")
 public final class TclContinueNode extends TclExpressionNode {

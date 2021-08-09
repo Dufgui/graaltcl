@@ -60,18 +60,21 @@ import com.oracle.truffle.tcl.TclLanguage;
 /**
  * Represents an tcl object.
  *
- * This class defines operations that can be performed on tcl Objects. While we could define all
- * these operations as individual AST nodes, we opted to define those operations by using
- * {@link com.oracle.truffle.api.library.Library a Truffle library}, or more concretely the
- * {@link InteropLibrary}. This has several advantages, but the primary one is that it allows tcl
- * objects to be used in the interoperability message protocol, i.e. It allows other languages and
- * tools to operate on tcl objects without necessarily knowing they are tcl objects.
+ * This class defines operations that can be performed on tcl Objects. While we
+ * could define all these operations as individual AST nodes, we opted to define
+ * those operations by using {@link com.oracle.truffle.api.library.Library a
+ * Truffle library}, or more concretely the {@link InteropLibrary}. This has
+ * several advantages, but the primary one is that it allows tcl objects to be
+ * used in the interoperability message protocol, i.e. It allows other languages
+ * and tools to operate on tcl objects without necessarily knowing they are tcl
+ * objects.
  *
- * tcl Objects are essentially instances of {@link DynamicObject} (objects whose members can be
- * dynamically added and removed). We also annotate the class with {@link ExportLibrary} with value
- * {@link InteropLibrary InteropLibrary.class}. This essentially ensures that the build system and
- * runtime know that this class specifies the interop messages (i.e. operations) that tcl can do on
- * {@link TclObject} instances.
+ * tcl Objects are essentially instances of {@link DynamicObject} (objects whose
+ * members can be dynamically added and removed). We also annotate the class
+ * with {@link ExportLibrary} with value {@link InteropLibrary
+ * InteropLibrary.class}. This essentially ensures that the build system and
+ * runtime know that this class specifies the interop messages (i.e. operations)
+ * that tcl can do on {@link TclObject} instances.
  *
  * @see ExportLibrary
  * @see ExportMessage
@@ -199,7 +202,8 @@ public final class TclObject extends DynamicObject implements TruffleObject {
     }
 
     /**
-     * {@link DynamicObjectLibrary} provides the polymorphic inline cache for reading properties.
+     * {@link DynamicObjectLibrary} provides the polymorphic inline cache for
+     * reading properties.
      */
     @ExportMessage
     Object readMember(String name, @CachedLibrary("this") DynamicObjectLibrary objectLibrary)
@@ -213,7 +217,8 @@ public final class TclObject extends DynamicObject implements TruffleObject {
     }
 
     /**
-     * {@link DynamicObjectLibrary} provides the polymorphic inline cache for writing properties.
+     * {@link DynamicObjectLibrary} provides the polymorphic inline cache for
+     * writing properties.
      */
     @ExportMessage
     void writeMember(String name, Object value, @CachedLibrary("this") DynamicObjectLibrary objectLibrary) {

@@ -52,28 +52,33 @@ import com.oracle.truffle.tcl.nodes.TclStatementNode;
 import com.oracle.truffle.tcl.nodes.util.TclUnboxNodeGen;
 
 /**
- * The loop body of a {@link TclWhileNode while loop}. A Truffle framework {@link LoopNode} between
- * the {@link TclWhileNode} and {@link TclWhileRepeatingNode} allows Truffle to perform loop
- * optimizations, for example, compile just the loop body for long running loops.
+ * The loop body of a {@link TclWhileNode while loop}. A Truffle framework
+ * {@link LoopNode} between the {@link TclWhileNode} and
+ * {@link TclWhileRepeatingNode} allows Truffle to perform loop optimizations,
+ * for example, compile just the loop body for long running loops.
  */
 public final class TclWhileRepeatingNode extends Node implements RepeatingNode {
 
     /**
-     * The condition of the loop. This in a {@link TclExpressionNode} because we require a result
-     * value. We do not have a node type that can only return a {@code boolean} value, so
-     * {@link #evaluateCondition executing the condition} can lead to a type error.
+     * The condition of the loop. This in a {@link TclExpressionNode} because we
+     * require a result value. We do not have a node type that can only return a
+     * {@code boolean} value, so {@link #evaluateCondition executing the condition}
+     * can lead to a type error.
      */
     @Child
     private TclExpressionNode conditionNode;
 
-    /** Statement (or {@link TclBlockNode block}) executed as long as the condition is true. */
+    /**
+     * Statement (or {@link TclBlockNode block}) executed as long as the condition
+     * is true.
+     */
     @Child
     private TclStatementNode bodyNode;
 
     /**
-     * Profiling information, collected by the interpreter, capturing whether a {@code continue}
-     * statement was used in this loop. This allows the compiler to generate better code for loops
-     * without a {@code continue}.
+     * Profiling information, collected by the interpreter, capturing whether a
+     * {@code continue} statement was used in this loop. This allows the compiler to
+     * generate better code for loops without a {@code continue}.
      */
     private final BranchProfile continueTaken = BranchProfile.create();
     private final BranchProfile breakTaken = BranchProfile.create();
@@ -97,7 +102,9 @@ public final class TclWhileRepeatingNode extends Node implements RepeatingNode {
             return true;
 
         } catch (TclContinueException ex) {
-            /* In the interpreter, record profiling information that the loop uses continue. */
+            /*
+             * In the interpreter, record profiling information that the loop uses continue.
+             */
             continueTaken.enter();
             /* Continue with next loop iteration. */
             return true;
@@ -113,15 +120,15 @@ public final class TclWhileRepeatingNode extends Node implements RepeatingNode {
     private boolean evaluateCondition(VirtualFrame frame) {
         try {
             /*
-             * The condition must evaluate to a boolean value, so we call the boolean-specialized
-             * execute method.
+             * The condition must evaluate to a boolean value, so we call the
+             * boolean-specialized execute method.
              */
             return conditionNode.executeBoolean(frame);
         } catch (UnexpectedResultException ex) {
             /*
-             * The condition evaluated to a non-boolean result. This is a type error in the tcl
-             * program. We report it with the same exception that Truffle DSL generated nodes use to
-             * report type errors.
+             * The condition evaluated to a non-boolean result. This is a type error in the
+             * tcl program. We report it with the same exception that Truffle DSL generated
+             * nodes use to report type errors.
              */
             throw new UnsupportedSpecializationException(this, new Node[] { conditionNode }, ex.getResult());
         }

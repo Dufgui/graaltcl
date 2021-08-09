@@ -57,9 +57,11 @@ import com.oracle.truffle.tcl.runtime.TclUndefinedNameException;
 /**
  * The node for writing a property of an object. When executed, this node:
  * <ol>
- * <li>evaluates the object expression on the left hand side of the object access operator</li>
+ * <li>evaluates the object expression on the left hand side of the object
+ * access operator</li>
  * <li>evaluates the property name</li>
- * <li>evaluates the value expression on the right hand side of the assignment operator</li>
+ * <li>evaluates the value expression on the right hand side of the assignment
+ * operator</li>
  * <li>writes the named property</li>
  * <li>returns the written value</li>
  * </ol>

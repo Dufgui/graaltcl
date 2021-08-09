@@ -43,9 +43,10 @@ package com.oracle.truffle.tcl.nodes.controlflow;
 import com.oracle.truffle.api.nodes.ControlFlowException;
 
 /**
- * Exception thrown by the {@link TclContinueNode continue statement} and caught by the
- * {@link TclWhileNode loop statement}. Since the exception is stateless, i.e., has no instance
- * fields, we can use a {@link #SINGLETON} to avoid memory allocation during interpretation.
+ * Exception thrown by the {@link TclContinueNode continue statement} and caught
+ * by the {@link TclWhileNode loop statement}. Since the exception is stateless,
+ * i.e., has no instance fields, we can use a {@link #SINGLETON} to avoid memory
+ * allocation during interpretation.
  */
 public final class TclContinueException extends ControlFlowException {
 

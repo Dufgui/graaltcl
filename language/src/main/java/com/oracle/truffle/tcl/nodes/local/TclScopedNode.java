@@ -62,7 +62,6 @@ import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.source.SourceSection;
-
 import com.oracle.truffle.tcl.TclLanguage;
 import com.oracle.truffle.tcl.nodes.TclExpressionNode;
 import com.oracle.truffle.tcl.nodes.TclRootNode;
@@ -71,29 +70,33 @@ import com.oracle.truffle.tcl.runtime.TclContext;
 import com.oracle.truffle.tcl.runtime.TclNull;
 
 /**
- * The Tcl implementation of {@link NodeLibrary} provides fast access to local variables. It's used
- * by tools like debugger, profiler, tracer, etc. To provide good performance, we cache write nodes
- * that declare variables and use them in the interop contract.
+ * The Tcl implementation of {@link NodeLibrary} provides fast access to local
+ * variables. It's used by tools like debugger, profiler, tracer, etc. To
+ * provide good performance, we cache write nodes that declare variables and use
+ * them in the interop contract.
  */
 @ExportLibrary(value = NodeLibrary.class)
 public abstract class TclScopedNode extends Node {
 
     /**
-     * Index to the the {@link TclBlockNode#getDeclaredLocalVariables() block's variables} that
-     * determine variables belonging into this scope (excluding parent scopes) on node enter. The
-     * scope variables are in the interval &lt;0, visibleVariablesIndexOnEnter).
+     * Index to the the {@link TclBlockNode#getDeclaredLocalVariables() block's
+     * variables} that determine variables belonging into this scope (excluding
+     * parent scopes) on node enter. The scope variables are in the interval &lt;0,
+     * visibleVariablesIndexOnEnter).
      */
     @CompilationFinal
     private volatile int visibleVariablesIndexOnEnter = -1;
     /**
-     * Similar to {@link #visibleVariablesIndexOnEnter}, but determines variables on node exit. The
-     * scope variables are in the interval &lt;0, visibleVariablesIndexOnExit).
+     * Similar to {@link #visibleVariablesIndexOnEnter}, but determines variables on
+     * node exit. The scope variables are in the interval &lt;0,
+     * visibleVariablesIndexOnExit).
      */
     @CompilationFinal
     private volatile int visibleVariablesIndexOnExit = -1;
 
     /**
-     * For performance reasons, fix the library implementation for the particular node.
+     * For performance reasons, fix the library implementation for the particular
+     * node.
      */
     @ExportMessage
     boolean accepts(@Shared("node") @Cached(value = "this", adopt = false) TclScopedNode cachedNode) {
@@ -110,9 +113,10 @@ public abstract class TclScopedNode extends Node {
     }
 
     /**
-     * The scope depends on the current node and the node's block. Cache the node and its block for
-     * fast access. Depending on the block node, we create either block variables, or function
-     * arguments (in the RootNode, but outside of a block).
+     * The scope depends on the current node and the node's block. Cache the node
+     * and its block for fast access. Depending on the block node, we create either
+     * block variables, or function arguments (in the RootNode, but outside of a
+     * block).
      */
     @ExportMessage
     @SuppressWarnings("static-method")
@@ -127,8 +131,8 @@ public abstract class TclScopedNode extends Node {
     }
 
     /**
-     * Test if a function of that name exists. The functions are context-dependent, therefore do a
-     * context lookup via {@link CachedContext}.
+     * Test if a function of that name exists. The functions are context-dependent,
+     * therefore do a context lookup via {@link CachedContext}.
      */
     @ExportMessage
     @TruffleBoundary
@@ -141,8 +145,8 @@ public abstract class TclScopedNode extends Node {
     }
 
     /**
-     * Provide function instance of that name. The function is context-dependent, therefore do a
-     * context lookup via {@link CachedContext}.
+     * Provide function instance of that name. The function is context-dependent,
+     * therefore do a context lookup via {@link CachedContext}.
      */
     @ExportMessage
     @TruffleBoundary
@@ -161,8 +165,8 @@ public abstract class TclScopedNode extends Node {
     }
 
     /**
-     * Find block of this node. Traverse the parent chain and find the first {@link TclBlockNode}. If
-     * none is found, {@link RootNode} is returned.
+     * Find block of this node. Traverse the parent chain and find the first
+     * {@link TclBlockNode}. If none is found, {@link RootNode} is returned.
      *
      * @return the block node, always non-null. Either TclBlockNode, or TclRootNode.
      */
@@ -183,8 +187,9 @@ public abstract class TclScopedNode extends Node {
     }
 
     /**
-     * Set the index to the the {@link TclBlockNode#getDeclaredLocalVariables() block's variables}
-     * that determine variables belonging into this scope (excluding parent scopes) on node enter.
+     * Set the index to the the {@link TclBlockNode#getDeclaredLocalVariables()
+     * block's variables} that determine variables belonging into this scope
+     * (excluding parent scopes) on node enter.
      */
     public final void setVisibleVariablesIndexOnEnter(int index) {
         assert visibleVariablesIndexOnEnter == -1 : "The index is set just once";
@@ -193,8 +198,8 @@ public abstract class TclScopedNode extends Node {
     }
 
     /**
-     * Similar to {@link #setVisibleVariablesIndexOnEnter(int)}, but determines variables on node
-     * exit.
+     * Similar to {@link #setVisibleVariablesIndexOnEnter(int)}, but determines
+     * variables on node exit.
      */
     public final void setVisibleVariablesIndexOnExit(int index) {
         assert visibleVariablesIndexOnExit == -1 : "The index is set just once";
@@ -210,11 +215,11 @@ public abstract class TclScopedNode extends Node {
     }
 
     /**
-     * Scope of function arguments. This scope is provided by nodes just under a {@link TclRootNode},
-     * outside of a {@link TclBlockNode block}.
+     * Scope of function arguments. This scope is provided by nodes just under a
+     * {@link TclRootNode}, outside of a {@link TclBlockNode block}.
      * <p>
-     * The arguments declared by {@link TclRootNode#getDeclaredArguments() root node} are provided as
-     * scope members.
+     * The arguments declared by {@link TclRootNode#getDeclaredArguments() root
+     * node} are provided as scope members.
      */
     @ExportLibrary(InteropLibrary.class)
     static final class ArgumentsObject implements TruffleObject {
@@ -236,7 +241,8 @@ public abstract class TclScopedNode extends Node {
         }
 
         /**
-         * For performance reasons, fix the library implementation for the particular root node.
+         * For performance reasons, fix the library implementation for the particular
+         * root node.
          */
         @ExportMessage
         boolean accepts(@Cached(value = "this.root", adopt = false) TclRootNode cachedRoot) {
@@ -379,8 +385,8 @@ public abstract class TclScopedNode extends Node {
         static final class ReadMember {
 
             /**
-             * If the member is cached, use the cached index and read the value at that index. Call
-             * {@link #doGeneric(ArgumentsObject, String)} otherwise.
+             * If the member is cached, use the cached index and read the value at that
+             * index. Call {@link #doGeneric(ArgumentsObject, String)} otherwise.
              */
             @Specialization(limit = "LIMIT", guards = { "cachedMember.equals(member)" })
             @SuppressWarnings("unused")
@@ -401,7 +407,8 @@ public abstract class TclScopedNode extends Node {
             }
 
             /**
-             * Read the argument at the provided index from {@link Frame#getArguments()} array.
+             * Read the argument at the provided index from {@link Frame#getArguments()}
+             * array.
              */
             private static Object doRead(ArgumentsObject receiver, String member, int index)
                     throws UnknownIdentifierException {
@@ -423,8 +430,8 @@ public abstract class TclScopedNode extends Node {
         static final class WriteMember {
 
             /**
-             * If the member is cached, use the cached index and write the value at that index. Call
-             * {@link #doGeneric(ArgumentsObject, String, Object)} otherwise.
+             * If the member is cached, use the cached index and write the value at that
+             * index. Call {@link #doGeneric(ArgumentsObject, String, Object)} otherwise.
              */
             @Specialization(limit = "LIMIT", guards = { "cachedMember.equals(member)" })
             @SuppressWarnings("unused")
@@ -448,8 +455,8 @@ public abstract class TclScopedNode extends Node {
             }
 
             /**
-             * Write the argument value at the provided index into {@link Frame#getArguments()}
-             * array.
+             * Write the argument value at the provided index into
+             * {@link Frame#getArguments()} array.
              */
             private static void doWrite(ArgumentsObject receiver, String member, int index, Object value)
                     throws UnknownIdentifierException, UnsupportedMessageException {
@@ -482,7 +489,8 @@ public abstract class TclScopedNode extends Node {
     }
 
     /**
-     * Scope of all variables accessible in the scope from the entered or exited node.
+     * Scope of all variables accessible in the scope from the entered or exited
+     * node.
      */
     @ExportLibrary(InteropLibrary.class)
     static final class VariablesObject implements TruffleObject {
@@ -505,8 +513,8 @@ public abstract class TclScopedNode extends Node {
         }
 
         /**
-         * For performance reasons, fix the library implementation for the current node and enter
-         * flag.
+         * For performance reasons, fix the library implementation for the current node
+         * and enter flag.
          */
         @ExportMessage
         boolean accepts(@Cached(value = "this.node", adopt = false) TclScopedNode cachedNode,
@@ -635,8 +643,8 @@ public abstract class TclScopedNode extends Node {
             }
 
             /**
-             * Test if a variable with that name exists. It exists if we have a corresponding write
-             * node.
+             * Test if a variable with that name exists. It exists if we have a
+             * corresponding write node.
              */
             @Specialization(replaces = "doCached")
             @TruffleBoundary
@@ -685,8 +693,8 @@ public abstract class TclScopedNode extends Node {
         static final class ReadMember {
 
             /**
-             * If the member is cached, use the cached frame slot and read the value from it. Call
-             * {@link #doGeneric(VariablesObject, String)} otherwise.
+             * If the member is cached, use the cached frame slot and read the value from
+             * it. Call {@link #doGeneric(VariablesObject, String)} otherwise.
              */
             @Specialization(limit = "LIMIT", guards = { "cachedMember.equals(member)" })
             @SuppressWarnings("unused")
@@ -720,14 +728,15 @@ public abstract class TclScopedNode extends Node {
         }
 
         /**
-         * Write a variable value. Cache the write node by variable name for fast access.
+         * Write a variable value. Cache the write node by variable name for fast
+         * access.
          */
         @ExportMessage(name = "writeMember")
         static final class WriteMember {
 
             /*
-             * If the member is cached, use the cached write node and use it to write the value.
-             * Call {@link #doGeneric(VariablesObject, String, Object)} otherwise.
+             * If the member is cached, use the cached write node and use it to write the
+             * value. Call {@link #doGeneric(VariablesObject, String, Object)} otherwise.
              */
             @Specialization(limit = "LIMIT", guards = { "cachedMember.equals(member)" })
             @SuppressWarnings("unused")
@@ -763,8 +772,8 @@ public abstract class TclScopedNode extends Node {
         }
 
         /**
-         * Get the variables. Cache the array of write nodes that declare variables in the scope(s)
-         * and the indexes which determine visible variables.
+         * Get the variables. Cache the array of write nodes that declare variables in
+         * the scope(s) and the indexes which determine visible variables.
          */
         @ExportMessage
         @SuppressWarnings("static-method")
@@ -795,8 +804,9 @@ public abstract class TclScopedNode extends Node {
         }
 
         /**
-         * Find write node, which declares variable of the given name. Search through the variables
-         * declared in the block and its parents and return the first one that matches.
+         * Find write node, which declares variable of the given name. Search through
+         * the variables declared in the block and its parents and return the first one
+         * that matches.
          * 
          * @param member the variable name
          */
@@ -821,8 +831,8 @@ public abstract class TclScopedNode extends Node {
     }
 
     /**
-     * Array of visible variables. The variables are based on their declaration write nodes and are
-     * represented as {@link Key} objects.
+     * Array of visible variables. The variables are based on their declaration
+     * write nodes and are represented as {@link Key} objects.
      */
     @ExportLibrary(InteropLibrary.class)
     static final class KeysArray implements TruffleObject {
@@ -835,13 +845,15 @@ public abstract class TclScopedNode extends Node {
         /**
          * Creates a new array of visible variables.
          * 
-         * @param writeNodes all variables declarations in the scope, including parent scopes.
-         * @param variableIndex index to the variables array, determining variables in the
-         *            inner-most scope (from zero index up to the <code>variableIndex</code>,
-         *            exclusive).
-         * @param parentBlockIndex index to the variables array, determining variables in the parent
-         *            block's scope (from <code>parentBlockIndex</code> to the end of the
-         *            <code>writeNodes</code> array).
+         * @param writeNodes       all variables declarations in the scope, including
+         *                         parent scopes.
+         * @param variableIndex    index to the variables array, determining variables
+         *                         in the inner-most scope (from zero index up to the
+         *                         <code>variableIndex</code>, exclusive).
+         * @param parentBlockIndex index to the variables array, determining variables
+         *                         in the parent block's scope (from
+         *                         <code>parentBlockIndex</code> to the end of the
+         *                         <code>writeNodes</code> array).
          */
         KeysArray(TclWriteLocalVariableNode[] writeNodes, int variableIndex, int parentBlockIndex) {
             this.writeNodes = writeNodes;
@@ -858,7 +870,8 @@ public abstract class TclScopedNode extends Node {
         @ExportMessage
         long getArraySize() {
             // We see all parent's variables (writeNodes.length - parentBlockIndex) plus the
-            // variables in the inner-most scope visible by the current node (variableIndex).
+            // variables in the inner-most scope visible by the current node
+            // (variableIndex).
             return writeNodes.length - parentBlockIndex + variableIndex;
         }
 
@@ -876,7 +889,8 @@ public abstract class TclScopedNode extends Node {
                 // if we're in the inner-most scope, it's simply the variable on the index
                 return new Key(writeNodes[(int) index]);
             } else {
-                // else it's a variable declared in the parent's scope, we start at parentBlockIndex
+                // else it's a variable declared in the parent's scope, we start at
+                // parentBlockIndex
                 return new Key(writeNodes[(int) index - variableIndex + parentBlockIndex]);
             }
         }
@@ -884,10 +898,10 @@ public abstract class TclScopedNode extends Node {
     }
 
     /**
-     * Representation of a variable based on a {@link TclWriteLocalVariableNode write node} that
-     * declares the variable. It provides the variable name as a {@link Key#asString() string} and
-     * the name node associated with the variable's write node as a {@link Key#getSourceLocation()
-     * source location}.
+     * Representation of a variable based on a {@link TclWriteLocalVariableNode
+     * write node} that declares the variable. It provides the variable name as a
+     * {@link Key#asString() string} and the name node associated with the
+     * variable's write node as a {@link Key#getSourceLocation() source location}.
      */
     @ExportLibrary(InteropLibrary.class)
     static final class Key implements TruffleObject {

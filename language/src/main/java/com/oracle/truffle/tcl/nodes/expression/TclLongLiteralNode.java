@@ -46,9 +46,10 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.tcl.nodes.TclExpressionNode;
 
 /**
- * Constant literal for a primitive {@code long} value. The unboxed value can be returned when the
- * parent expects a long value and calls {@link TclLongLiteralNode#executeLong}. In the generic case,
- * the primitive value is automatically boxed by Java.
+ * Constant literal for a primitive {@code long} value. The unboxed value can be
+ * returned when the parent expects a long value and calls
+ * {@link TclLongLiteralNode#executeLong}. In the generic case, the primitive
+ * value is automatically boxed by Java.
  */
 @NodeInfo(shortName = "const")
 public final class TclLongLiteralNode extends TclExpressionNode {

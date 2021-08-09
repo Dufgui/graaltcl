@@ -46,10 +46,12 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.tcl.nodes.TclExpressionNode;
 
 /**
- * A {@link TclExpressionNode} that represents a parenthesized expression; it simply returns the
- * value of the enclosed (child) expression. It is represented separately in the AST for the purpose
- * of correct source attribution; this preserves the lexical relationship between the two
- * parentheses and allows a tool to describe the expression as distinct from its contents.
+ * A {@link TclExpressionNode} that represents a parenthesized expression; it
+ * simply returns the value of the enclosed (child) expression. It is
+ * represented separately in the AST for the purpose of correct source
+ * attribution; this preserves the lexical relationship between the two
+ * parentheses and allows a tool to describe the expression as distinct from its
+ * contents.
  */
 @NodeInfo(description = "A parenthesized expression")
 public class TclParenExpressionNode extends TclExpressionNode {

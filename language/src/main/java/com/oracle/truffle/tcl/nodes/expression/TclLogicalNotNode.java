@@ -48,8 +48,8 @@ import com.oracle.truffle.tcl.TclException;
 import com.oracle.truffle.tcl.nodes.TclExpressionNode;
 
 /**
- * Example of a simple unary node that uses type specialization. See {@link TclAddNode} for
- * information on specializations.
+ * Example of a simple unary node that uses type specialization. See
+ * {@link TclAddNode} for information on specializations.
  */
 @NodeChild("valueNode")
 @NodeInfo(shortName = "!")
