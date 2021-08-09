@@ -52,7 +52,8 @@ import com.oracle.truffle.api.profiles.BranchProfile;
 import com.oracle.truffle.api.source.SourceSection;
 
 /**
- * A container class used to store per-node attributes used by the instrumentation framework.
+ * A container class used to store per-node attributes used by the
+ * instrumentation framework.
  */
 public abstract class NodeObjectDescriptor implements TruffleObject {
 

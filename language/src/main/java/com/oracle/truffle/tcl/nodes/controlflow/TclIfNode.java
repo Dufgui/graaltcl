@@ -46,33 +46,40 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.profiles.ConditionProfile;
 import com.oracle.truffle.tcl.TclException;
 import com.oracle.truffle.tcl.nodes.TclExpressionNode;
-import com.oracle.truffle.tcl.nodes.TclStatementNode;
 import com.oracle.truffle.tcl.nodes.util.TclUnboxNodeGen;
 
 @NodeInfo(shortName = "if", description = "The node implementing a condional statement")
 public final class TclIfNode extends TclExpressionNode {
 
     /**
-     * The condition of the {@code if}. This in a {@link TclExpressionNode} because we require a
-     * result value. We do not have a node type that can only return a {@code boolean} value, so
-     * {@link #evaluateCondition executing the condition} can lead to a type error.
+     * The condition of the {@code if}. This in a {@link TclExpressionNode} because
+     * we require a result value. We do not have a node type that can only return a
+     * {@code boolean} value, so {@link #evaluateCondition executing the condition}
+     * can lead to a type error.
      */
     @Child
     private TclExpressionNode conditionNode;
 
-    /** Statement (or {@link TclBlockNode block}) executed when the condition is true. */
+    /**
+     * Statement (or {@link TclBlockNode block}) executed when the condition is
+     * true.
+     */
     @Child
     private TclExpressionNode thenPartNode;
 
-    /** Statement (or {@link TclBlockNode block}) executed when the condition is false. */
+    /**
+     * Statement (or {@link TclBlockNode block}) executed when the condition is
+     * false.
+     */
     @Child
     private TclExpressionNode elsePartNode;
 
     /**
-     * Profiling information, collected by the interpreter, capturing the profiling information of
-     * the condition. This allows the compiler to generate better code for conditions that are
-     * always true or always false. Additionally the {@link CountingConditionProfile} implementation
-     * (as opposed to {@link BinaryConditionProfile} implementation) transmits the probability of
+     * Profiling information, collected by the interpreter, capturing the profiling
+     * information of the condition. This allows the compiler to generate better
+     * code for conditions that are always true or always false. Additionally the
+     * {@link CountingConditionProfile} implementation (as opposed to
+     * {@link BinaryConditionProfile} implementation) transmits the probability of
      * the condition to be true to the compiler.
      */
     private final ConditionProfile condition = ConditionProfile.createCountingProfile();
@@ -86,8 +93,8 @@ public final class TclIfNode extends TclExpressionNode {
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         /*
-         * In the interpreter, record profiling information that the condition was executed and with
-         * which outcome.
+         * In the interpreter, record profiling information that the condition was
+         * executed and with which outcome.
          */
         if (condition.profile(evaluateCondition(frame))) {
             /* Execute the then-branch. */
@@ -104,14 +111,14 @@ public final class TclIfNode extends TclExpressionNode {
     private boolean evaluateCondition(VirtualFrame frame) {
         try {
             /*
-             * The condition must evaluate to a boolean value, so we call the boolean-specialized
-             * execute method.
+             * The condition must evaluate to a boolean value, so we call the
+             * boolean-specialized execute method.
              */
             return conditionNode.executeBoolean(frame);
         } catch (UnexpectedResultException ex) {
             /*
-             * The condition evaluated to a non-boolean result. This is a type error in the tcl
-             * program.
+             * The condition evaluated to a non-boolean result. This is a type error in the
+             * tcl program.
              */
             throw TclException.typeError(this, ex.getResult());
         }

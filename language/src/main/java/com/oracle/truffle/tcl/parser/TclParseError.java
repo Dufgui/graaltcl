@@ -42,9 +42,9 @@
 package com.oracle.truffle.tcl.parser;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.exception.AbstractTruffleException;
 import com.oracle.truffle.api.interop.ExceptionType;
 import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.exception.AbstractTruffleException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
@@ -70,8 +70,8 @@ public class TclParseError extends AbstractTruffleException {
 
     /**
      * Note that any subclass of {@link AbstractTruffleException} must always return
-     * <code>true</code> for {@link InteropLibrary#isException(Object)}. That is why it is correct
-     * to export {@link #getExceptionType()} without implementing
+     * <code>true</code> for {@link InteropLibrary#isException(Object)}. That is why
+     * it is correct to export {@link #getExceptionType()} without implementing
      * {@link InteropLibrary#isException(Object)}.
      */
     @ExportMessage

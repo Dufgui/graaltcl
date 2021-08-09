@@ -61,9 +61,10 @@ import com.oracle.truffle.tcl.nodes.local.TclReadArgumentNode;
 import com.oracle.truffle.tcl.nodes.local.TclWriteLocalVariableNode;
 
 /**
- * The root of all tcl execution trees. It is a Truffle requirement that the tree root extends the
- * class {@link RootNode}. This class is used for both builtin and user-defined functions. For
- * builtin functions, the {@link #bodyNode} is a subclass of {@link TclBuiltinNode}. For user-defined
+ * The root of all tcl execution trees. It is a Truffle requirement that the
+ * tree root extends the class {@link RootNode}. This class is used for both
+ * builtin and user-defined functions. For builtin functions, the
+ * {@link #bodyNode} is a subclass of {@link TclBuiltinNode}. For user-defined
  * functions, the {@link #bodyNode} is a {@link TclFunctionBodyNode}.
  */
 @NodeInfo(language = "tcl", description = "The root of all tcl execution trees")
@@ -141,7 +142,8 @@ public class TclRootNode extends RootNode {
 
             @Override
             public boolean visit(Node node) {
-                // When there is a write node, search for TclReadArgumentNode among its children:
+                // When there is a write node, search for TclReadArgumentNode among its
+                // children:
                 if (node instanceof InstrumentableNode.WrapperNode) {
                     return NodeUtil.forEachChild(node, this);
                 }

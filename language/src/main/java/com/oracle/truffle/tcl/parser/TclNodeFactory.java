@@ -46,8 +46,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.oracle.truffle.tcl.nodes.expression.TclBooleanLiteralNode;
-import com.oracle.truffle.tcl.nodes.expression.TclModuloNodeGen;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
 
@@ -71,6 +69,7 @@ import com.oracle.truffle.tcl.nodes.controlflow.TclReturnNode;
 import com.oracle.truffle.tcl.nodes.controlflow.TclWhileNode;
 import com.oracle.truffle.tcl.nodes.expression.TclAddNodeGen;
 import com.oracle.truffle.tcl.nodes.expression.TclBigIntegerLiteralNode;
+import com.oracle.truffle.tcl.nodes.expression.TclBooleanLiteralNode;
 import com.oracle.truffle.tcl.nodes.expression.TclDivNodeGen;
 import com.oracle.truffle.tcl.nodes.expression.TclDoubleLiteralNode;
 import com.oracle.truffle.tcl.nodes.expression.TclEqualNodeGen;
@@ -82,6 +81,7 @@ import com.oracle.truffle.tcl.nodes.expression.TclLogicalAndNode;
 import com.oracle.truffle.tcl.nodes.expression.TclLogicalNotNodeGen;
 import com.oracle.truffle.tcl.nodes.expression.TclLogicalOrNode;
 import com.oracle.truffle.tcl.nodes.expression.TclLongLiteralNode;
+import com.oracle.truffle.tcl.nodes.expression.TclModuloNodeGen;
 import com.oracle.truffle.tcl.nodes.expression.TclMulNodeGen;
 import com.oracle.truffle.tcl.nodes.expression.TclParenExpressionNode;
 import com.oracle.truffle.tcl.nodes.expression.TclReadPropertyNode;

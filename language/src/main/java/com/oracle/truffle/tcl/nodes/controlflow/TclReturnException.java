@@ -43,9 +43,9 @@ package com.oracle.truffle.tcl.nodes.controlflow;
 import com.oracle.truffle.api.nodes.ControlFlowException;
 
 /**
- * Exception thrown by the {@link TclReturnNode return statement} and caught by the
- * {@link TclFunctionBodyNode function body}. The exception transports the return value in its
- * {@link #result} field.
+ * Exception thrown by the {@link TclReturnNode return statement} and caught by
+ * the {@link TclFunctionBodyNode function body}. The exception transports the
+ * return value in its {@link #result} field.
  */
 public final class TclReturnException extends ControlFlowException {
 

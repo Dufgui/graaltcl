@@ -49,9 +49,9 @@ import com.oracle.truffle.tcl.nodes.TclBinaryNode;
 import com.oracle.truffle.tcl.runtime.TclBigNumber;
 
 /**
- * This class is similar to the extensively documented {@link TclAddNode}. Divisions by 0 throw the
- * same {@link ArithmeticException exception} as in Java, tcl has no special handling for it to keep
- * the code simple.
+ * This class is similar to the extensively documented {@link TclAddNode}.
+ * Divisions by 0 throw the same {@link ArithmeticException exception} as in
+ * Java, tcl has no special handling for it to keep the code simple.
  */
 @NodeInfo(shortName = "%")
 public abstract class TclModuloNode extends TclBinaryNode {

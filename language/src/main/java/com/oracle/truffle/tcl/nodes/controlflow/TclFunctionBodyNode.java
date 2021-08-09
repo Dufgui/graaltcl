@@ -49,11 +49,12 @@ import com.oracle.truffle.tcl.nodes.TclStatementNode;
 import com.oracle.truffle.tcl.runtime.TclNull;
 
 /**
- * The body of a user-defined tcl function. This is the node referenced by a {@link TclRootNode} for
- * user-defined functions. It handles the return value of a function: the {@link TclReturnNode return
- * statement} throws an {@link TclReturnException exception} with the return value. This node catches
- * the exception. If the method ends without an explicit {@code return}, return the
- * {@link TclNull#SINGLETON default null value}.
+ * The body of a user-defined tcl function. This is the node referenced by a
+ * {@link TclRootNode} for user-defined functions. It handles the return value
+ * of a function: the {@link TclReturnNode return statement} throws an
+ * {@link TclReturnException exception} with the return value. This node catches
+ * the exception. If the method ends without an explicit {@code return}, return
+ * the {@link TclNull#SINGLETON default null value}.
  */
 @NodeInfo(shortName = "body")
 public final class TclFunctionBodyNode extends TclExpressionNode {
@@ -63,9 +64,9 @@ public final class TclFunctionBodyNode extends TclExpressionNode {
     private TclStatementNode bodyNode;
 
     /**
-     * Profiling information, collected by the interpreter, capturing whether the function had an
-     * {@link TclReturnNode explicit return statement}. This allows the compiler to generate better
-     * code.
+     * Profiling information, collected by the interpreter, capturing whether the
+     * function had an {@link TclReturnNode explicit return statement}. This allows
+     * the compiler to generate better code.
      */
     private final BranchProfile exceptionTaken = BranchProfile.create();
     private final BranchProfile nullTaken = BranchProfile.create();
@@ -83,8 +84,8 @@ public final class TclFunctionBodyNode extends TclExpressionNode {
 
         } catch (TclReturnException ex) {
             /*
-             * In the interpreter, record profiling information that the function has an explicit
-             * return.
+             * In the interpreter, record profiling information that the function has an
+             * explicit return.
              */
             exceptionTaken.enter();
             /* The exception transports the actual return value. */
@@ -92,8 +93,8 @@ public final class TclFunctionBodyNode extends TclExpressionNode {
         }
 
         /*
-         * In the interpreter, record profiling information that the function ends without an
-         * explicit return.
+         * In the interpreter, record profiling information that the function ends
+         * without an explicit return.
          */
         nullTaken.enter();
         /* Return the default null value. */

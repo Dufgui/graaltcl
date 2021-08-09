@@ -53,9 +53,9 @@ import com.oracle.truffle.api.source.SourceSection;
 import com.oracle.truffle.tcl.runtime.TclLanguageView;
 
 /**
- * tcl does not need a sophisticated error checking and reporting mechanism, so all unexpected
- * conditions just abort execution. This exception class is used when we abort from within the tcl
- * implementation.
+ * tcl does not need a sophisticated error checking and reporting mechanism, so
+ * all unexpected conditions just abort execution. This exception class is used
+ * when we abort from within the tcl implementation.
  */
 @ExportLibrary(InteropLibrary.class)
 public class TclException extends AbstractTruffleException {
@@ -69,8 +69,8 @@ public class TclException extends AbstractTruffleException {
     }
 
     /**
-     * Provides a user-readable message for run-time type errors. tcl is strongly typed, i.e., there
-     * are no automatic type conversions of values.
+     * Provides a user-readable message for run-time type errors. tcl is strongly
+     * typed, i.e., there are no automatic type conversions of values.
      */
     @TruffleBoundary
     public static TclException typeError(Node operation, Object... values) {
@@ -98,12 +98,12 @@ public class TclException extends AbstractTruffleException {
         String sep = " ";
         for (int i = 0; i < values.length; i++) {
             /*
-             * For primitive or foreign values we request a language view so the values are printed
-             * from the perspective of simple language and not another language. Since this is a
-             * rather rarely invoked exceptional method, we can just create the language view for
-             * primitive values and then conveniently request the meta-object and display strings.
-             * Using the language view for core builtins like the typeOf builtin might not be a good
-             * idea for performance reasons.
+             * For primitive or foreign values we request a language view so the values are
+             * printed from the perspective of simple language and not another language.
+             * Since this is a rather rarely invoked exceptional method, we can just create
+             * the language view for primitive values and then conveniently request the
+             * meta-object and display strings. Using the language view for core builtins
+             * like the typeOf builtin might not be a good idea for performance reasons.
              */
             Object value = TclLanguageView.forValue(values[i]);
             result.append(sep);

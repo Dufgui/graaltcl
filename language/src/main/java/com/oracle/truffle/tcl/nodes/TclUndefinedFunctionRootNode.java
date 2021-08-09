@@ -47,8 +47,8 @@ import com.oracle.truffle.tcl.runtime.TclFunction;
 import com.oracle.truffle.tcl.runtime.TclUndefinedNameException;
 
 /**
- * The initial {@link RootNode} of {@link TclFunction functions} when they are created, i.e., when
- * they are still undefined. Executing it throws an
+ * The initial {@link RootNode} of {@link TclFunction functions} when they are
+ * created, i.e., when they are still undefined. Executing it throws an
  * {@link TclUndefinedNameException#undefinedFunction exception}.
  */
 public class TclUndefinedFunctionRootNode extends TclRootNode {

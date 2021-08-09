@@ -48,7 +48,6 @@ import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.tcl.TclLanguage;
 import com.oracle.truffle.tcl.runtime.TclContext;
-import com.oracle.truffle.tcl.runtime.TclLanguageView;
 
 /**
  * Builtin function to evaluate an expression.
@@ -60,7 +59,7 @@ public abstract class TclExprBuiltin extends TclBuiltinNode {
     @TruffleBoundary
     public Object expr(Object value, @CachedLibrary(limit = "3") InteropLibrary interop,
             @CachedContext(TclLanguage.class) TclContext context) {
-        //nothing to do it's already done by grammar
+        // nothing to do it's already done by grammar
         return value;
     }
 

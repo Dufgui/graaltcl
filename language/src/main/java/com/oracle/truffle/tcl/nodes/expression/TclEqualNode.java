@@ -55,11 +55,11 @@ import com.oracle.truffle.tcl.runtime.TclNull;
 
 /**
  * The {@code ==} operator of tcl is defined on all types. Therefore, we need a
- * {@link #equal(Object, Object) implementation} that can handle all possible types including
- * interop types.
+ * {@link #equal(Object, Object) implementation} that can handle all possible
+ * types including interop types.
  * <p>
- * Note that we do not need the analogous {@code !=} operator, because we can just
- * {@link TclLogicalNotNode negate} the {@code ==} operator.
+ * Note that we do not need the analogous {@code !=} operator, because we can
+ * just {@link TclLogicalNotNode negate} the {@code ==} operator.
  */
 @NodeInfo(shortName = "==")
 public abstract class TclEqualNode extends TclBinaryNode {
@@ -87,43 +87,49 @@ public abstract class TclEqualNode extends TclBinaryNode {
 
     @Specialization
     protected boolean doNull(TclNull left, TclNull right) {
-        /* There is only the singleton instance of TclNull, so we do not need equals(). */
+        /*
+         * There is only the singleton instance of TclNull, so we do not need equals().
+         */
         return left == right;
     }
 
     @Specialization
     protected boolean doFunction(TclFunction left, Object right) {
         /*
-         * Our function registry maintains one canonical TclFunction object per function name, so we
-         * do not need equals().
+         * Our function registry maintains one canonical TclFunction object per function
+         * name, so we do not need equals().
          */
         return left == right;
     }
 
     /*
-     * This is a generic specialization of equality operation. Since it is generic this
-     * specialization covers the entire semantics. One can see this by having no method guards set
-     * and the types for the left and right value are Object. The previous specializations are only
-     * here for interpreter performance and footprint reasons. They could be removed and this
-     * operation be semantically equivalent.
+     * This is a generic specialization of equality operation. Since it is generic
+     * this specialization covers the entire semantics. One can see this by having
+     * no method guards set and the types for the left and right value are Object.
+     * The previous specializations are only here for interpreter performance and
+     * footprint reasons. They could be removed and this operation be semantically
+     * equivalent.
      *
-     * We cache four combinations of interop values until we fallback to the uncached version of
-     * this specialization. This limit is set arbitrary and for a real language should be set to the
-     * minimal possible value, for a set of given benchmarks.
+     * We cache four combinations of interop values until we fallback to the
+     * uncached version of this specialization. This limit is set arbitrary and for
+     * a real language should be set to the minimal possible value, for a set of
+     * given benchmarks.
      *
-     * This specialization is generic and handles all the cases, but in this case we decided to not
-     * replace the previous specializations, as they are still more efficient in the interpeter.
+     * This specialization is generic and handles all the cases, but in this case we
+     * decided to not replace the previous specializations, as they are still more
+     * efficient in the interpeter.
      */
     @Specialization(limit = "4")
     public boolean doGeneric(Object left, Object right, @CachedLibrary("left") InteropLibrary leftInterop,
             @CachedLibrary("right") InteropLibrary rightInterop) {
         /*
-         * This method looks very inefficient. In practice most of these branches fold as the
-         * interop type checks typically return a constant when using a cached library.
+         * This method looks very inefficient. In practice most of these branches fold
+         * as the interop type checks typically return a constant when using a cached
+         * library.
          *
-         * Exercise: Try looking at what happens to this method during partial evaluation in IGV.
-         * Tip: comment out all the previous @Specialization annotations to make it easier to
-         * activate this specialization.
+         * Exercise: Try looking at what happens to this method during partial
+         * evaluation in IGV. Tip: comment out all the previous @Specialization
+         * annotations to make it easier to activate this specialization.
          */
         try {
             if (leftInterop.isBoolean(left) && rightInterop.isBoolean(right)) {
@@ -140,8 +146,8 @@ public abstract class TclEqualNode extends TclBinaryNode {
                 return leftInterop.isIdentical(left, right, rightInterop);
             } else {
                 /*
-                 * We return false in good dynamic language manner. Stricter languages might throw
-                 * an error here.
+                 * We return false in good dynamic language manner. Stricter languages might
+                 * throw an error here.
                  */
                 return false;
             }

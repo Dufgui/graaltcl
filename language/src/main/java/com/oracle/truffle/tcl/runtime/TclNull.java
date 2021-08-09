@@ -49,12 +49,13 @@ import com.oracle.truffle.api.utilities.TriState;
 import com.oracle.truffle.tcl.TclLanguage;
 
 /**
- * The tcl type for a {@code null} (i.e., undefined) value. In Truffle, it is generally discouraged
- * to use the Java {@code null} value to represent the guest language {@code null} value. It is not
- * possible to specialize on Java {@code null} (since you cannot ask it for the Java class), and
- * there is always the danger of a spurious {@link NullPointerException}. Representing the guest
- * language {@code null} as a singleton, as in {@link #SINGLETON this class}, is the recommended
- * practice.
+ * The tcl type for a {@code null} (i.e., undefined) value. In Truffle, it is
+ * generally discouraged to use the Java {@code null} value to represent the
+ * guest language {@code null} value. It is not possible to specialize on Java
+ * {@code null} (since you cannot ask it for the Java class), and there is
+ * always the danger of a spurious {@link NullPointerException}. Representing
+ * the guest language {@code null} as a singleton, as in {@link #SINGLETON this
+ * class}, is the recommended practice.
  */
 @ExportLibrary(InteropLibrary.class)
 @SuppressWarnings("static-method")
@@ -67,15 +68,15 @@ public final class TclNull implements TruffleObject {
     private static final int IDENTITY_HASH = System.identityHashCode(SINGLETON);
 
     /**
-     * Disallow instantiation from outside to ensure that the {@link #SINGLETON} is the only
-     * instance.
+     * Disallow instantiation from outside to ensure that the {@link #SINGLETON} is
+     * the only instance.
      */
     private TclNull() {
     }
 
     /**
-     * This method is, e.g., called when using the {@code null} value in a string concatenation. So
-     * changing it has an effect on tcl programs.
+     * This method is, e.g., called when using the {@code null} value in a string
+     * concatenation. So changing it has an effect on tcl programs.
      */
     @Override
     public String toString() {
@@ -121,7 +122,8 @@ public final class TclNull implements TruffleObject {
     @ExportMessage
     static int identityHashCode(@SuppressWarnings("unused") TclNull receiver) {
         /*
-         * We do not use 0, as we want consistency with System.identityHashCode(receiver).
+         * We do not use 0, as we want consistency with
+         * System.identityHashCode(receiver).
          */
         return IDENTITY_HASH;
     }

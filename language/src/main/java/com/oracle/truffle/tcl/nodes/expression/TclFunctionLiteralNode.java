@@ -55,10 +55,11 @@ import com.oracle.truffle.tcl.runtime.TclFunction;
 import com.oracle.truffle.tcl.runtime.TclFunctionRegistry;
 
 /**
- * Constant literal for a {@link TclFunction function} value, created when a function name occurs as
- * a literal in tcl source code. Note that function redefinition can change the {@link CallTarget
- * call target} that is executed when calling the function, but the {@link TclFunction} for a name
- * never changes. This is guaranteed by the {@link TclFunctionRegistry}.
+ * Constant literal for a {@link TclFunction function} value, created when a
+ * function name occurs as a literal in tcl source code. Note that function
+ * redefinition can change the {@link CallTarget call target} that is executed
+ * when calling the function, but the {@link TclFunction} for a name never
+ * changes. This is guaranteed by the {@link TclFunctionRegistry}.
  */
 @NodeInfo(shortName = "func")
 public final class TclFunctionLiteralNode extends TclExpressionNode {
@@ -67,18 +68,19 @@ public final class TclFunctionLiteralNode extends TclExpressionNode {
     private final String functionName;
 
     /**
-     * The resolved function. During parsing (in the constructor of this node), we do not have the
-     * {@link TclContext} available yet, so the lookup can only be done at {@link #executeGeneric
-     * first execution}. The {@link CompilationFinal} annotation ensures that the function can still
-     * be constant folded during compilation.
+     * The resolved function. During parsing (in the constructor of this node), we
+     * do not have the {@link TclContext} available yet, so the lookup can only be
+     * done at {@link #executeGeneric first execution}. The {@link CompilationFinal}
+     * annotation ensures that the function can still be constant folded during
+     * compilation.
      */
     @CompilationFinal
     private TclFunction cachedFunction;
 
     /**
-     * The stored context reference. Caching the context reference in a field like this always
-     * ensures the most efficient context lookup. The {@link TclContext} must not be stored in the
-     * AST in the multi-context case.
+     * The stored context reference. Caching the context reference in a field like
+     * this always ensures the most efficient context lookup. The {@link TclContext}
+     * must not be stored in the AST in the multi-context case.
      */
     @CompilationFinal
     private ContextReference<TclContext> contextRef;
@@ -127,7 +129,8 @@ public final class TclFunctionLiteralNode extends TclExpressionNode {
                 this.cachedFunction = null;
             }
             // in the multi-context case we are not allowed to store
-            // TclFunction objects in the AST. Instead we always perform the lookup in the hash map.
+            // TclFunction objects in the AST. Instead we always perform the lookup in the
+            // hash map.
             function = contextReference.get().getFunctionRegistry().lookup(functionName, true);
         }
         return function;

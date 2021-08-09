@@ -43,13 +43,13 @@ package com.oracle.truffle.tcl.nodes.controlflow;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.tcl.nodes.TclExpressionNode;
-import com.oracle.truffle.tcl.nodes.TclStatementNode;
 
 /**
- * Implementation of the tcl break statement. We need to unwind an unknown number of interpreter
- * frames that are between this {@link TclBreakNode} and the {@link TclWhileNode} of the loop we are
- * breaking out. This is done by throwing an {@link TclBreakException exception} that is caught by
- * the {@link TclWhileNode#executeVoid loop node}.
+ * Implementation of the tcl break statement. We need to unwind an unknown
+ * number of interpreter frames that are between this {@link TclBreakNode} and
+ * the {@link TclWhileNode} of the loop we are breaking out. This is done by
+ * throwing an {@link TclBreakException exception} that is caught by the
+ * {@link TclWhileNode#executeVoid loop node}.
  */
 @NodeInfo(shortName = "break", description = "The node implementing a break statement")
 public final class TclBreakNode extends TclExpressionNode {

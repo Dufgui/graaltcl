@@ -52,19 +52,20 @@ import com.oracle.truffle.tcl.runtime.TclBigNumber;
 import com.oracle.truffle.tcl.runtime.TclNull;
 
 /**
- * The type system of tcl, as explained in {@link TclLanguage}. Based on the {@link TypeSystem}
- * annotation, the Truffle DSL generates the subclass {@link TclTypesGen} with type test and type
- * conversion methods for some types. In this class, we only cover types where the automatically
- * generated ones would not be sufficient.
+ * The type system of tcl, as explained in {@link TclLanguage}. Based on the
+ * {@link TypeSystem} annotation, the Truffle DSL generates the subclass
+ * {@link TclTypesGen} with type test and type conversion methods for some
+ * types. In this class, we only cover types where the automatically generated
+ * ones would not be sufficient.
  */
 @TypeSystem({ long.class, boolean.class, double.class })
 public abstract class TclTypes {
 
     /**
-     * Example of a manually specified type check that replaces the automatically generated type
-     * check that the Truffle DSL would generate. For {@link TclNull}, we do not need an
-     * {@code instanceof} check, because we know that there is only a {@link TclNull#SINGLETON
-     * singleton} instance.
+     * Example of a manually specified type check that replaces the automatically
+     * generated type check that the Truffle DSL would generate. For
+     * {@link TclNull}, we do not need an {@code instanceof} check, because we know
+     * that there is only a {@link TclNull#SINGLETON singleton} instance.
      */
     @TypeCheck(TclNull.class)
     public static boolean isTclNull(Object value) {
@@ -72,9 +73,10 @@ public abstract class TclTypes {
     }
 
     /**
-     * Example of a manually specified type cast that replaces the automatically generated type cast
-     * that the Truffle DSL would generate. For {@link TclNull}, we do not need an actual cast,
-     * because we know that there is only a {@link TclNull#SINGLETON singleton} instance.
+     * Example of a manually specified type cast that replaces the automatically
+     * generated type cast that the Truffle DSL would generate. For {@link TclNull},
+     * we do not need an actual cast, because we know that there is only a
+     * {@link TclNull#SINGLETON singleton} instance.
      */
     @TypeCast(TclNull.class)
     public static TclNull asTclNull(Object value) {
@@ -83,11 +85,12 @@ public abstract class TclTypes {
     }
 
     /**
-     * Informs the Truffle DSL that a primitive {@code long} value can be used in all
-     * specializations where a {@link TclBigNumber} is expected. This models the semantic of tcl: It
-     * only has an arbitrary precision Number type (implemented as {@link TclBigNumber}, and
-     * {@code long} is only used as a performance optimization to avoid the costly
-     * {@link TclBigNumber} arithmetic for values that fit into a 64-bit primitive value.
+     * Informs the Truffle DSL that a primitive {@code long} value can be used in
+     * all specializations where a {@link TclBigNumber} is expected. This models the
+     * semantic of tcl: It only has an arbitrary precision Number type (implemented
+     * as {@link TclBigNumber}, and {@code long} is only used as a performance
+     * optimization to avoid the costly {@link TclBigNumber} arithmetic for values
+     * that fit into a 64-bit primitive value.
      */
     @ImplicitCast
     @TruffleBoundary

@@ -58,11 +58,11 @@ import com.oracle.truffle.tcl.runtime.TclNull;
  * This class performs two additional tasks:
  *
  * <ul>
- * <li>Lazily registration of functions on first execution. This fulfills the semantics of
- * "evaluating" source code in tcl.</li>
- * <li>Conversion of arguments to types understood by tcl. The tcl source code can be evaluated from a
- * different language, i.e., the caller can be a node from a different language that uses types not
- * understood by tcl.</li>
+ * <li>Lazily registration of functions on first execution. This fulfills the
+ * semantics of "evaluating" source code in tcl.</li>
+ * <li>Conversion of arguments to types understood by tcl. The tcl source code
+ * can be evaluated from a different language, i.e., the caller can be a node
+ * from a different language that uses types not understood by tcl.</li>
  * </ul>
  */
 public final class TclEvalRootNode extends RootNode {
@@ -106,9 +106,9 @@ public final class TclEvalRootNode extends RootNode {
     public Object execute(VirtualFrame frame) {
         if (language.isSingleContext()) {
             /*
-             * Lazy registrations of functions on first execution. This optimization only works in
-             * the single context case. Otherwise function registration needs to be repeated for
-             * every context on first execute.
+             * Lazy registrations of functions on first execution. This optimization only
+             * works in the single context case. Otherwise function registration needs to be
+             * repeated for every context on first execute.
              */
             if (!registered) {
                 /* Function registration is a slow-path operation that must not be compiled. */
@@ -118,10 +118,11 @@ public final class TclEvalRootNode extends RootNode {
             }
         } else {
             /*
-             * In the multi context case we always want to ensure that functions are registered. The
-             * multi-context case is initialized with TclLanguage#initializeMultipleContexts. That
-             * typically happens when a polyglot Context was created with an explicit Engine or if
-             * an internal context was created. See Context.Builder#engine for details.
+             * In the multi context case we always want to ensure that functions are
+             * registered. The multi-context case is initialized with
+             * TclLanguage#initializeMultipleContexts. That typically happens when a
+             * polyglot Context was created with an explicit Engine or if an internal
+             * context was created. See Context.Builder#engine for details.
              */
             registerFunctions();
         }

@@ -52,7 +52,8 @@ import com.oracle.truffle.tcl.TclLanguage;
 import com.oracle.truffle.tcl.runtime.TclContext;
 
 /**
- * Builtin function that reads a String from the {@link TclContext#getInput() standard input}.
+ * Builtin function that reads a String from the {@link TclContext#getInput()
+ * standard input}.
  */
 @NodeInfo(shortName = "gets")
 public abstract class TclGetsBuiltin extends TclBuiltinNode {
@@ -62,9 +63,10 @@ public abstract class TclGetsBuiltin extends TclBuiltinNode {
         String result = doRead(context.getInput());
         if (result == null) {
             /*
-             * We do not have a sophisticated end of file handling, so returning an empty string is
-             * a reasonable alternative. Note that the Java null value should never be used, since
-             * it can interfere with the specialization logic in generated source code.
+             * We do not have a sophisticated end of file handling, so returning an empty
+             * string is a reasonable alternative. Note that the Java null value should
+             * never be used, since it can interfere with the specialization logic in
+             * generated source code.
              */
             result = "";
         }

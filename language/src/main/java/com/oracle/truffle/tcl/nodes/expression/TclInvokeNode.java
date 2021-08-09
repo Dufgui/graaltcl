@@ -55,10 +55,11 @@ import com.oracle.truffle.tcl.runtime.TclFunction;
 import com.oracle.truffle.tcl.runtime.TclUndefinedNameException;
 
 /**
- * The node for function invocation in tcl. Since tcl has first class functions, the {@link TclFunction
- * target function} can be computed by an arbitrary expression. This node is responsible for
- * evaluating this expression, as well as evaluating the {@link #argumentNodes arguments}. The
- * actual invocation is delegated to a {@link InteropLibrary} instance.
+ * The node for function invocation in tcl. Since tcl has first class functions,
+ * the {@link TclFunction target function} can be computed by an arbitrary
+ * expression. This node is responsible for evaluating this expression, as well
+ * as evaluating the {@link #argumentNodes arguments}. The actual invocation is
+ * delegated to a {@link InteropLibrary} instance.
  *
  * @see InteropLibrary#execute(Object, Object...)
  */
@@ -84,10 +85,10 @@ public final class TclInvokeNode extends TclExpressionNode {
         Object function = functionNode.executeGeneric(frame);
 
         /*
-         * The number of arguments is constant for one invoke node. During compilation, the loop is
-         * unrolled and the execute methods of all arguments are inlined. This is triggered by the
-         * ExplodeLoop annotation on the method. The compiler assertion below illustrates that the
-         * array length is really constant.
+         * The number of arguments is constant for one invoke node. During compilation,
+         * the loop is unrolled and the execute methods of all arguments are inlined.
+         * This is triggered by the ExplodeLoop annotation on the method. The compiler
+         * assertion below illustrates that the array length is really constant.
          */
         CompilerAsserts.compilationConstant(argumentNodes.length);
 
