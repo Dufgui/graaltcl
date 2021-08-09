@@ -205,9 +205,8 @@ term returns [TclExpressionNode result]
 :
 (
     '$' var=(IDENTIFIER|INTEGER_LITERAL)                              { TclExpressionNode assignmentName = factory.createStringLiteral($var, false);
-                                                    TclExpressionNode assignmentCommandName = factory.createRead(assignmentName);
                                                 }
-    command_parameters[$var, assignmentCommandName] { $result = $member_expression.result; }
+    command_parameters[$var, assignmentName] { $result = $command_parameters.result; }
 |
     '$' var=(IDENTIFIER|INTEGER_LITERAL)                              { TclExpressionNode assignmentName = factory.createStringLiteral($var, false);
                                                     $result = factory.createRead(assignmentName);
