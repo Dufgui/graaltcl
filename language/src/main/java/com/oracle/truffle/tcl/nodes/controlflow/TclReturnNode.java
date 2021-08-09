@@ -56,7 +56,8 @@ import com.oracle.truffle.tcl.runtime.TclNull;
 @NodeInfo(shortName = "return", description = "The node implementing a return statement")
 public final class TclReturnNode extends TclExpressionNode {
 
-    @Child private TclExpressionNode valueNode;
+    @Child
+    private TclExpressionNode valueNode;
 
     public TclReturnNode(TclExpressionNode valueNode) {
         this.valueNode = valueNode;

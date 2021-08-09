@@ -76,18 +76,21 @@ public final class TclBlockNode extends TclExpressionNode implements BlockNode.E
      * Truffle from compiling big methods, so these methods might fail to compile with a compilation
      * bailout.
      */
-    @Child private BlockNode<TclStatementNode> block;
+    @Child
+    private BlockNode<TclStatementNode> block;
 
     /**
      * All declared variables visible from this block (including all parent blocks). Variables
      * declared in this block only are from zero index up to {@link #parentBlockIndex} (exclusive).
      */
-    @CompilationFinal(dimensions = 1) private TclWriteLocalVariableNode[] writeNodesCache;
+    @CompilationFinal(dimensions = 1)
+    private TclWriteLocalVariableNode[] writeNodesCache;
 
     /**
      * Index of the parent block's variables in the {@link #writeNodesCache list of variables}.
      */
-    @CompilationFinal private int parentBlockIndex = -1;
+    @CompilationFinal
+    private int parentBlockIndex = -1;
 
     public TclBlockNode(TclStatementNode[] bodyNodes) {
         /*
@@ -150,11 +153,11 @@ public final class TclBlockNode extends TclExpressionNode implements BlockNode.E
 
     private TclWriteLocalVariableNode[] findDeclaredLocalVariables() {
         if (block == null) {
-            return new TclWriteLocalVariableNode[]{};
+            return new TclWriteLocalVariableNode[] {};
         }
         // Search for those write nodes, which declare variables
         List<TclWriteLocalVariableNode> writeNodes = new ArrayList<>(4);
-        int[] varsIndex = new int[]{0};
+        int[] varsIndex = new int[] { 0 };
         NodeUtil.forEachChild(block, new NodeVisitor() {
             @Override
             public boolean visit(Node node) {
@@ -200,7 +203,8 @@ public final class TclBlockNode extends TclExpressionNode implements BlockNode.E
             int allVarsLength = variables.length + visibleVarsIndex + parentVariables.length - parentVariablesIndex;
             TclWriteLocalVariableNode[] allVariables = Arrays.copyOf(variables, allVarsLength);
             System.arraycopy(parentVariables, 0, allVariables, variables.length, visibleVarsIndex);
-            System.arraycopy(parentVariables, parentVariablesIndex, allVariables, variables.length + visibleVarsIndex, parentVariables.length - parentVariablesIndex);
+            System.arraycopy(parentVariables, parentVariablesIndex, allVariables, variables.length + visibleVarsIndex,
+                    parentVariables.length - parentVariablesIndex);
             return allVariables;
         }
     }

@@ -52,11 +52,10 @@ import com.oracle.truffle.tcl.nodes.TclStatementNode;
  * by the {@link TclWhileNode#executeVoid loop node}.
  */
 @NodeInfo(shortName = "continue", description = "The node implementing a continue statement")
-public final class TclContinueNode extends TclExpressionNode
-{
+public final class TclContinueNode extends TclExpressionNode {
 
     @Override
-    public Object executeGeneric( VirtualFrame frame ) {
+    public Object executeGeneric(VirtualFrame frame) {
         throw TclContinueException.SINGLETON;
     }
 }

@@ -191,8 +191,9 @@ import com.oracle.truffle.tcl.runtime.TclObject;
  * </ul>
  */
 @TruffleLanguage.Registration(id = TclLanguage.ID, name = "Tcl", defaultMimeType = TclLanguage.MIME_TYPE, characterMimeTypes = TclLanguage.MIME_TYPE, contextPolicy = ContextPolicy.SHARED, fileTypeDetectors = TclFileDetector.class)
-@ProvidedTags({StandardTags.CallTag.class, StandardTags.StatementTag.class, StandardTags.RootTag.class, StandardTags.RootBodyTag.class, StandardTags.ExpressionTag.class, DebuggerTags.AlwaysHalt.class,
-                StandardTags.ReadVariableTag.class, StandardTags.WriteVariableTag.class})
+@ProvidedTags({ StandardTags.CallTag.class, StandardTags.StatementTag.class, StandardTags.RootTag.class,
+        StandardTags.RootBodyTag.class, StandardTags.ExpressionTag.class, DebuggerTags.AlwaysHalt.class,
+        StandardTags.ReadVariableTag.class, StandardTags.WriteVariableTag.class })
 public final class TclLanguage extends TruffleLanguage<TclContext> {
     public static volatile int counter;
 
@@ -259,7 +260,8 @@ public final class TclLanguage extends TruffleLanguage<TclContext> {
         builtinBodyNode.setUnavailableSourceSection();
 
         /* Wrap the builtin in a RootNode. Truffle requires all AST to start with a RootNode. */
-        TclRootNode rootNode = new TclRootNode(this, new FrameDescriptor(), builtinBodyNode, BUILTIN_SOURCE.createUnavailableSection(), name);
+        TclRootNode rootNode = new TclRootNode(this, new FrameDescriptor(), builtinBodyNode,
+                BUILTIN_SOURCE.createUnavailableSection(), name);
 
         /*
          * Register the builtin function in the builtin registry. Call targets for builtins may be
@@ -297,18 +299,18 @@ public final class TclLanguage extends TruffleLanguage<TclContext> {
             functions = TclParser.parseTcl(this, source);
         } else {
             StringBuilder sb = new StringBuilder();
-            sb.append("set argc ").append( request.getArgumentNames().size() ).append("\n");
+            sb.append("set argc ").append(request.getArgumentNames().size()).append("\n");
             sb.append("set argv [list");
             for (String argumentName : request.getArgumentNames()) {
                 sb.append(" \"").append(argumentName).append('"');
             }
-            sb.append( "]\n" );
+            sb.append("]\n");
             String language = source.getLanguage() == null ? ID : source.getLanguage();
             Source decoratedSource = Source.newBuilder(language, sb.toString(), source.getName()).build();
             functions = TclParser.parseTcl(this, decoratedSource);
         }
 
-        RootCallTarget main = functions.get(source.getName()+"...");
+        RootCallTarget main = functions.get(source.getName() + "...");
         RootNode evalMain;
         if (main != null) {
             /*
@@ -398,7 +400,8 @@ public final class TclLanguage extends TruffleLanguage<TclContext> {
         return getCurrentContext(TclLanguage.class);
     }
 
-    private static final List<NodeFactory<? extends TclBuiltinNode>> EXTERNAL_BUILTINS = Collections.synchronizedList(new ArrayList<>());
+    private static final List<NodeFactory<? extends TclBuiltinNode>> EXTERNAL_BUILTINS = Collections
+            .synchronizedList(new ArrayList<>());
 
     public static void installBuiltin(NodeFactory<? extends TclBuiltinNode> builtin) {
         EXTERNAL_BUILTINS.add(builtin);

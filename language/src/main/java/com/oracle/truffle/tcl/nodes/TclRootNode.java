@@ -69,7 +69,8 @@ import com.oracle.truffle.tcl.nodes.local.TclWriteLocalVariableNode;
 @NodeInfo(language = "tcl", description = "The root of all tcl execution trees")
 public class TclRootNode extends RootNode {
     /** The function body that is executed, and specialized during execution. */
-    @Child private TclExpressionNode bodyNode;
+    @Child
+    private TclExpressionNode bodyNode;
 
     /** The name of the function, for printing purposes only. */
     private final String name;
@@ -78,9 +79,11 @@ public class TclRootNode extends RootNode {
 
     private final SourceSection sourceSection;
 
-    @CompilerDirectives.CompilationFinal(dimensions = 1) private volatile TclWriteLocalVariableNode[] argumentNodesCache;
+    @CompilerDirectives.CompilationFinal(dimensions = 1)
+    private volatile TclWriteLocalVariableNode[] argumentNodesCache;
 
-    public TclRootNode(TclLanguage language, FrameDescriptor frameDescriptor, TclExpressionNode bodyNode, SourceSection sourceSection, String name) {
+    public TclRootNode(TclLanguage language, FrameDescriptor frameDescriptor, TclExpressionNode bodyNode,
+            SourceSection sourceSection, String name) {
         super(language, frameDescriptor);
         this.bodyNode = bodyNode;
         this.name = name;
@@ -150,7 +153,8 @@ public class TclRootNode extends RootNode {
                 } else if (wn != null && (node instanceof TclReadArgumentNode)) {
                     writeArgNodes.add(wn);
                     return true;
-                } else if (wn == null && (node instanceof TclStatementNode && !(node instanceof TclBlockNode || node instanceof TclFunctionBodyNode))) {
+                } else if (wn == null && (node instanceof TclStatementNode
+                        && !(node instanceof TclBlockNode || node instanceof TclFunctionBodyNode))) {
                     // A different tcl node - we're done.
                     return false;
                 } else {

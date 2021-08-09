@@ -115,9 +115,8 @@ public abstract class TclEqualNode extends TclBinaryNode {
      * replace the previous specializations, as they are still more efficient in the interpeter.
      */
     @Specialization(limit = "4")
-    public boolean doGeneric(Object left, Object right,
-                    @CachedLibrary("left") InteropLibrary leftInterop,
-                    @CachedLibrary("right") InteropLibrary rightInterop) {
+    public boolean doGeneric(Object left, Object right, @CachedLibrary("left") InteropLibrary leftInterop,
+            @CachedLibrary("right") InteropLibrary rightInterop) {
         /*
          * This method looks very inefficient. In practice most of these branches fold as the
          * interop type checks typically return a constant when using a cached library.

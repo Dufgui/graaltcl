@@ -55,7 +55,7 @@ public final class TclDoubleLiteralNode extends TclExpressionNode {
 
     private final double value;
 
-    public TclDoubleLiteralNode( double value) {
+    public TclDoubleLiteralNode(double value) {
         this.value = value;
     }
 

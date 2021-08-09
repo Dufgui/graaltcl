@@ -52,12 +52,10 @@ import com.oracle.truffle.tcl.nodes.TclStatementNode;
  * the {@link TclWhileNode#executeVoid loop node}.
  */
 @NodeInfo(shortName = "break", description = "The node implementing a break statement")
-public final class TclBreakNode extends TclExpressionNode
-{
+public final class TclBreakNode extends TclExpressionNode {
 
     @Override
-    public Object executeGeneric( VirtualFrame frame )
-    {
+    public Object executeGeneric(VirtualFrame frame) {
         throw TclBreakException.SINGLETON;
     }
 

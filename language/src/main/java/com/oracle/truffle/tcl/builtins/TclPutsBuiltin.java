@@ -64,9 +64,8 @@ public abstract class TclPutsBuiltin extends TclBuiltinNode {
 
     @Specialization
     @TruffleBoundary
-    public Object puts(Object value,
-                    @CachedLibrary(limit = "3") InteropLibrary interop,
-                    @CachedContext(TclLanguage.class) TclContext context) {
+    public Object puts(Object value, @CachedLibrary(limit = "3") InteropLibrary interop,
+            @CachedContext(TclLanguage.class) TclContext context) {
         context.getOutput().println(interop.toDisplayString(TclLanguageView.forValue(value)));
         return value;
     }

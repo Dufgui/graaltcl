@@ -114,11 +114,9 @@ public abstract class TclAddNode extends TclBinaryNode {
     @Specialization(guards = "isString(left, right)")
     @TruffleBoundary
     protected String add(Object left, Object right) {
-        try
-        {
-            return new BigInteger( left.toString() ).add( new BigInteger( right.toString() ) ).toString();
-        } catch (NumberFormatException e)
-        {
+        try {
+            return new BigInteger(left.toString()).add(new BigInteger(right.toString())).toString();
+        } catch (NumberFormatException e) {
             return left.toString() + right.toString();
         }
     }

@@ -50,7 +50,8 @@ import com.oracle.truffle.tcl.nodes.TclStatementNode;
 @NodeInfo(shortName = "while", description = "The node implementing a while loop")
 public final class TclWhileNode extends TclExpressionNode {
 
-    @Child private LoopNode loopNode;
+    @Child
+    private LoopNode loopNode;
 
     public TclWhileNode(TclExpressionNode conditionNode, TclStatementNode bodyNode) {
         this.loopNode = Truffle.getRuntime().createLoopNode(new TclWhileRepeatingNode(conditionNode, bodyNode));

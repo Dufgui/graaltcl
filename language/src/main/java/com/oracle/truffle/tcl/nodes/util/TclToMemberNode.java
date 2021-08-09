@@ -89,7 +89,8 @@ public abstract class TclToMemberNode extends Node {
     }
 
     @Specialization(limit = "LIMIT")
-    protected static String fromInterop(Object value, @CachedLibrary("value") InteropLibrary interop) throws UnknownIdentifierException {
+    protected static String fromInterop(Object value, @CachedLibrary("value") InteropLibrary interop)
+            throws UnknownIdentifierException {
         try {
             if (interop.fitsInLong(value)) {
                 return longToString(interop.asLong(value));

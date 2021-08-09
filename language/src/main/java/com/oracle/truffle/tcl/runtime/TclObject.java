@@ -138,8 +138,8 @@ public final class TclObject extends DynamicObject implements TruffleObject {
     }
 
     @ExportMessage
-    void removeMember(String member,
-                    @CachedLibrary("this") DynamicObjectLibrary objectLibrary) throws UnknownIdentifierException {
+    void removeMember(String member, @CachedLibrary("this") DynamicObjectLibrary objectLibrary)
+            throws UnknownIdentifierException {
         if (objectLibrary.containsKey(this, member)) {
             objectLibrary.removeKey(this, member);
         } else {
@@ -149,21 +149,19 @@ public final class TclObject extends DynamicObject implements TruffleObject {
 
     @ExportMessage
     Object getMembers(@SuppressWarnings("unused") boolean includeInternal,
-                    @CachedLibrary("this") DynamicObjectLibrary objectLibrary) {
+            @CachedLibrary("this") DynamicObjectLibrary objectLibrary) {
         return new Keys(objectLibrary.getKeyArray(this));
     }
 
     @ExportMessage(name = "isMemberReadable")
     @ExportMessage(name = "isMemberModifiable")
     @ExportMessage(name = "isMemberRemovable")
-    boolean existsMember(String member,
-                    @CachedLibrary("this") DynamicObjectLibrary objectLibrary) {
+    boolean existsMember(String member, @CachedLibrary("this") DynamicObjectLibrary objectLibrary) {
         return objectLibrary.containsKey(this, member);
     }
 
     @ExportMessage
-    boolean isMemberInsertable(String member,
-                    @CachedLibrary("this") InteropLibrary receivers) {
+    boolean isMemberInsertable(String member, @CachedLibrary("this") InteropLibrary receivers) {
         return !receivers.isMemberExisting(this, member);
     }
 
@@ -204,8 +202,8 @@ public final class TclObject extends DynamicObject implements TruffleObject {
      * {@link DynamicObjectLibrary} provides the polymorphic inline cache for reading properties.
      */
     @ExportMessage
-    Object readMember(String name,
-                    @CachedLibrary("this") DynamicObjectLibrary objectLibrary) throws UnknownIdentifierException {
+    Object readMember(String name, @CachedLibrary("this") DynamicObjectLibrary objectLibrary)
+            throws UnknownIdentifierException {
         Object result = objectLibrary.getOrDefault(this, name, null);
         if (result == null) {
             /* Property does not exist. */
@@ -218,8 +216,7 @@ public final class TclObject extends DynamicObject implements TruffleObject {
      * {@link DynamicObjectLibrary} provides the polymorphic inline cache for writing properties.
      */
     @ExportMessage
-    void writeMember(String name, Object value,
-                    @CachedLibrary("this") DynamicObjectLibrary objectLibrary) {
+    void writeMember(String name, Object value, @CachedLibrary("this") DynamicObjectLibrary objectLibrary) {
         objectLibrary.put(this, name, value);
     }
 }

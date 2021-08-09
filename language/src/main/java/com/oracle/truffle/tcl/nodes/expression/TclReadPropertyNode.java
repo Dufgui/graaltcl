@@ -69,9 +69,8 @@ public abstract class TclReadPropertyNode extends TclExpressionNode {
     static final int LIBRARY_LIMIT = 3;
 
     @Specialization(guards = "arrays.hasArrayElements(receiver)", limit = "LIBRARY_LIMIT")
-    protected Object readArray(Object receiver, Object index,
-                    @CachedLibrary("receiver") InteropLibrary arrays,
-                    @CachedLibrary("index") InteropLibrary numbers) {
+    protected Object readArray(Object receiver, Object index, @CachedLibrary("receiver") InteropLibrary arrays,
+            @CachedLibrary("index") InteropLibrary numbers) {
         try {
             return arrays.readArrayElement(receiver, numbers.asLong(index));
         } catch (UnsupportedMessageException | InvalidArrayIndexException e) {
@@ -81,9 +80,8 @@ public abstract class TclReadPropertyNode extends TclExpressionNode {
     }
 
     @Specialization(guards = "objects.hasMembers(receiver)", limit = "LIBRARY_LIMIT")
-    protected Object readObject(Object receiver, Object name,
-                    @CachedLibrary("receiver") InteropLibrary objects,
-                    @Cached TclToMemberNode asMember) {
+    protected Object readObject(Object receiver, Object name, @CachedLibrary("receiver") InteropLibrary objects,
+            @Cached TclToMemberNode asMember) {
         try {
             return objects.readMember(receiver, asMember.execute(name));
         } catch (UnsupportedMessageException | UnknownIdentifierException e) {

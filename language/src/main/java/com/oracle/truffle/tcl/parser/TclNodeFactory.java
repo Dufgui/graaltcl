@@ -98,29 +98,27 @@ import com.oracle.truffle.tcl.nodes.local.TclWriteLocalVariableNodeGen;
 import com.oracle.truffle.tcl.nodes.util.TclUnboxNodeGen;
 
 /**
- * Helper class used by the tcl {@link Parser} to create nodes. The code is factored out of the automatically generated
- * parser to keep the attributed grammar of tcl small.
+ * Helper class used by the tcl {@link Parser} to create nodes. The code is
+ * factored out of the automatically generated parser to keep the attributed
+ * grammar of tcl small.
  */
-public class TclNodeFactory
-{
+public class TclNodeFactory {
 
     /**
-     * Local variable names that are visible in the current block. Variables are not visible outside of their defining
-     * block, to prevent the usage of undefined variables. Because of that, we can decide during parsing if a name
-     * references a local variable or is a function name.
+     * Local variable names that are visible in the current block. Variables are not
+     * visible outside of their defining block, to prevent the usage of undefined
+     * variables. Because of that, we can decide during parsing if a name references
+     * a local variable or is a function name.
      */
-    static class LexicalScope
-    {
+    static class LexicalScope {
         protected final LexicalScope outer;
         protected final Map<String, FrameSlot> locals;
 
-        LexicalScope( LexicalScope outer )
-        {
+        LexicalScope(LexicalScope outer) {
             this.outer = outer;
             this.locals = new HashMap<>();
-            if ( outer != null )
-            {
-                locals.putAll( outer.locals );
+            if (outer != null) {
+                locals.putAll(outer.locals);
             }
         }
     }
@@ -146,23 +144,20 @@ public class TclNodeFactory
     private LexicalScope lexicalScope;
     private final TclLanguage language;
 
-    public TclNodeFactory( TclLanguage language, Source source )
-    {
+    public TclNodeFactory(TclLanguage language, Source source) {
         this.language = language;
         this.source = source;
         this.allFunctions = new HashMap<>();
         this.moduleFrameDescriptor = new FrameDescriptor();
         this.moduleNodes = new ArrayList<>();
-        this.lexicalScope = new LexicalScope( null );
+        this.lexicalScope = new LexicalScope(null);
     }
 
-    public Map<String, RootCallTarget> getAllFunctions()
-    {
+    public Map<String, RootCallTarget> getAllFunctions() {
         return allFunctions;
     }
 
-    public void startFunction( Token nameToken, Token bodyStartToken )
-    {
+    public void startFunction(Token nameToken, Token bodyStartToken) {
         assert functionStartPos == 0;
         assert functionName == null;
         assert functionBodyStartPos == 0;
@@ -177,42 +172,36 @@ public class TclNodeFactory
         startBlock();
     }
 
-    public void addFormalParameter( Token nameToken )
-    {
+    public void addFormalParameter(Token nameToken) {
         /*
          * Method parameters are assigned to local variables at the beginning of the
          * method. This ensures that accesses to parameters are specialized the same way
          * as local variables are specialized.
          */
-        final TclReadArgumentNode readArg = new TclReadArgumentNode( parameterCount );
-        readArg.setSourceSection( nameToken.getStartIndex(), nameToken.getText().length() );
-        TclExpressionNode assignment = createAssignment( createStringLiteral( nameToken, false ), readArg,
-                parameterCount );
-        methodNodes.add( assignment );
+        final TclReadArgumentNode readArg = new TclReadArgumentNode(parameterCount);
+        readArg.setSourceSection(nameToken.getStartIndex(), nameToken.getText().length());
+        TclExpressionNode assignment = createAssignment(createStringLiteral(nameToken, false), readArg, parameterCount);
+        methodNodes.add(assignment);
         parameterCount++;
     }
 
-    public void finishFunction( TclExpressionNode bodyNode )
-    {
-        if ( bodyNode == null )
-        {
+    public void finishFunction(TclExpressionNode bodyNode) {
+        if (bodyNode == null) {
             // a state update that would otherwise be performed by finishBlock
             lexicalScope = lexicalScope.outer;
-        }
-        else
-        {
-            methodNodes.add( bodyNode );
+        } else {
+            methodNodes.add(bodyNode);
             final int bodyEndPos = bodyNode.getSourceEndIndex();
-            final SourceSection functionSrc = source.createSection( functionStartPos, bodyEndPos - functionStartPos );
-            final TclExpressionNode methodBlock = finishBlock( methodNodes, parameterCount, functionBodyStartPos,
-                    bodyEndPos - functionBodyStartPos );
+            final SourceSection functionSrc = source.createSection(functionStartPos, bodyEndPos - functionStartPos);
+            final TclExpressionNode methodBlock = finishBlock(methodNodes, parameterCount, functionBodyStartPos,
+                    bodyEndPos - functionBodyStartPos);
 
-            final TclFunctionBodyNode functionBodyNode = new TclFunctionBodyNode( methodBlock );
-            functionBodyNode.setSourceSection( functionSrc.getCharIndex(), functionSrc.getCharLength() );
+            final TclFunctionBodyNode functionBodyNode = new TclFunctionBodyNode(methodBlock);
+            functionBodyNode.setSourceSection(functionSrc.getCharIndex(), functionSrc.getCharLength());
 
-            final TclRootNode rootNode = new TclRootNode( language, frameDescriptor, functionBodyNode, functionSrc,
-                    functionName );
-            allFunctions.put( functionName, Truffle.getRuntime().createCallTarget( rootNode ) );
+            final TclRootNode rootNode = new TclRootNode(language, frameDescriptor, functionBodyNode, functionSrc,
+                    functionName);
+            allFunctions.put(functionName, Truffle.getRuntime().createCallTarget(rootNode));
         }
 
         functionStartPos = 0;
@@ -222,58 +211,45 @@ public class TclNodeFactory
         frameDescriptor = null;
     }
 
-    public void startBlock()
-    {
-        lexicalScope = new LexicalScope( lexicalScope );
+    public void startBlock() {
+        lexicalScope = new LexicalScope(lexicalScope);
     }
 
-    public TclExpressionNode finishBlock( List<TclExpressionNode> bodyNodes, int startPos, int length )
-    {
-        return finishBlock( bodyNodes, 0, startPos, length );
+    public TclExpressionNode finishBlock(List<TclExpressionNode> bodyNodes, int startPos, int length) {
+        return finishBlock(bodyNodes, 0, startPos, length);
     }
 
-    public TclExpressionNode finishBlock( List<TclExpressionNode> bodyNodes, int skipCount, int startPos, int length )
-    {
+    public TclExpressionNode finishBlock(List<TclExpressionNode> bodyNodes, int skipCount, int startPos, int length) {
         lexicalScope = lexicalScope.outer;
 
-        if ( containsNull( bodyNodes ) )
-        {
+        if (containsNull(bodyNodes)) {
             return null;
         }
 
-        List<TclStatementNode> flattenedNodes = new ArrayList<>( bodyNodes.size() );
-        flattenBlocks( bodyNodes, flattenedNodes );
+        List<TclStatementNode> flattenedNodes = new ArrayList<>(bodyNodes.size());
+        flattenBlocks(bodyNodes, flattenedNodes);
         int n = flattenedNodes.size();
-        for ( int i = skipCount; i < n; i++ )
-        {
-            TclStatementNode statement = flattenedNodes.get( i );
-            if ( statement.hasSource() && !isHaltInCondition( statement ) )
-            {
+        for (int i = skipCount; i < n; i++) {
+            TclStatementNode statement = flattenedNodes.get(i);
+            if (statement.hasSource() && !isHaltInCondition(statement)) {
                 statement.addStatementTag();
             }
         }
-        TclBlockNode blockNode = new TclBlockNode(
-                flattenedNodes.toArray( new TclStatementNode[flattenedNodes.size()] ) );
-        blockNode.setSourceSection( startPos, length );
+        TclBlockNode blockNode = new TclBlockNode(flattenedNodes.toArray(new TclStatementNode[flattenedNodes.size()]));
+        blockNode.setSourceSection(startPos, length);
         return blockNode;
     }
 
-    private static boolean isHaltInCondition( TclStatementNode statement )
-    {
-        return ( statement instanceof TclIfNode ) || ( statement instanceof TclWhileNode );
+    private static boolean isHaltInCondition(TclStatementNode statement) {
+        return (statement instanceof TclIfNode) || (statement instanceof TclWhileNode);
     }
 
-    private void flattenBlocks( Iterable<? extends TclStatementNode> bodyNodes, List<TclStatementNode> flattenedNodes )
-    {
-        for ( TclStatementNode n : bodyNodes )
-        {
-            if ( n instanceof TclBlockNode )
-            {
-                flattenBlocks( ( (TclBlockNode) n ).getStatements(), flattenedNodes );
-            }
-            else
-            {
-                flattenedNodes.add( n );
+    private void flattenBlocks(Iterable<? extends TclStatementNode> bodyNodes, List<TclStatementNode> flattenedNodes) {
+        for (TclStatementNode n : bodyNodes) {
+            if (n instanceof TclBlockNode) {
+                flattenBlocks(((TclBlockNode) n).getStatements(), flattenedNodes);
+            } else {
+                flattenedNodes.add(n);
             }
         }
     }
@@ -284,10 +260,9 @@ public class TclNodeFactory
      * @param breakToken The token containing the break node's info.
      * @return A TclBreakNode for the given token.
      */
-    public TclExpressionNode createBreak( Token breakToken )
-    {
+    public TclExpressionNode createBreak(Token breakToken) {
         final TclBreakNode breakNode = new TclBreakNode();
-        srcFromToken( breakNode, breakToken );
+        srcFromToken(breakNode, breakToken);
         return breakNode;
     }
 
@@ -297,10 +272,9 @@ public class TclNodeFactory
      * @param continueToken The token containing the continue node's info.
      * @return A TclContinueNode built using the given token.
      */
-    public TclExpressionNode createContinue( Token continueToken )
-    {
+    public TclExpressionNode createContinue(Token continueToken) {
         final TclContinueNode continueNode = new TclContinueNode();
-        srcFromToken( continueNode, continueToken );
+        srcFromToken(continueNode, continueToken);
         return continueNode;
     }
 
@@ -310,20 +284,19 @@ public class TclNodeFactory
      * @param whileToken    The token containing the while node's info
      * @param conditionNode The conditional node for this while loop
      * @param bodyNode      The body of the while loop
-     * @return A TclWhileNode built using the given parameters. null if either conditionNode or bodyNode is null.
+     * @return A TclWhileNode built using the given parameters. null if either
+     *         conditionNode or bodyNode is null.
      */
-    public TclExpressionNode createWhile( Token whileToken, TclExpressionNode conditionNode, TclStatementNode bodyNode )
-    {
-        if ( conditionNode == null || bodyNode == null )
-        {
+    public TclExpressionNode createWhile(Token whileToken, TclExpressionNode conditionNode, TclStatementNode bodyNode) {
+        if (conditionNode == null || bodyNode == null) {
             return null;
         }
 
         conditionNode.addStatementTag();
         final int start = whileToken.getStartIndex();
         final int end = bodyNode.getSourceEndIndex();
-        final TclWhileNode whileNode = new TclWhileNode( conditionNode, bodyNode );
-        whileNode.setSourceSection( start, end - start );
+        final TclWhileNode whileNode = new TclWhileNode(conditionNode, bodyNode);
+        whileNode.setSourceSection(start, end - start);
         return whileNode;
     }
 
@@ -334,20 +307,20 @@ public class TclNodeFactory
      * @param conditionNode The condition node of this if statement
      * @param thenPartNode  The then part of the if
      * @param elsePartNode  The else part of the if (null if no else part)
-     * @return An TclIfNode for the given parameters. null if either conditionNode or thenPartNode is null.
+     * @return An TclIfNode for the given parameters. null if either conditionNode
+     *         or thenPartNode is null.
      */
-    public TclExpressionNode createIf( Token ifToken, TclExpressionNode conditionNode, TclExpressionNode thenPartNode, TclExpressionNode elsePartNode )
-    {
-        if ( conditionNode == null || thenPartNode == null )
-        {
+    public TclExpressionNode createIf(Token ifToken, TclExpressionNode conditionNode, TclExpressionNode thenPartNode,
+            TclExpressionNode elsePartNode) {
+        if (conditionNode == null || thenPartNode == null) {
             return null;
         }
 
         conditionNode.addStatementTag();
         final int start = ifToken.getStartIndex();
         final int end = elsePartNode == null ? thenPartNode.getSourceEndIndex() : elsePartNode.getSourceEndIndex();
-        final TclIfNode ifNode = new TclIfNode( conditionNode, thenPartNode, elsePartNode );
-        ifNode.setSourceSection( start, end - start );
+        final TclIfNode ifNode = new TclIfNode(conditionNode, thenPartNode, elsePartNode);
+        ifNode.setSourceSection(start, end - start);
         return ifNode;
     }
 
@@ -358,116 +331,109 @@ public class TclNodeFactory
      * @param valueNode The value of the return (null if not returning a value)
      * @return An TclReturnNode for the given parameters.
      */
-    public TclExpressionNode createReturn( Token t, TclExpressionNode valueNode )
-    {
+    public TclExpressionNode createReturn(Token t, TclExpressionNode valueNode) {
         final int start = t.getStartIndex();
         final int length = valueNode == null ? t.getText().length() : valueNode.getSourceEndIndex() - start;
-        final TclReturnNode returnNode = new TclReturnNode( valueNode );
-        returnNode.setSourceSection( start, length );
+        final TclReturnNode returnNode = new TclReturnNode(valueNode);
+        returnNode.setSourceSection(start, length);
         return returnNode;
     }
 
     /**
-     * Returns the corresponding subclass of {@link TclExpressionNode} for binary expressions. </br> These nodes are
-     * currently not instrumented.
+     * Returns the corresponding subclass of {@link TclExpressionNode} for binary
+     * expressions. </br>
+     * These nodes are currently not instrumented.
      *
      * @param opToken   The operator of the binary expression
      * @param leftNode  The left node of the expression
      * @param rightNode The right node of the expression
-     * @return A subclass of TclExpressionNode using the given parameters based on the given opToken. null if either
-     * leftNode or rightNode is null.
+     * @return A subclass of TclExpressionNode using the given parameters based on
+     *         the given opToken. null if either leftNode or rightNode is null.
      */
-    public TclExpressionNode createBinary( Token opToken, TclExpressionNode leftNode, TclExpressionNode rightNode )
-    {
-        if ( leftNode == null || rightNode == null )
-        {
+    public TclExpressionNode createBinary(Token opToken, TclExpressionNode leftNode, TclExpressionNode rightNode) {
+        if (leftNode == null || rightNode == null) {
             return null;
         }
-        final TclExpressionNode leftUnboxed = TclUnboxNodeGen.create( leftNode );
-        final TclExpressionNode rightUnboxed = TclUnboxNodeGen.create( rightNode );
+        final TclExpressionNode leftUnboxed = TclUnboxNodeGen.create(leftNode);
+        final TclExpressionNode rightUnboxed = TclUnboxNodeGen.create(rightNode);
 
         final TclExpressionNode result;
-        switch ( opToken.getText() )
-        {
+        switch (opToken.getText()) {
             case "+":
-                result = TclAddNodeGen.create( leftUnboxed, rightUnboxed );
+                result = TclAddNodeGen.create(leftUnboxed, rightUnboxed);
                 break;
             case "*":
-                result = TclMulNodeGen.create( leftUnboxed, rightUnboxed );
+                result = TclMulNodeGen.create(leftUnboxed, rightUnboxed);
                 break;
             case "/":
-                result = TclDivNodeGen.create( leftUnboxed, rightUnboxed );
+                result = TclDivNodeGen.create(leftUnboxed, rightUnboxed);
                 break;
             case "-":
-                result = TclSubNodeGen.create( leftUnboxed, rightUnboxed );
+                result = TclSubNodeGen.create(leftUnboxed, rightUnboxed);
                 break;
             case "<":
-                result = TclLessThanNodeGen.create( leftUnboxed, rightUnboxed );
+                result = TclLessThanNodeGen.create(leftUnboxed, rightUnboxed);
                 break;
             case "<=":
-                result = TclLessOrEqualNodeGen.create( leftUnboxed, rightUnboxed );
+                result = TclLessOrEqualNodeGen.create(leftUnboxed, rightUnboxed);
                 break;
             case ">":
-                result = TclLogicalNotNodeGen.create( TclLessOrEqualNodeGen.create( leftUnboxed, rightUnboxed ) );
+                result = TclLogicalNotNodeGen.create(TclLessOrEqualNodeGen.create(leftUnboxed, rightUnboxed));
                 break;
             case ">=":
-                result = TclLogicalNotNodeGen.create( TclLessThanNodeGen.create( leftUnboxed, rightUnboxed ) );
+                result = TclLogicalNotNodeGen.create(TclLessThanNodeGen.create(leftUnboxed, rightUnboxed));
                 break;
             case "==":
             case "eq":
-                result = TclEqualNodeGen.create( leftUnboxed, rightUnboxed );
+                result = TclEqualNodeGen.create(leftUnboxed, rightUnboxed);
                 break;
             case "!=":
             case "ne":
-                result = TclLogicalNotNodeGen.create( TclEqualNodeGen.create( leftUnboxed, rightUnboxed ) );
+                result = TclLogicalNotNodeGen.create(TclEqualNodeGen.create(leftUnboxed, rightUnboxed));
                 break;
             case "&&":
-                result = new TclLogicalAndNode( leftUnboxed, rightUnboxed );
+                result = new TclLogicalAndNode(leftUnboxed, rightUnboxed);
                 break;
             case "||":
-                result = new TclLogicalOrNode( leftUnboxed, rightUnboxed );
+                result = new TclLogicalOrNode(leftUnboxed, rightUnboxed);
                 break;
             case "%":
-                result = TclModuloNodeGen.create( leftUnboxed, rightUnboxed );
+                result = TclModuloNodeGen.create(leftUnboxed, rightUnboxed);
                 break;
             default:
-                throw new RuntimeException( "unexpected operation: " + opToken.getText() );
+                throw new RuntimeException("unexpected operation: " + opToken.getText());
         }
 
         int start = leftNode.getSourceCharIndex();
         int length = rightNode.getSourceEndIndex() - start;
-        result.setSourceSection( start, length );
+        result.setSourceSection(start, length);
         result.addExpressionTag();
 
         return result;
     }
 
-    public void finishModule()
-    {
-        if(moduleNodes.isEmpty()) {
+    public void finishModule() {
+        if (moduleNodes.isEmpty()) {
             return;
         }
-        final int moduleEndPos = moduleNodes.get( moduleNodes.size() - 1 ).getSourceEndIndex();
-        final SourceSection functionSrc = source.createSection( moduleStartPos, moduleEndPos - moduleStartPos );
-        final TclStatementNode methodBlock = finishBlock( moduleNodes, 0, moduleStartPos,
-                moduleEndPos - moduleStartPos );
+        final int moduleEndPos = moduleNodes.get(moduleNodes.size() - 1).getSourceEndIndex();
+        final SourceSection functionSrc = source.createSection(moduleStartPos, moduleEndPos - moduleStartPos);
+        final TclStatementNode methodBlock = finishBlock(moduleNodes, 0, moduleStartPos, moduleEndPos - moduleStartPos);
 
-        final TclFunctionBodyNode functionBodyNode = new TclFunctionBodyNode( methodBlock );
-        functionBodyNode.setSourceSection( functionSrc.getCharIndex(), functionSrc.getCharLength() );
+        final TclFunctionBodyNode functionBodyNode = new TclFunctionBodyNode(methodBlock);
+        functionBodyNode.setSourceSection(functionSrc.getCharIndex(), functionSrc.getCharLength());
 
         String moduleFunctionName = source.getName() + "...";
-        final TclRootNode rootNode = new TclRootNode( language, moduleFrameDescriptor, functionBodyNode, functionSrc,
-                moduleFunctionName );
-        allFunctions.put( moduleFunctionName, Truffle.getRuntime().createCallTarget( rootNode ));
+        final TclRootNode rootNode = new TclRootNode(language, moduleFrameDescriptor, functionBodyNode, functionSrc,
+                moduleFunctionName);
+        allFunctions.put(moduleFunctionName, Truffle.getRuntime().createCallTarget(rootNode));
     }
 
-    public void addModuleStatement( TclExpressionNode node )
-    {
-        if ( moduleStartPos != 0 )
-        {
+    public void addModuleStatement(TclExpressionNode node) {
+        if (moduleStartPos != 0) {
             moduleStartPos = node.getSourceCharIndex();
         }
-        moduleNodes.add( node );
+        moduleNodes.add(node);
     }
 
     /**
@@ -475,22 +441,23 @@ public class TclNodeFactory
      *
      * @param functionNode   The function being called
      * @param parameterNodes The parameters of the function call
-     * @param finalToken     A token used to determine the end of the sourceSelection for this call
-     * @return An TclInvokeNode for the given parameters. null if functionNode or any of the parameterNodes are null.
+     * @param finalToken     A token used to determine the end of the
+     *                       sourceSelection for this call
+     * @return An TclInvokeNode for the given parameters. null if functionNode or
+     *         any of the parameterNodes are null.
      */
-    public TclExpressionNode createCall( TclExpressionNode functionNode, List<TclExpressionNode> parameterNodes, Token finalToken )
-    {
-        if ( functionNode == null || containsNull( parameterNodes ) )
-        {
+    public TclExpressionNode createCall(TclExpressionNode functionNode, List<TclExpressionNode> parameterNodes,
+            Token finalToken) {
+        if (functionNode == null || containsNull(parameterNodes)) {
             return null;
         }
 
-        final TclExpressionNode result = new TclInvokeNode( functionNode,
-                parameterNodes.toArray( new TclExpressionNode[parameterNodes.size()] ) );
+        final TclExpressionNode result = new TclInvokeNode(functionNode,
+                parameterNodes.toArray(new TclExpressionNode[parameterNodes.size()]));
 
         final int startPos = functionNode.getSourceCharIndex();
         final int endPos = finalToken.getStartIndex() + finalToken.getText().length();
-        result.setSourceSection( startPos, endPos - startPos );
+        result.setSourceSection(startPos, endPos - startPos);
         result.addExpressionTag();
 
         return result;
@@ -501,11 +468,11 @@ public class TclNodeFactory
      *
      * @param nameNode  The name of the variable being assigned
      * @param valueNode The value to be assigned
-     * @return An TclExpressionNode for the given parameters. null if nameNode or valueNode is null.
+     * @return An TclExpressionNode for the given parameters. null if nameNode or
+     *         valueNode is null.
      */
-    public TclExpressionNode createAssignment( TclExpressionNode nameNode, TclExpressionNode valueNode )
-    {
-        return createAssignment( nameNode, valueNode, null );
+    public TclExpressionNode createAssignment(TclExpressionNode nameNode, TclExpressionNode valueNode) {
+        return createAssignment(nameNode, valueNode, null);
     }
 
     /**
@@ -513,31 +480,30 @@ public class TclNodeFactory
      *
      * @param nameNode      The name of the variable being assigned
      * @param valueNode     The value to be assigned
-     * @param argumentIndex null or index of the argument the assignment is assigning
-     * @return An TclExpressionNode for the given parameters. null if nameNode or valueNode is null.
+     * @param argumentIndex null or index of the argument the assignment is
+     *                      assigning
+     * @return An TclExpressionNode for the given parameters. null if nameNode or
+     *         valueNode is null.
      */
-    public TclExpressionNode createAssignment( TclExpressionNode nameNode, TclExpressionNode valueNode, Integer argumentIndex )
-    {
-        if ( nameNode == null || valueNode == null )
-        {
+    public TclExpressionNode createAssignment(TclExpressionNode nameNode, TclExpressionNode valueNode,
+            Integer argumentIndex) {
+        if (nameNode == null || valueNode == null) {
             return null;
         }
 
-        String name = ( (TclStringLiteralNode) nameNode ).executeGeneric( null );
-        FrameSlot frameSlot = frameDescriptor.findOrAddFrameSlot( name, argumentIndex, FrameSlotKind.Illegal );
-        FrameSlot existingSlot = lexicalScope.locals.put( name, frameSlot );
+        String name = ((TclStringLiteralNode) nameNode).executeGeneric(null);
+        FrameSlot frameSlot = frameDescriptor.findOrAddFrameSlot(name, argumentIndex, FrameSlotKind.Illegal);
+        FrameSlot existingSlot = lexicalScope.locals.put(name, frameSlot);
         boolean newVariable = existingSlot == null;
-        final TclExpressionNode result = TclWriteLocalVariableNodeGen.create( valueNode, frameSlot, nameNode,
-                newVariable );
+        final TclExpressionNode result = TclWriteLocalVariableNodeGen.create(valueNode, frameSlot, nameNode,
+                newVariable);
 
-        if ( valueNode.hasSource() )
-        {
+        if (valueNode.hasSource()) {
             final int start = nameNode.getSourceCharIndex();
             final int length = valueNode.getSourceEndIndex() - start;
-            result.setSourceSection( start, length );
+            result.setSourceSection(start, length);
         }
-        if ( argumentIndex == null )
-        {
+        if (argumentIndex == null) {
             result.addExpressionTag();
         }
 
@@ -545,182 +511,152 @@ public class TclNodeFactory
     }
 
     /**
-     * Returns a {@link TclReadLocalVariableNode} if this read is a local variable or a {@link TclFunctionLiteralNode}
-     * if this read is global. In tcl, the only global names are functions.
+     * Returns a {@link TclReadLocalVariableNode} if this read is a local variable
+     * or a {@link TclFunctionLiteralNode} if this read is global. In tcl, the only
+     * global names are functions.
      *
      * @param nameNode The name of the variable/function being read
      * @return either:
-     * <ul>
-     * <li>A TclReadLocalVariableNode representing the local variable being
-     * read.</li>
-     * <li>A TclFunctionLiteralNode representing the function
-     * definition.</li>
-     * <li>null if nameNode is null.</li>
-     * </ul>
+     *         <ul>
+     *         <li>A TclReadLocalVariableNode representing the local variable being
+     *         read.</li>
+     *         <li>A TclFunctionLiteralNode representing the function
+     *         definition.</li>
+     *         <li>null if nameNode is null.</li>
+     *         </ul>
      */
-    public TclExpressionNode createRead( TclExpressionNode nameNode )
-    {
-        if ( nameNode == null )
-        {
+    public TclExpressionNode createRead(TclExpressionNode nameNode) {
+        if (nameNode == null) {
             return null;
         }
 
-        String name = (String) (nameNode.executeGeneric( null ));
+        String name = (String) (nameNode.executeGeneric(null));
         final TclExpressionNode result;
-        final FrameSlot frameSlot = lexicalScope.locals.get( name );
-        if ( frameSlot != null )
-        {
+        final FrameSlot frameSlot = lexicalScope.locals.get(name);
+        if (frameSlot != null) {
             /* Read of a local variable. */
-            result = TclReadLocalVariableNodeGen.create( frameSlot );
-        }
-        else
-        {
+            result = TclReadLocalVariableNodeGen.create(frameSlot);
+        } else {
             /*
              * Read of a global name. In our language, the only global names are functions.
              */
-            result = new TclFunctionLiteralNode( name );
+            result = new TclFunctionLiteralNode(name);
         }
-        result.setSourceSection( nameNode.getSourceCharIndex(), nameNode.getSourceLength() );
+        result.setSourceSection(nameNode.getSourceCharIndex(), nameNode.getSourceLength());
         result.addExpressionTag();
         return result;
     }
 
     /**
-     * Returns a {@link TclReadLocalVariableNode} if this read is a local variable or a {@link TclFunctionLiteralNode}
-     * if this read is global. In tcl, the only global names are functions.
+     * Returns a {@link TclReadLocalVariableNode} if this read is a local variable
+     * or a {@link TclFunctionLiteralNode} if this read is global. In tcl, the only
+     * global names are functions.
      *
      * @param nameNode The name of the variable/function being read
      * @return either:
-     * <ul>
-     * <li>A TclReadLocalVariableNode representing the local variable being
-     * read.</li>
-     * <li>A TclFunctionLiteralNode representing the function
-     * definition.</li>
-     * <li>null if nameNode is null.</li>
-     * </ul>
+     *         <ul>
+     *         <li>A TclReadLocalVariableNode representing the local variable being
+     *         read.</li>
+     *         <li>A TclFunctionLiteralNode representing the function
+     *         definition.</li>
+     *         <li>null if nameNode is null.</li>
+     *         </ul>
      */
-    public TclExpressionNode createIdentifier( TclExpressionNode nameNode )
-    {
-        if ( nameNode == null )
-        {
+    public TclExpressionNode createIdentifier(TclExpressionNode nameNode) {
+        if (nameNode == null) {
             return null;
         }
 
-        String name = ( (TclStringLiteralNode) nameNode ).executeGeneric( null );
+        String name = ((TclStringLiteralNode) nameNode).executeGeneric(null);
         final TclExpressionNode result;
-        final FrameSlot frameSlot = lexicalScope.locals.get( name );
-        if ( frameSlot != null )
-        {
+        final FrameSlot frameSlot = lexicalScope.locals.get(name);
+        if (frameSlot != null) {
             /* Read of a local variable. */
-            result = TclReadLocalVariableNodeGen.create( frameSlot );
-        }
-        else
-        {
+            result = TclReadLocalVariableNodeGen.create(frameSlot);
+        } else {
             /*
              * Read of a global name. In our language, the only global names are functions.
              */
-            result = new TclFunctionLiteralNode( name );
+            result = new TclFunctionLiteralNode(name);
         }
-        result.setSourceSection( nameNode.getSourceCharIndex(), nameNode.getSourceLength() );
+        result.setSourceSection(nameNode.getSourceCharIndex(), nameNode.getSourceLength());
         result.addExpressionTag();
         return result;
     }
 
-    public TclExpressionNode createStringLiteral( Token literalToken, boolean removeQuotes )
-    {
+    public TclExpressionNode createStringLiteral(Token literalToken, boolean removeQuotes) {
         /* Remove the trailing and ending " */
         String literal = literalToken.getText();
-        if ( removeQuotes )
-        {
-            assert literal.length() >= 2 && literal.startsWith( "\"" ) && literal.endsWith( "\"" );
-            literal = literal.substring( 1, literal.length() - 1 );
+        if (removeQuotes) {
+            assert literal.length() >= 2 && literal.startsWith("\"") && literal.endsWith("\"");
+            literal = literal.substring(1, literal.length() - 1);
         }
 
-        final TclStringLiteralNode result = new TclStringLiteralNode( literal.intern() );
-        srcFromToken( result, literalToken );
+        final TclStringLiteralNode result = new TclStringLiteralNode(literal.intern());
+        srcFromToken(result, literalToken);
         result.addExpressionTag();
         return result;
     }
 
-    public TclExpressionNode createIntegerLiteral( Token literalToken )
-    {
+    public TclExpressionNode createIntegerLiteral(Token literalToken) {
         TclExpressionNode result;
-        try
-        {
+        try {
             /* Try if the literal is small enough to fit into a long value. */
-            result = new TclLongLiteralNode( Long.parseLong( literalToken.getText() ) );
-        }
-        catch ( NumberFormatException ex )
-        {
+            result = new TclLongLiteralNode(Long.parseLong(literalToken.getText()));
+        } catch (NumberFormatException ex) {
             /* Overflow of long value, so fall back to BigInteger. */
-            result = new TclBigIntegerLiteralNode( new BigInteger( literalToken.getText() ) );
+            result = new TclBigIntegerLiteralNode(new BigInteger(literalToken.getText()));
         }
-        srcFromToken( result, literalToken );
+        srcFromToken(result, literalToken);
         result.addExpressionTag();
         return result;
     }
 
-    public TclExpressionNode createDoubleLiteral( Token literalToken )
-    {
+    public TclExpressionNode createDoubleLiteral(Token literalToken) {
         TclExpressionNode result;
-        try
-        {
+        try {
             /* Try if the literal is small enough to fit into a long value. */
-            result = new TclDoubleLiteralNode( Double.parseDouble( literalToken.getText() ) );
-        }
-        catch ( NumberFormatException ex )
-        {
+            result = new TclDoubleLiteralNode(Double.parseDouble(literalToken.getText()));
+        } catch (NumberFormatException ex) {
             /* Overflow of long value, so fall back to BigInteger. */
-            result = new TclBigIntegerLiteralNode( new BigInteger( literalToken.getText() ) );
+            result = new TclBigIntegerLiteralNode(new BigInteger(literalToken.getText()));
         }
-        srcFromToken( result, literalToken );
+        srcFromToken(result, literalToken);
         result.addExpressionTag();
         return result;
     }
 
-    public TclExpressionNode createBooleanLiteral( Token literalToken )
-    {
+    public TclExpressionNode createBooleanLiteral(Token literalToken) {
         TclExpressionNode result;
-        try
-        {
+        try {
             /* Try if the literal is small enough to fit into a long value. */
-            result = new TclBooleanLiteralNode( parseBoolean( literalToken.getText() ) );
-        }
-        catch ( IllegalArgumentException ex )
-        {
+            result = new TclBooleanLiteralNode(parseBoolean(literalToken.getText()));
+        } catch (IllegalArgumentException ex) {
             /* Overflow of long value, so fall back to BigInteger. */
-            result = new TclStringLiteralNode( literalToken.getText() );
+            result = new TclStringLiteralNode(literalToken.getText());
         }
-        srcFromToken( result, literalToken );
+        srcFromToken(result, literalToken);
         result.addExpressionTag();
         return result;
     }
 
-    private boolean parseBoolean( String text )
-    {
-        if ( "0".equals( text ) || "false".equals( text ) || "no".equals( text ) || "n".equals( text ) || "off".equals(
-                text ) )
-        {
+    private boolean parseBoolean(String text) {
+        if ("0".equals(text) || "false".equals(text) || "no".equals(text) || "n".equals(text) || "off".equals(text)) {
             return false;
         }
-        if ( "1".equals( text ) || "true".equals( text ) || "yes".equals( text ) || "y".equals( text ) || "on".equals(
-                text ) )
-        {
+        if ("1".equals(text) || "true".equals(text) || "yes".equals(text) || "y".equals(text) || "on".equals(text)) {
             return false;
         }
-        throw new IllegalArgumentException( text + " is not a boolean." );
+        throw new IllegalArgumentException(text + " is not a boolean.");
     }
 
-
-    public TclExpressionNode createParentExpression( TclExpressionNode expressionNode, int start, int length )
-    {
-        if ( expressionNode == null )
-        {
+    public TclExpressionNode createParentExpression(TclExpressionNode expressionNode, int start, int length) {
+        if (expressionNode == null) {
             return null;
         }
 
-        final TclParenExpressionNode result = new TclParenExpressionNode( expressionNode );
-        result.setSourceSection( start, length );
+        final TclParenExpressionNode result = new TclParenExpressionNode(expressionNode);
+        result.setSourceSection(start, length);
         return result;
     }
 
@@ -729,20 +665,19 @@ public class TclNodeFactory
      *
      * @param receiverNode The receiver of the property access
      * @param nameNode     The name of the property being accessed
-     * @return An TclExpressionNode for the given parameters. null if receiverNode or nameNode is null.
+     * @return An TclExpressionNode for the given parameters. null if receiverNode
+     *         or nameNode is null.
      */
-    public TclExpressionNode createReadProperty( TclExpressionNode receiverNode, TclExpressionNode nameNode )
-    {
-        if ( receiverNode == null || nameNode == null )
-        {
+    public TclExpressionNode createReadProperty(TclExpressionNode receiverNode, TclExpressionNode nameNode) {
+        if (receiverNode == null || nameNode == null) {
             return null;
         }
 
-        final TclExpressionNode result = TclReadPropertyNodeGen.create( receiverNode, nameNode );
+        final TclExpressionNode result = TclReadPropertyNodeGen.create(receiverNode, nameNode);
 
         final int startPos = receiverNode.getSourceCharIndex();
         final int endPos = nameNode.getSourceEndIndex();
-        result.setSourceSection( startPos, endPos - startPos );
+        result.setSourceSection(startPos, endPos - startPos);
         result.addExpressionTag();
 
         return result;
@@ -754,20 +689,20 @@ public class TclNodeFactory
      * @param receiverNode The receiver object of the property assignment
      * @param nameNode     The name of the property being assigned
      * @param valueNode    The value to be assigned
-     * @return An TclExpressionNode for the given parameters. null if receiverNode, nameNode or valueNode is null.
+     * @return An TclExpressionNode for the given parameters. null if receiverNode,
+     *         nameNode or valueNode is null.
      */
-    public TclExpressionNode createWriteProperty( TclExpressionNode receiverNode, TclExpressionNode nameNode, TclExpressionNode valueNode )
-    {
-        if ( receiverNode == null || nameNode == null || valueNode == null )
-        {
+    public TclExpressionNode createWriteProperty(TclExpressionNode receiverNode, TclExpressionNode nameNode,
+            TclExpressionNode valueNode) {
+        if (receiverNode == null || nameNode == null || valueNode == null) {
             return null;
         }
 
-        final TclExpressionNode result = TclWritePropertyNodeGen.create( receiverNode, nameNode, valueNode );
+        final TclExpressionNode result = TclWritePropertyNodeGen.create(receiverNode, nameNode, valueNode);
 
         final int start = receiverNode.getSourceCharIndex();
         final int length = valueNode.getSourceEndIndex() - start;
-        result.setSourceSection( start, length );
+        result.setSourceSection(start, length);
         result.addExpressionTag();
 
         return result;
@@ -776,20 +711,16 @@ public class TclNodeFactory
     /**
      * Creates source description of a single token.
      */
-    private static void srcFromToken( TclStatementNode node, Token token )
-    {
-        node.setSourceSection( token.getStartIndex(), token.getText().length() );
+    private static void srcFromToken(TclStatementNode node, Token token) {
+        node.setSourceSection(token.getStartIndex(), token.getText().length());
     }
 
     /**
      * Checks whether a list contains a null.
      */
-    private static boolean containsNull( List<?> list )
-    {
-        for ( Object e : list )
-        {
-            if ( e == null )
-            {
+    private static boolean containsNull(List<?> list) {
+        for (Object e : list) {
+            if (e == null) {
                 return true;
             }
         }

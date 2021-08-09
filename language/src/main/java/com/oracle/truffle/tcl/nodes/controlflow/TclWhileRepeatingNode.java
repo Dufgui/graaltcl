@@ -63,10 +63,12 @@ public final class TclWhileRepeatingNode extends Node implements RepeatingNode {
      * value. We do not have a node type that can only return a {@code boolean} value, so
      * {@link #evaluateCondition executing the condition} can lead to a type error.
      */
-    @Child private TclExpressionNode conditionNode;
+    @Child
+    private TclExpressionNode conditionNode;
 
     /** Statement (or {@link TclBlockNode block}) executed as long as the condition is true. */
-    @Child private TclStatementNode bodyNode;
+    @Child
+    private TclStatementNode bodyNode;
 
     /**
      * Profiling information, collected by the interpreter, capturing whether a {@code continue}
@@ -121,7 +123,7 @@ public final class TclWhileRepeatingNode extends Node implements RepeatingNode {
              * program. We report it with the same exception that Truffle DSL generated nodes use to
              * report type errors.
              */
-            throw new UnsupportedSpecializationException(this, new Node[]{conditionNode}, ex.getResult());
+            throw new UnsupportedSpecializationException(this, new Node[] { conditionNode }, ex.getResult());
         }
     }
 

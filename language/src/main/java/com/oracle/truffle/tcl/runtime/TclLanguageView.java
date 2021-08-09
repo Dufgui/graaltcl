@@ -124,7 +124,8 @@ public final class TclLanguageView implements TruffleObject {
 
     @ExportMessage
     @ExplodeLoop
-    Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects, @CachedLibrary("this.delegate") InteropLibrary interop) {
+    Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects,
+            @CachedLibrary("this.delegate") InteropLibrary interop) {
         for (TclType type : TclType.PRECEDENCE) {
             if (type.isInstance(this.delegate, interop)) {
                 try {
@@ -135,7 +136,7 @@ public final class TclLanguageView implements TruffleObject {
                     if (type == TclType.NUMBER) {
                         return longToString(interop.asLong(delegate));
                     } else if (type == TclType.BOOLEAN) {
-                        return interop.asBoolean(delegate)?"1":"0";
+                        return interop.asBoolean(delegate) ? "1" : "0";
                     } else if (type == TclType.STRING) {
                         return interop.asString(delegate);
                     } else {

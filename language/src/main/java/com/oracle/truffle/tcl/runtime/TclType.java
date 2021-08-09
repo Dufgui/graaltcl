@@ -92,7 +92,8 @@ public final class TclType implements TruffleObject {
      * example, an object might be a function. In Tcl we decided to make functions,
      * functions and not objects.
      */
-    @CompilationFinal(dimensions = 1) public static final TclType[] PRECEDENCE = new TclType[]{NULL, NUMBER, STRING, BOOLEAN, FUNCTION, OBJECT};
+    @CompilationFinal(dimensions = 1)
+    public static final TclType[] PRECEDENCE = new TclType[] { NULL, NUMBER, STRING, BOOLEAN, FUNCTION, OBJECT };
 
     private final String name;
     private final TypeCheck isInstance;
@@ -172,8 +173,7 @@ public final class TclType implements TruffleObject {
          */
         @Specialization(guards = "type == cachedType", limit = "3")
         static boolean doCached(@SuppressWarnings("unused") TclType type, Object value,
-                        @Cached("type") TclType cachedType,
-                        @CachedLibrary("value") InteropLibrary valueLib) {
+                @Cached("type") TclType cachedType, @CachedLibrary("value") InteropLibrary valueLib) {
             return cachedType.isInstance.check(valueLib, value);
         }
 

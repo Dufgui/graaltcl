@@ -65,9 +65,12 @@ import com.oracle.truffle.tcl.runtime.TclUndefinedNameException;
 @NodeInfo(shortName = "invoke")
 public final class TclInvokeNode extends TclExpressionNode {
 
-    @Child private TclExpressionNode functionNode;
-    @Children private final TclExpressionNode[] argumentNodes;
-    @Child private InteropLibrary library;
+    @Child
+    private TclExpressionNode functionNode;
+    @Children
+    private final TclExpressionNode[] argumentNodes;
+    @Child
+    private InteropLibrary library;
 
     public TclInvokeNode(TclExpressionNode functionNode, TclExpressionNode[] argumentNodes) {
         this.functionNode = functionNode;

@@ -53,8 +53,10 @@ import com.oracle.truffle.tcl.nodes.TclExpressionNode;
  */
 public abstract class TclShortCircuitNode extends TclExpressionNode {
 
-    @Child private TclExpressionNode left;
-    @Child private TclExpressionNode right;
+    @Child
+    private TclExpressionNode left;
+    @Child
+    private TclExpressionNode right;
 
     /**
      * Short circuits might be used just like a conditional statement it makes sense to profile the

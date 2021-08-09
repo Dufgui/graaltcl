@@ -68,9 +68,11 @@ import com.oracle.truffle.tcl.runtime.TclNull;
 public final class TclEvalRootNode extends RootNode {
 
     private final Map<String, RootCallTarget> functions;
-    @CompilationFinal private boolean registered;
+    @CompilationFinal
+    private boolean registered;
 
-    @Child private DirectCallNode mainCallNode;
+    @Child
+    private DirectCallNode mainCallNode;
     private final TclLanguage language;
 
     public TclEvalRootNode(TclLanguage language, RootCallTarget rootFunction, Map<String, RootCallTarget> functions) {

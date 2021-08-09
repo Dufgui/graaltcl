@@ -59,7 +59,8 @@ import com.oracle.truffle.tcl.runtime.TclNull;
 public final class TclFunctionBodyNode extends TclExpressionNode {
 
     /** The body of the function. */
-    @Child private TclStatementNode bodyNode;
+    @Child
+    private TclStatementNode bodyNode;
 
     /**
      * Profiling information, collected by the interpreter, capturing whether the function had an

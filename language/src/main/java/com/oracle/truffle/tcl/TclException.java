@@ -80,7 +80,8 @@ public class TclException extends AbstractTruffleException {
         if (operation != null) {
             SourceSection ss = operation.getEncapsulatingSourceSection();
             if (ss != null && ss.isAvailable()) {
-                result.append(" at ").append(ss.getSource().getName()).append(" line ").append(ss.getStartLine()).append(" col ").append(ss.getStartColumn());
+                result.append(" at ").append(ss.getSource().getName()).append(" line ").append(ss.getStartLine())
+                        .append(" col ").append(ss.getStartColumn());
             }
         }
 
@@ -114,7 +115,8 @@ public class TclException extends AbstractTruffleException {
                 if (valueLib.hasMetaObject(value) && !valueLib.isNull(value)) {
                     String qualifiedName;
                     try {
-                        qualifiedName = UNCACHED_LIB.asString(UNCACHED_LIB.getMetaQualifiedName(valueLib.getMetaObject(value)));
+                        qualifiedName = UNCACHED_LIB
+                                .asString(UNCACHED_LIB.getMetaQualifiedName(valueLib.getMetaObject(value)));
                     } catch (UnsupportedMessageException e) {
                         throw shouldNotReachHere(e);
                     }

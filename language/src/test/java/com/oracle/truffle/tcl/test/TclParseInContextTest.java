@@ -93,7 +93,8 @@ public class TclParseInContextTest {
         protected CallTarget parse(ParsingRequest request) throws Exception {
             return Truffle.getRuntime().createCallTarget(new RootNode(this) {
 
-                @CompilationFinal private ContextReference<Env> reference;
+                @CompilationFinal
+                private ContextReference<Env> reference;
 
                 @Override
                 public Object execute(VirtualFrame frame) {
