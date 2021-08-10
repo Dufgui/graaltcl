@@ -136,8 +136,33 @@ command [boolean inLoop] returns [TclExpressionNode result]
         | return_command
         { $result = $return_command.result; }
 
-        | expression
-        { $result = $expression.result; }
+        | '$' var =
+        (
+            IDENTIFIER
+            | INTEGER_LITERAL
+        )
+        { TclExpressionNode assignmentName = factory.createStringLiteral($var, false);
+                                                }
+
+        command_parameters [$var, assignmentName]
+        { $result = $command_parameters.result; }
+
+        | IDENTIFIER
+        { TclExpressionNode assignmentName = factory.createStringLiteral($IDENTIFIER, false); }
+
+        (
+            member_expression [null, null, assignmentName]
+            { $result = $member_expression.result; }
+
+            |
+            { $result = factory.createIdentifier(assignmentName); }
+
+        )
+        (
+            command_parameters [$IDENTIFIER, assignmentName]
+            { $result = $command_parameters.result; }
+
+        )
 
     ) ';'?
 ;
@@ -243,36 +268,8 @@ term returns [TclExpressionNode result]
             | INTEGER_LITERAL
         )
         { TclExpressionNode assignmentName = factory.createStringLiteral($var, false);
-                                                }
-
-        command_parameters [$var, assignmentName]
-        { $result = $command_parameters.result; }
-
-        | '$' var =
-        (
-            IDENTIFIER
-            | INTEGER_LITERAL
-        )
-        { TclExpressionNode assignmentName = factory.createStringLiteral($var, false);
                                                     $result = factory.createRead(assignmentName);
                                                 }
-
-        | IDENTIFIER
-        { TclExpressionNode assignmentName = factory.createStringLiteral($IDENTIFIER, false); }
-
-        (
-            member_expression [null, null, assignmentName]
-            { $result = $member_expression.result; }
-
-            |
-            { $result = factory.createIdentifier(assignmentName); }
-
-        )
-        (
-            command_parameters [$IDENTIFIER, assignmentName]
-            { $result = $command_parameters.result; }
-
-        )
         | s = '[' exp = command [false] e = ']'
         { $result = factory.createParentExpression($exp.result, $s.getStartIndex(), $e.getStopIndex() - $s.getStartIndex() + 1); }
 
@@ -352,7 +349,7 @@ command_parameters [Token start, TclExpressionNode assignmentName] returns
         end = expression
         { parameters.add($expression.result); }
 
-    )+
+    )*
     { $result = factory.createCall(receiver, parameters, end); }
 
 ;
