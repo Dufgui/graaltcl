@@ -39,7 +39,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.oracle</groupId>
@@ -55,7 +57,9 @@
       </activation>
       <properties>
         <jar.dir>${project.build.directory}/jars</jar.dir>
-        <test.argLine>--upgrade-module-path='${jar.dir}/truffle-api.jar' --add-opens org.graalvm.sdk/org.graalvm.polyglot=ALL-UNNAMED --add-exports java.base/jdk.internal.module=ALL-UNNAMED</test.argLine>
+        <test.argLine>--upgrade-module-path='${jar.dir}/truffle-api.jar'
+          --add-opens org.graalvm.sdk/org.graalvm.polyglot=ALL-UNNAMED
+          --add-exports java.base/jdk.internal.module=ALL-UNNAMED</test.argLine>
       </properties>
       <build>
         <plugins>
@@ -110,9 +114,52 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>generate_source_generator_g4</id>
+            <phase>generate-sources</phase>
+            <configuration>
+              <includes>
+                <include>com/oracle/truffle/tcl/generator/GenerateG4.java</include>
+              </includes>
+            </configuration>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>exec-maven-plugin</artifactId>
+        <groupId>org.codehaus.mojo</groupId>
+        <executions>
+          <execution>
+            <id>make_test_g4</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>java</executable>
+              <arguments>
+                <argument>-classpath</argument>
+                <!-- automatically creates the classpath using all project 
+                  dependencies, also adding the project build directory -->
+                <classpath />
+                <argument>com.oracle.truffle.tcl.generator.GenerateG4</argument>
+                <argument>Tcl</argument>
+                <argument>TclTest</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>org.antlr</groupId>
         <artifactId>antlr4-maven-plugin</artifactId>
-        <version>4.7.1</version>
+        <version>4.7.2</version>
         <configuration>
           <outputDirectory>${project.build.directory}/generated-sources/antlr4/com/oracle/truffle/tcl/parser</outputDirectory>
           <arguments>
@@ -126,6 +173,39 @@
             <id>antlr</id>
             <goals>
               <goal>antlr4</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>antlr-test</id>
+            <configuration>
+              <sourceDirectory>${project.build.directory}/generated-test-sources/antlr4</sourceDirectory>
+              <outputDirectory>${project.build.directory}/generated-test-sources/antlr4/com/oracle/truffle/tcl/parser</outputDirectory>
+            </configuration>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>antlr4</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.khubla.antlr</groupId>
+        <artifactId>antlr4test-maven-plugin</artifactId>
+        <version>1.18</version>
+        <configuration>
+          <verbose>false</verbose>
+          <showTree>false</showTree>
+          <packageName>com.oracle.truffle.tcl.parser</packageName>
+          <grammarName>TclTest</grammarName>
+          <entryPoint>tcl</entryPoint>
+          <exampleFiles>testsparser/</exampleFiles>
+          <testFileExtension>.tcl</testFileExtension>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
             </goals>
           </execution>
         </executions>
@@ -208,7 +288,7 @@
     <dependency>
       <groupId>org.antlr</groupId>
       <artifactId>antlr4-runtime</artifactId>
-      <version>4.7</version>
+      <version>4.7.2</version>
     </dependency>
   </dependencies>
 </project>
