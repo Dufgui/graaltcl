@@ -71,8 +71,7 @@ tcl
         function
         | command [false]
         { factory.addModuleStatement($command.result); }
-
-        NL+
+        (NL+ | ';')
     )* NL* EOF
     { factory.finishModule(); }
 
@@ -209,21 +208,21 @@ return_command returns [TclExpressionNode result]
 
 expression returns [TclExpressionNode result]
 :
-    '{' expression
+    '{' NL* expression
     { $result = $expression.result; }
-
+NL*
     '}'
-    | '(' expression
+    | '(' NL* expression
     { $result = $expression.result; }
-
+NL*
     ')'
-    | left = expression op = '||' right = expression
+    | left = expression NL* op = '||' NL* right = expression
     { $result = factory.createBinary($op, $left.result, $right.result); }
 
-    | left = expression op = '&&' right = expression
+    | left = expression NL* op = '&&' NL* right = expression
     { $result = factory.createBinary($op, $left.result, $right.result); }
 
-    | left = expression op =
+    | left = expression NL* op =
     (
         '<'
         | '<='
@@ -233,25 +232,25 @@ expression returns [TclExpressionNode result]
         | '!='
         | 'eq'
         | 'ne'
-    ) right = expression
+    ) NL* right = expression
     { $result = factory.createBinary($op, $left.result, $right.result); }
 
-    | left = expression op =
+    | left = expression NL* op =
     (
         '*'
         | '/'
         | '%'
-    ) right = expression
+    ) NL* right = expression
     { $result = factory.createBinary($op, $left.result, $right.result); }
 
-    | left = expression op =
+    | left = expression NL* op =
     (
         '+'
         | '-'
-    ) right = expression
+    ) NL* right = expression
     { $result = factory.createBinary($op, $left.result, $right.result); }
 
-    | left = expression op = '**' right = expression
+    | left = expression NL* op = '**' NL* right = expression
     { $result = factory.createBinary($op, $left.result, $right.result); }
 
     | term
@@ -270,7 +269,7 @@ term returns [TclExpressionNode result]
         { TclExpressionNode assignmentName = factory.createStringLiteral($var, false);
                                                     $result = factory.createRead(assignmentName);
                                                 }
-        | s = '[' exp = command [false] e = ']'
+        | s = '[' NL* exp = command [false] NL* e = ']'
         { $result = factory.createParentExpression($exp.result, $s.getStartIndex(), $e.getStopIndex() - $s.getStartIndex() + 1); }
 
         | word
