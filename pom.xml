@@ -39,7 +39,7 @@
 
 		<!-- formater -->
 		<maven.formater.version>2.15.0</maven.formater.version>
-		<maven.formater.configFile>${maven.multiModuleProjectDirectory}${file.separator}formater.xml</maven.formater.configFile>
+		<maven.formater.configFile>${maven.multiModuleProjectDirectory}/formater.xml</maven.formater.configFile>
 		<maven.impsort.version>1.6.0</maven.impsort.version>
 	</properties>
 	<packaging>pom</packaging>

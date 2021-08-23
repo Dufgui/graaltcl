@@ -189,8 +189,11 @@ public class TclTestRunner extends ParentRunner<TestCase> {
                         expectedOutput = readAllLines(outputFile);
                     }
 
-                    foundCases
-                            .add(new TestCase(c, baseName, sourceName, sourceFile, testInput, expectedOutput, options));
+                    // remove tests without expected result
+                    if (outputFile.toFile().exists()) {
+                        foundCases.add(
+                                new TestCase(c, baseName, sourceName, sourceFile, testInput, expectedOutput, options));
+                    }
                 }
                 return FileVisitResult.CONTINUE;
             }

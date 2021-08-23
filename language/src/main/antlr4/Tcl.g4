@@ -140,9 +140,7 @@ command [boolean inLoop] returns [TclExpressionNode result]
             IDENTIFIER
             | INTEGER_LITERAL
         )
-        { TclExpressionNode assignmentName = factory.createStringLiteral($var, false);
-                                                }
-
+        { TclExpressionNode assignmentName = factory.createStringLiteral($var, false); }
         command_parameters [$var, assignmentName]
         { $result = $command_parameters.result; }
 
@@ -341,7 +339,7 @@ command_parameters [Token start, TclExpressionNode assignmentName] returns
 
     { List<TclExpressionNode> parameters = new ArrayList<>();
                                                   Token end = start;
-                                                  TclExpressionNode receiver = factory.createRead(assignmentName);
+                                                  TclExpressionNode receiver = factory.createCommand(assignmentName);
                                              }
 
     (

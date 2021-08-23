@@ -67,29 +67,7 @@ import com.oracle.truffle.tcl.nodes.controlflow.TclFunctionBodyNode;
 import com.oracle.truffle.tcl.nodes.controlflow.TclIfNode;
 import com.oracle.truffle.tcl.nodes.controlflow.TclReturnNode;
 import com.oracle.truffle.tcl.nodes.controlflow.TclWhileNode;
-import com.oracle.truffle.tcl.nodes.expression.TclAddNodeGen;
-import com.oracle.truffle.tcl.nodes.expression.TclBigIntegerLiteralNode;
-import com.oracle.truffle.tcl.nodes.expression.TclBooleanLiteralNode;
-import com.oracle.truffle.tcl.nodes.expression.TclDivNodeGen;
-import com.oracle.truffle.tcl.nodes.expression.TclDoubleLiteralNode;
-import com.oracle.truffle.tcl.nodes.expression.TclEqualNodeGen;
-import com.oracle.truffle.tcl.nodes.expression.TclFunctionLiteralNode;
-import com.oracle.truffle.tcl.nodes.expression.TclInvokeNode;
-import com.oracle.truffle.tcl.nodes.expression.TclLessOrEqualNodeGen;
-import com.oracle.truffle.tcl.nodes.expression.TclLessThanNodeGen;
-import com.oracle.truffle.tcl.nodes.expression.TclLogicalAndNode;
-import com.oracle.truffle.tcl.nodes.expression.TclLogicalNotNodeGen;
-import com.oracle.truffle.tcl.nodes.expression.TclLogicalOrNode;
-import com.oracle.truffle.tcl.nodes.expression.TclLongLiteralNode;
-import com.oracle.truffle.tcl.nodes.expression.TclModuloNodeGen;
-import com.oracle.truffle.tcl.nodes.expression.TclMulNodeGen;
-import com.oracle.truffle.tcl.nodes.expression.TclParenExpressionNode;
-import com.oracle.truffle.tcl.nodes.expression.TclReadPropertyNode;
-import com.oracle.truffle.tcl.nodes.expression.TclReadPropertyNodeGen;
-import com.oracle.truffle.tcl.nodes.expression.TclStringLiteralNode;
-import com.oracle.truffle.tcl.nodes.expression.TclSubNodeGen;
-import com.oracle.truffle.tcl.nodes.expression.TclWritePropertyNode;
-import com.oracle.truffle.tcl.nodes.expression.TclWritePropertyNodeGen;
+import com.oracle.truffle.tcl.nodes.expression.*;
 import com.oracle.truffle.tcl.nodes.local.TclReadArgumentNode;
 import com.oracle.truffle.tcl.nodes.local.TclReadLocalVariableNode;
 import com.oracle.truffle.tcl.nodes.local.TclReadLocalVariableNodeGen;
@@ -536,6 +514,44 @@ public class TclNodeFactory {
         if (frameSlot != null) {
             /* Read of a local variable. */
             result = TclReadLocalVariableNodeGen.create(frameSlot);
+        } else {
+            /*
+             * Read of a global name. In our language, the only global names are functions.
+             */
+            result = new TclFunctionLiteralNode(name);
+        }
+        result.setSourceSection(nameNode.getSourceCharIndex(), nameNode.getSourceLength());
+        result.addExpressionTag();
+        return result;
+    }
+
+    /**
+     * Returns a {@link TclFunctionLiteralNode}.
+     *
+     * @param nameNode The name of the variable/function being read
+     * @return either:
+     *         <ul>
+     *         <li>A TclReadLocalVariableNode representing the local variable being
+     *         read.</li>
+     *         <li>A TclFunctionLiteralNode representing the function
+     *         definition.</li>
+     *         <li>null if nameNode is null.</li>
+     *         </ul>
+     */
+    public TclExpressionNode createCommand(TclExpressionNode nameNode) {
+        if (nameNode == null) {
+            return null;
+        }
+
+        String name = (String) (nameNode.executeGeneric(null));
+        final TclExpressionNode result;
+        final FrameSlot frameSlot = lexicalScope.locals.get(name);
+        if (frameSlot != null) {
+            /* Read of a local variable. */
+            TclReadLocalVariableNode localVariableNode = TclReadLocalVariableNodeGen.create(frameSlot);
+            localVariableNode.setSourceSection(nameNode.getSourceCharIndex(), nameNode.getSourceLength());
+            localVariableNode.addExpressionTag();
+            result = new TclFunctionDynamicNode(localVariableNode);
         } else {
             /*
              * Read of a global name. In our language, the only global names are functions.

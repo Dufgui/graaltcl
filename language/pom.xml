@@ -56,8 +56,12 @@
         <jdk>[11,</jdk>
       </activation>
       <properties>
-        <jar.dir>${project.build.directory}${file.separator}jars</jar.dir>
-        <test.argLine>--upgrade-module-path='${jar.dir}${file.separator}truffle-api.jar'
+        <jar.dir>${project.build.directory}/jars</jar.dir>
+        <!--
+        Replace by a absolute path without c:/ for intellij compatibility
+        <jar.dir>/Users/gdufour/git/github/dufgui/graaltcl/language/target/jars</jar.dir>
+        -->
+        <test.argLine>--upgrade-module-path='${jar.dir}/truffle-api.jar'
           --add-opens org.graalvm.sdk/org.graalvm.polyglot=ALL-UNNAMED
           --add-exports java.base/jdk.internal.module=ALL-UNNAMED</test.argLine>
       </properties>
@@ -161,7 +165,7 @@
         <artifactId>antlr4-maven-plugin</artifactId>
         <version>4.7.2</version>
         <configuration>
-          <outputDirectory>${project.build.directory}${file.separator}generated-sources${file.separator}antlr4${file.separator}com${file.separator}oracle${file.separator}truffle${file.separator}tcl${file.separator}parser</outputDirectory>
+          <outputDirectory>${project.build.directory}/generated-sources/antlr4/com/oracle/truffle/tcl/parser</outputDirectory>
           <arguments>
             <argument>-package</argument>
             <argument>com.oracle.truffle.tcl.parser</argument>
@@ -178,8 +182,8 @@
           <execution>
             <id>antlr-test</id>
             <configuration>
-              <sourceDirectory>${project.build.directory}${file.separator}generated-test-sources${file.separator}antlr4</sourceDirectory>
-              <outputDirectory>${project.build.directory}${file.separator}generated-test-sources${file.separator}antlr4${file.separator}com${file.separator}oracle${file.separator}truffle${file.separator}tcl${file.separator}parser</outputDirectory>
+              <sourceDirectory>${project.build.directory}/generated-test-sources/antlr4</sourceDirectory>
+              <outputDirectory>${project.build.directory}/generated-test-sources/antlr4/com/oracle/truffle/tcl/parser</outputDirectory>
             </configuration>
             <phase>generate-sources</phase>
             <goals>
@@ -198,7 +202,7 @@
           <packageName>com.oracle.truffle.tcl.parser</packageName>
           <grammarName>TclTest</grammarName>
           <entryPoint>tcl</entryPoint>
-          <exampleFiles>testsparser${file.separator}</exampleFiles>
+          <exampleFiles>testsparser/</exampleFiles>
           <testFileExtension>.tcl</testFileExtension>
         </configuration>
         <executions>
