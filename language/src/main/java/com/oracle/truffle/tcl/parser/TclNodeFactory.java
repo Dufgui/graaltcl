@@ -68,11 +68,7 @@ import com.oracle.truffle.tcl.nodes.controlflow.TclIfNode;
 import com.oracle.truffle.tcl.nodes.controlflow.TclReturnNode;
 import com.oracle.truffle.tcl.nodes.controlflow.TclWhileNode;
 import com.oracle.truffle.tcl.nodes.expression.*;
-import com.oracle.truffle.tcl.nodes.local.TclReadArgumentNode;
-import com.oracle.truffle.tcl.nodes.local.TclReadLocalVariableNode;
-import com.oracle.truffle.tcl.nodes.local.TclReadLocalVariableNodeGen;
-import com.oracle.truffle.tcl.nodes.local.TclWriteLocalVariableNode;
-import com.oracle.truffle.tcl.nodes.local.TclWriteLocalVariableNodeGen;
+import com.oracle.truffle.tcl.nodes.local.*;
 import com.oracle.truffle.tcl.nodes.util.TclUnboxNodeGen;
 
 /**
@@ -510,15 +506,12 @@ public class TclNodeFactory {
 
         String name = (String) (nameNode.executeGeneric(null));
         final TclExpressionNode result;
-        final FrameSlot frameSlot = lexicalScope.locals.get(name);
-        if (frameSlot != null) {
+        final FrameSlot localFrameSlot = lexicalScope.locals.get(name);
+        if (localFrameSlot != null) {
             /* Read of a local variable. */
-            result = TclReadLocalVariableNodeGen.create(frameSlot);
+            result = TclReadLocalVariableNodeGen.create(localFrameSlot);
         } else {
-            /*
-             * Read of a global name. In our language, the only global names are functions.
-             */
-            result = new TclFunctionLiteralNode(name);
+            result = new TclReadVariableNode(name);
         }
         result.setSourceSection(nameNode.getSourceCharIndex(), nameNode.getSourceLength());
         result.addExpressionTag();

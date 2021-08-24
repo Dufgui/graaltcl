@@ -98,6 +98,7 @@ import com.oracle.truffle.tcl.nodes.expression.TclSubNode;
 import com.oracle.truffle.tcl.nodes.expression.TclWritePropertyNode;
 import com.oracle.truffle.tcl.nodes.local.TclReadArgumentNode;
 import com.oracle.truffle.tcl.nodes.local.TclReadLocalVariableNode;
+import com.oracle.truffle.tcl.nodes.local.TclReadVariableNode;
 import com.oracle.truffle.tcl.nodes.local.TclWriteLocalVariableNode;
 import com.oracle.truffle.tcl.parser.TclNodeFactory;
 import com.oracle.truffle.tcl.parser.TclParser;
@@ -154,6 +155,7 @@ import com.oracle.truffle.tcl.runtime.TclObject;
  * {@link TclLessOrEqualNode &le;}, &gt;, &ge;.
  * <li>Local variables: local variables must be defined (via a
  * {@link TclWriteLocalVariableNode write}) before they can be used (by a
+ * {@link TclReadVariableNode read}). This is used for dynamic variables.
  * {@link TclReadLocalVariableNode read}). Local variables are not visible
  * outside of the block where they were first defined.
  * <li>Basic control flow statements: {@link TclBlockNode blocks},

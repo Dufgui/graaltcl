@@ -41,6 +41,8 @@
 		<maven.formater.version>2.15.0</maven.formater.version>
 		<maven.formater.configFile>${maven.multiModuleProjectDirectory}/formater.xml</maven.formater.configFile>
 		<maven.impsort.version>1.6.0</maven.impsort.version>
+		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>11</maven.compiler.target>
 	</properties>
 	<packaging>pom</packaging>
 	<modules>

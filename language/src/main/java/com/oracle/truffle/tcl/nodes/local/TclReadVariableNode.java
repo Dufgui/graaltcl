@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2020, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * The Universal Permissive License (UPL), Version 1.0
@@ -38,38 +38,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.oracle.truffle.tcl.builtins;
+package com.oracle.truffle.tcl.nodes.local;
 
-import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlot;
-import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.tcl.runtime.TclContext;
+import com.oracle.truffle.tcl.nodes.TclExpressionNode;
+import com.oracle.truffle.tcl.runtime.TclUndefinedNameException;
 
 /**
- * Builtin function that reads a String from the {@link TclContext#getInput()
- * standard input}.
+ * Node to read a local variable from a function's {@link VirtualFrame frame}.
+ * The Truffle frame API allows to store primitive values of all Java primitive
+ * types, and Object values. This means that all tcl types that are objects are
+ * handled by the {@link #readObject} method.
+ * <p>
+ * We use the primitive type only when the same primitive type is uses for all
+ * writes. If the local variable is type-polymorphic, then the value is always
+ * stored as an Object, i.e., primitive values are boxed. Even a mixture of
+ * {@code long} and {@code boolean} writes leads to both being stored boxed.
  */
-@NodeInfo(shortName = "set")
-public abstract class TclSetBuiltin extends TclBuiltinNode {
+@NodeInfo
+public final class TclReadVariableNode extends TclExpressionNode {
 
-    @Specialization
-    protected Object setObject(VirtualFrame frameValue, Object name, Object value) {
-        FrameDescriptor frameDescriptor = frameValue.getFrameDescriptor();
-        FrameSlot frameSlot = frameDescriptor.findOrAddFrameSlot(name, FrameSlotKind.Illegal);
-        if (value instanceof Long) {
-            frameValue.getFrameDescriptor().setFrameSlotKind(frameSlot, FrameSlotKind.Long);
-            frameValue.setLong(frameSlot, (Long) value);
-        } else if (value instanceof Boolean) {
-            frameValue.getFrameDescriptor().setFrameSlotKind(frameSlot, FrameSlotKind.Boolean);
-            frameValue.setBoolean(frameSlot, (Boolean) value);
-        } else {
-            frameValue.getFrameDescriptor().setFrameSlotKind(frameSlot, FrameSlotKind.Object);
-            frameValue.setObject(frameSlot, value);
+    private final String name;
+
+    public TclReadVariableNode(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public Object executeGeneric(VirtualFrame frame) {
+        FrameSlot slot = frame.getFrameDescriptor().findFrameSlot(this.name);
+        if (slot == null) {
+            throw TclUndefinedNameException.undefinedProperty(this, this.name);
         }
-        return value;
+        return frame.getValue(slot);
     }
 
 }

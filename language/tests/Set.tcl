@@ -5,6 +5,9 @@ proc double {x} {
   return [expr {2 * $x}]
 }
 
+set 2 4
+puts $2
+
 set [double 2] 4
 puts $4
 
