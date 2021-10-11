@@ -44,7 +44,6 @@ import java.math.BigInteger;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.tcl.nodes.TclExpressionNode;
 import com.oracle.truffle.tcl.runtime.TclBigNumber;
 
 /**
@@ -52,7 +51,7 @@ import com.oracle.truffle.tcl.runtime.TclBigNumber;
  * {@link TclLongLiteralNode}.
  */
 @NodeInfo(shortName = "const")
-public final class TclBigIntegerLiteralNode extends TclExpressionNode {
+public final class TclBigIntegerLiteralNode extends TclLiteralNode {
 
     private final TclBigNumber value;
 

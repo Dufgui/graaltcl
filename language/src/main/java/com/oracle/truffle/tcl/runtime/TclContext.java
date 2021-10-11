@@ -65,7 +65,6 @@ import com.oracle.truffle.tcl.builtins.TclGetsBuiltinFactory;
 import com.oracle.truffle.tcl.builtins.TclProcBuiltinFactory;
 import com.oracle.truffle.tcl.builtins.TclPutsBuiltin;
 import com.oracle.truffle.tcl.builtins.TclPutsBuiltinFactory;
-import com.oracle.truffle.tcl.builtins.TclSetBuiltinFactory;
 
 /**
  * The run-time state of tcl during execution. The context is created by the
@@ -139,7 +138,6 @@ public final class TclContext {
         installBuiltin(TclPutsBuiltinFactory.getInstance());
         installBuiltin(TclProcBuiltinFactory.getInstance());
         installBuiltin(TclExprBuiltinFactory.getInstance());
-        installBuiltin(TclSetBuiltinFactory.getInstance());
         installBuiltin(TclConcatBuiltinFactory.getInstance());
     }
 

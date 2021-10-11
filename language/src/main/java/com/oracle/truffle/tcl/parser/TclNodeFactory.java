@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
@@ -69,8 +70,10 @@ import com.oracle.truffle.tcl.nodes.controlflow.TclReturnNode;
 import com.oracle.truffle.tcl.nodes.controlflow.TclWhileNode;
 import com.oracle.truffle.tcl.nodes.expression.*;
 import com.oracle.truffle.tcl.nodes.local.TclReadArgumentNode;
+import com.oracle.truffle.tcl.nodes.local.TclReadDynamicNodeGen;
 import com.oracle.truffle.tcl.nodes.local.TclReadLocalVariableNode;
 import com.oracle.truffle.tcl.nodes.local.TclReadLocalVariableNodeGen;
+import com.oracle.truffle.tcl.nodes.local.TclWriteDynamicVariableNodeGen;
 import com.oracle.truffle.tcl.nodes.local.TclWriteLocalVariableNode;
 import com.oracle.truffle.tcl.nodes.local.TclWriteLocalVariableNodeGen;
 import com.oracle.truffle.tcl.nodes.util.TclUnboxNodeGen;
@@ -88,7 +91,7 @@ public class TclNodeFactory {
      * variables. Because of that, we can decide during parsing if a name references
      * a local variable or is a function name.
      */
-    static class LexicalScope {
+    public static class LexicalScope {
         protected final LexicalScope outer;
         protected final Map<String, FrameSlot> locals;
 
@@ -98,6 +101,14 @@ public class TclNodeFactory {
             if (outer != null) {
                 locals.putAll(outer.locals);
             }
+        }
+
+        public FrameSlot putLocal(String key, FrameSlot slot) {
+            return locals.put(key, slot);
+        }
+
+        public FrameSlot getLocal(String key) {
+            return locals.get(key);
         }
     }
 
@@ -450,7 +461,7 @@ public class TclNodeFactory {
      *         valueNode is null.
      */
     public TclExpressionNode createAssignment(TclExpressionNode nameNode, TclExpressionNode valueNode) {
-        return createAssignment(nameNode, valueNode, null);
+        return createAssignment(nameNode, valueNode, 0);
     }
 
     /**
@@ -468,13 +479,18 @@ public class TclNodeFactory {
         if (nameNode == null || valueNode == null) {
             return null;
         }
-
-        String name = ((TclStringLiteralNode) nameNode).executeGeneric(null);
-        FrameSlot frameSlot = frameDescriptor.findOrAddFrameSlot(name, argumentIndex, FrameSlotKind.Illegal);
-        FrameSlot existingSlot = lexicalScope.locals.put(name, frameSlot);
-        boolean newVariable = existingSlot == null;
-        final TclExpressionNode result = TclWriteLocalVariableNodeGen.create(valueNode, frameSlot, nameNode,
-                newVariable);
+        TclExpressionNode result;
+        if (nameNode instanceof TclLiteralNode) {
+            String name = Objects.toString(nameNode.executeGeneric(null));
+            FrameSlot frameSlot = getCurrentFrameDescriptor().findOrAddFrameSlot(name, argumentIndex,
+                    FrameSlotKind.Illegal);
+            FrameSlot existingSlot = lexicalScope.locals.put(name, frameSlot);
+            boolean newVariable = existingSlot == null;
+            result = TclWriteLocalVariableNodeGen.create(valueNode, frameSlot, nameNode, newVariable);
+        } else {
+            result = TclWriteDynamicVariableNodeGen.create(nameNode, valueNode, getCurrentFrameDescriptor(),
+                    lexicalScope, argumentIndex);
+        }
 
         if (valueNode.hasSource()) {
             final int start = nameNode.getSourceCharIndex();
@@ -486,6 +502,14 @@ public class TclNodeFactory {
         }
 
         return result;
+    }
+
+    private FrameDescriptor getCurrentFrameDescriptor() {
+        if (frameDescriptor != null) {
+            return frameDescriptor;
+        }
+        return moduleFrameDescriptor;
+
     }
 
     /**
@@ -514,11 +538,12 @@ public class TclNodeFactory {
         if (frameSlot != null) {
             /* Read of a local variable. */
             result = TclReadLocalVariableNodeGen.create(frameSlot);
-        } else {
-            /*
-             * Read of a global name. In our language, the only global names are functions.
-             */
+        } else if (allFunctions.containsKey(name)) {
+            /* Read of a functions. */
             result = new TclFunctionLiteralNode(name);
+        } else {
+            /* if not sure, we can handle local variable only */
+            result = TclReadDynamicNodeGen.create(name, lexicalScope);
         }
         result.setSourceSection(nameNode.getSourceCharIndex(), nameNode.getSourceLength());
         result.addExpressionTag();
@@ -671,7 +696,7 @@ public class TclNodeFactory {
             return null;
         }
 
-        final TclParenExpressionNode result = new TclParenExpressionNode(expressionNode);
+        final TclParentExpressionNode result = new TclParentExpressionNode(expressionNode);
         result.setSourceSection(start, length);
         return result;
     }

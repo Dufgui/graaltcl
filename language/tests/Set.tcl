@@ -5,8 +5,13 @@ proc double {x} {
   return [expr {2 * $x}]
 }
 
-set [double 2] 4
+set 2 a
+puts $2
+
+puts [double 2]
+
+set [double 2] b
 puts $4
 
-set [expr {5 + [double 2]}] 4
+set [expr {5 + [double 2]}] c
 puts $9

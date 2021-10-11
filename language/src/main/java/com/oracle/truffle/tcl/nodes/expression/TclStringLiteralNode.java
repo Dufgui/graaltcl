@@ -42,13 +42,12 @@ package com.oracle.truffle.tcl.nodes.expression;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.tcl.nodes.TclExpressionNode;
 
 /**
  * Constant literal for a String value.
  */
 @NodeInfo(shortName = "const")
-public final class TclStringLiteralNode extends TclExpressionNode {
+public final class TclStringLiteralNode extends TclLiteralNode {
 
     private final String value;
 

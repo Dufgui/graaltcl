@@ -54,12 +54,12 @@ import com.oracle.truffle.tcl.nodes.TclExpressionNode;
  * contents.
  */
 @NodeInfo(description = "A parenthesized expression")
-public class TclParenExpressionNode extends TclExpressionNode {
+public class TclParentExpressionNode extends TclExpressionNode {
 
     @Child
     private TclExpressionNode expression;
 
-    public TclParenExpressionNode(TclExpressionNode expression) {
+    public TclParentExpressionNode(TclExpressionNode expression) {
         this.expression = expression;
     }
 

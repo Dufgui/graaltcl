@@ -43,7 +43,6 @@ package com.oracle.truffle.tcl.nodes.expression;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
-import com.oracle.truffle.tcl.nodes.TclExpressionNode;
 
 /**
  * Constant literal for a primitive {@code long} value. The unboxed value can be
@@ -52,7 +51,7 @@ import com.oracle.truffle.tcl.nodes.TclExpressionNode;
  * value is automatically boxed by Java.
  */
 @NodeInfo(shortName = "const")
-public final class TclBooleanLiteralNode extends TclExpressionNode {
+public final class TclBooleanLiteralNode extends TclLiteralNode {
 
     private final boolean value;
 

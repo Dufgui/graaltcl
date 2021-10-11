@@ -135,6 +135,9 @@ command [boolean inLoop] returns [TclExpressionNode result]
         | return_command
         { $result = $return_command.result; }
 
+        | set_command
+        { $result = $set_command.result; }
+
         | '$' var =
         (
             IDENTIFIER
@@ -200,8 +203,16 @@ return_command returns [TclExpressionNode result]
 
     )?
     { $result = factory.createReturn($r, value); }
+;
 
-    ';'?
+set_command returns [TclExpressionNode result]
+:
+    'set'
+    name = expression
+    { TclExpressionNode name = $name.result; }
+    value = expression
+    { TclExpressionNode value = $value.result; }
+    { $result = factory.createAssignment(name, value); }
 ;
 
 expression returns [TclExpressionNode result]
