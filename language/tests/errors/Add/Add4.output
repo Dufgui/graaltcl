@@ -1,2 +1,2 @@
 Error(s) parsing script:
--- line 4 col 6: mismatched input '[' expecting {<EOF>, ';', NL}
+-- line 4 col 19: mismatched input '}' expecting {'{', '$', '(', '[', NL, STRING_LITERAL, IDENTIFIER, INTEGER_LITERAL, DOUBLE_LITERAL, BOOLEAN_LITERAL}
