@@ -10,12 +10,12 @@ proc f {a b} {
 }
 
 puts [concat "s" ""]
-puts [concat "s" ""]
+puts [concat "s" "bar"]
 puts "s[foo]"
 puts "s[foo]"
 
 puts [concat "" "s"]
-puts [concat "" "s"]
+puts [concat "bar" "s"]
 puts "[foo]s"
 puts "[foo]s"
 

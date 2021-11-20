@@ -10,26 +10,39 @@ import java.util.regex.Pattern;
 public class GenerateG4 {
 
     public static void main(String[] args) throws IOException {
-        String g4File = Files.readString(Paths.get("src/main/antlr4/", args[0] + ".g4"));
+        String parser = args[0];
+        String lexer = args[1];
+        String testPrefix = args[2];
 
-        g4File = g4File.replace("grammar " + args[0] + ";", "grammar " + args[1] + ";");
+        String g4ParserFile = Files.readString(Paths.get("src/main/antlr4/", parser + ".g4"));
+        String g4LexerFile = Files.readString(Paths.get("src/main/antlr4/", lexer + ".g4"));
 
-        g4File = Pattern.compile("@parser.*// parser", Pattern.DOTALL)//
-                .matcher(g4File).replaceFirst("// parser");
+        g4ParserFile = g4ParserFile.replace("grammar " + parser + ";", "grammar " + testPrefix + parser + ";");
+        g4ParserFile = g4ParserFile.replace("options { tokenVocab=" + lexer + "; }",
+                "options { tokenVocab=" + testPrefix + lexer + "; }");
 
-        String[] g4FileSplit = g4File.split("// parser");
-        g4File = g4FileSplit[0] + "// parser" + Pattern.compile("\\s+\\{(?:(?:\\{.*?\\})|.)*?\\}", Pattern.DOTALL)//
+        g4ParserFile = Pattern.compile("@parser.*// parser", Pattern.DOTALL)//
+                .matcher(g4ParserFile).replaceFirst("// parser");
+
+        String[] g4FileSplit = g4ParserFile.split("// parser");
+        g4ParserFile = g4FileSplit[0] + "// parser" + Pattern.compile("\\s+\\{(?:(?:\\{.*?\\})|.)*?\\}", Pattern.DOTALL)//
                 .matcher(g4FileSplit[1]).replaceAll("");
 
-        g4File = Pattern.compile("returns.[^:]*+:", Pattern.DOTALL)//
-                .matcher(g4File).replaceAll("\n:");
+        g4ParserFile = Pattern.compile("returns.[^:]*+:", Pattern.DOTALL)//
+                .matcher(g4ParserFile).replaceAll("\n:");
 
-        g4FileSplit = g4File.split("// lexer");
-        g4File = Pattern.compile("\\s+\\[.*?\\]", Pattern.DOTALL)//
-                .matcher(g4FileSplit[0]).replaceAll("") + "// lexer" + g4FileSplit[1];
+        g4ParserFile = Pattern.compile("\\[\\$result,", Pattern.DOTALL)//
+                .matcher(g4ParserFile).replaceAll("[null,");
 
-        Path output = Paths.get("target/generated-test-sources/antlr4/", args[1] + ".g4");
-        Files.createDirectories(output.getParent());
-        Files.writeString(output, g4File, StandardOpenOption.CREATE);
+        g4ParserFile = Pattern.compile("\\s+\\[.*?\\]", Pattern.DOTALL)//
+                .matcher(g4ParserFile).replaceAll("");
+
+        g4LexerFile = g4LexerFile.replace("grammar " + lexer + ";", "grammar " + testPrefix + lexer + ";");
+
+        Path outputParser = Paths.get("target/generated-test-sources/antlr4/", testPrefix + parser + ".g4");
+        Path outputLexer = Paths.get("target/generated-test-sources/antlr4/", testPrefix + lexer + ".g4");
+        Files.createDirectories(outputParser.getParent());
+        Files.writeString(outputParser, g4ParserFile, StandardOpenOption.CREATE);
+        Files.writeString(outputLexer, g4LexerFile, StandardOpenOption.CREATE);
     }
 }

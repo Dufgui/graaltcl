@@ -153,8 +153,9 @@
                   dependencies, also adding the project build directory -->
                 <classpath />
                 <argument>com.oracle.truffle.tcl.generator.GenerateG4</argument>
-                <argument>Tcl</argument>
-                <argument>TclTest</argument>
+                <argument>TclParser</argument>
+                <argument>TclLexer</argument>
+                <argument>Test</argument>
               </arguments>
             </configuration>
           </execution>
@@ -184,6 +185,7 @@
             <configuration>
               <sourceDirectory>${project.build.directory}/generated-test-sources/antlr4</sourceDirectory>
               <outputDirectory>${project.build.directory}/generated-test-sources/antlr4/com/oracle/truffle/tcl/parser</outputDirectory>
+
             </configuration>
             <phase>generate-sources</phase>
             <goals>
@@ -200,7 +202,7 @@
           <verbose>false</verbose>
           <showTree>false</showTree>
           <packageName>com.oracle.truffle.tcl.parser</packageName>
-          <grammarName>TclTest</grammarName>
+          <grammarName>TestTcl</grammarName>
           <entryPoint>tcl</entryPoint>
           <exampleFiles>testsparser/</exampleFiles>
           <testFileExtension>.tcl</testFileExtension>

@@ -1,7 +1,9 @@
 /*
  * The parser and lexer need to be generated using "mx create-tcl-parser".
  */
-grammar Tcl;
+parser grammar TclParser;
+
+options { tokenVocab=TclLexer; }
 
 @parser::header {
 // DO NOT MODIFY - generated from Tcl.g4 using "mx create-tcl-parser"
@@ -62,6 +64,7 @@ public static Map<String, RootCallTarget> parseTcl( TclLanguage language, Source
 }
 }
 
+
 // parser
 
 tcl
@@ -71,7 +74,7 @@ tcl
         function
         | command [false]
         { factory.addModuleStatement($command.result); }
-        (NL+ | ';')
+        (NL+ | EOC)
     )* NL* EOF
     { factory.finishModule(); }
 
@@ -79,7 +82,7 @@ tcl
 
 function
 :
-    'proc' IDENTIFIER s = '{'
+    PROC IDENTIFIER s = OPEN_BRACE
     { factory.startFunction($IDENTIFIER, $s); }
 
     (
@@ -91,7 +94,7 @@ function
             { factory.addFormalParameter($IDENTIFIER); }
 
         )*
-    )? '}' body = block [false]
+    )? CLOSE_BRACE body = block [false]
     { factory.finishFunction($body.result); }
 
 ;
@@ -101,7 +104,7 @@ block [boolean inLoop] returns [TclExpressionNode result]
 { factory.startBlock();
                                                   List<TclExpressionNode> body = new ArrayList<>(); }
 
-    s = '{' NL*
+    s = OPEN_BRACE NL*
     (
         command [inLoop]
         { body.add($command.result); }
@@ -111,7 +114,7 @@ block [boolean inLoop] returns [TclExpressionNode result]
         NL+ command [inLoop]
         { body.add($command.result); }
 
-    )* NL* e = '}'
+    )* NL* e = CLOSE_BRACE
     { $result = factory.finishBlock(body, $s.getStartIndex(), $e.getStopIndex() - $s.getStartIndex() + 1); }
 
     NL*
@@ -123,10 +126,10 @@ command [boolean inLoop] returns [TclExpressionNode result]
         while_command
         { $result = $while_command.result; }
 
-        | b = 'break'
+        | b = BREAK
         { if (inLoop) { $result = factory.createBreak($b); } else { SemErr($b, "break used outside of loop"); } }
 
-        | c = 'continue'
+        | c = CONTINUE
         { if (inLoop) { $result = factory.createContinue($c); } else { SemErr($c, "continue used outside of loop"); } }
 
         | if_command [inLoop]
@@ -138,7 +141,7 @@ command [boolean inLoop] returns [TclExpressionNode result]
         | set_command
         { $result = $set_command.result; }
 
-        | '$' var =
+        | DOLLAR var =
         (
             IDENTIFIER
             | INTEGER_LITERAL
@@ -164,27 +167,27 @@ command [boolean inLoop] returns [TclExpressionNode result]
 
         )
 
-    ) ';'?
+    ) EOC?
 ;
 
 while_command returns [TclExpressionNode result]
 :
-    w = 'while' condition = expression body = block [true]
+    w = WHILE condition = expression body = block [true]
     { $result = factory.createWhile($w, $condition.result, $body.result); }
 
 ;
 
 if_command [boolean inLoop] returns [TclExpressionNode result]
 :
-    i = 'if' condition = expression 'then'? then = block [inLoop]
+    i = IF condition = expression THEN? then = block [inLoop]
     { TclExpressionNode elsePart = null; }
 
     (
-        'elseif' condition2 = expression //TODO manage elseif
-        'then'? then2 = block [inLoop]
+        ELSEIF condition2 = expression //TODO manage elseif
+        THEN? then2 = block [inLoop]
     )*
     (
-        'else'? block [inLoop]
+        ELSE? block [inLoop]
         { elsePart = $block.result; }
 
     )?
@@ -194,7 +197,7 @@ if_command [boolean inLoop] returns [TclExpressionNode result]
 
 return_command returns [TclExpressionNode result]
 :
-    r = 'return'
+    r = RETURN
     { TclExpressionNode value = null; }
 
     (
@@ -207,7 +210,7 @@ return_command returns [TclExpressionNode result]
 
 set_command returns [TclExpressionNode result]
 :
-    'set'
+    SET
     name = expression
     { TclExpressionNode name = $name.result; }
     value = expression
@@ -217,49 +220,49 @@ set_command returns [TclExpressionNode result]
 
 expression returns [TclExpressionNode result]
 :
-    '{' NL* expression
+    OPEN_BRACE NL* expression
     { $result = $expression.result; }
 NL*
-    '}'
-    | '(' NL* expression
+    CLOSE_BRACE
+    | OPEN_PARENTHESIS NL* expression
     { $result = $expression.result; }
 NL*
-    ')'
-    | left = expression NL* op = '||' NL* right = expression
+    CLOSE_PARENTHESIS
+    | left = expression NL* op = OR NL* right = expression
     { $result = factory.createBinary($op, $left.result, $right.result); }
 
-    | left = expression NL* op = '&&' NL* right = expression
+    | left = expression NL* op = AND NL* right = expression
     { $result = factory.createBinary($op, $left.result, $right.result); }
 
     | left = expression NL* op =
     (
-        '<'
-        | '<='
-        | '>'
-        | '>='
-        | '=='
-        | '!='
-        | 'eq'
-        | 'ne'
+        LT
+        | LE
+        | GT
+        | GE
+        | EQUAL
+        | NOTEQUAL
+        | EQ
+        | NE
     ) NL* right = expression
     { $result = factory.createBinary($op, $left.result, $right.result); }
 
     | left = expression NL* op =
     (
-        '*'
-        | '/'
-        | '%'
+        MUL
+        | DIV
+        | MOD
     ) NL* right = expression
     { $result = factory.createBinary($op, $left.result, $right.result); }
 
     | left = expression NL* op =
     (
-        '+'
-        | '-'
+        ADD
+        | SUB
     ) NL* right = expression
     { $result = factory.createBinary($op, $left.result, $right.result); }
 
-    | left = expression NL* op = '**' NL* right = expression
+    | left = expression NL* op = POW NL* right = expression
     { $result = factory.createBinary($op, $left.result, $right.result); }
 
     | term
@@ -270,7 +273,7 @@ NL*
 term returns [TclExpressionNode result]
 :
     (
-        '$' var =
+        DOLLAR var =
         (
             IDENTIFIER
             | INTEGER_LITERAL
@@ -278,22 +281,27 @@ term returns [TclExpressionNode result]
         { TclExpressionNode assignmentName = factory.createStringLiteral($var, false);
                                                     $result = factory.createRead(assignmentName);
                                                 }
-        | s = '[' NL* exp = command [false] NL* e = ']'
-        { $result = factory.createParentExpression($exp.result, $s.getStartIndex(), $e.getStopIndex() - $s.getStartIndex() + 1); }
-
+        | subExpression
+        { $result = $subExpression.result; }
         | word
         { $result = $word.result; }
 
+        | string
+        { $result = $string.result; }
+
     )
+;
+
+subExpression returns [TclExpressionNode result]
+:
+    s = OPEN_BRACKET NL* exp = command [false] NL* e = CLOSE_BRACKET
+    { $result = factory.createParentExpression($exp.result, $s.getStartIndex(), $e.getStopIndex() - $s.getStartIndex() + 1); }
 ;
 
 word returns [TclExpressionNode result]
 :
     (
-        STRING_LITERAL
-        { $result = factory.createStringLiteral($STRING_LITERAL, true); }
-
-        | INTEGER_LITERAL
+        INTEGER_LITERAL
         { $result = factory.createIntegerLiteral($INTEGER_LITERAL); }
 
         | DOUBLE_LITERAL
@@ -308,15 +316,58 @@ word returns [TclExpressionNode result]
     )
 ;
 
+string returns [TclExpressionNode result]
+:
+    OPEN_STRING
+    stringContent
+    { $result = $stringContent.result; }
+    CLOSE_STRING
+;
+
+stringContent returns [TclExpressionNode result]
+:
+    (
+        subExpression
+        { TclExpressionNode first = $subExpression.result; }
+        stringContent
+        { TclExpressionNode second = $stringContent.result; }
+        { $result = factory.createConcat(first, second); }
+    |
+        STRING_VALUE
+        { TclExpressionNode first = factory.createStringLiteral($STRING_VALUE, false); }
+        stringContent
+        { TclExpressionNode second = $stringContent.result; }
+        { $result = factory.createConcat(first, second); }
+    |
+        STRING_VALUE
+        { TclExpressionNode first = factory.createStringLiteral($STRING_VALUE, false); }
+        subExpression
+        { TclExpressionNode second = $subExpression.result; }
+        { $result = factory.createConcat(first, second); }
+    |
+        subExpression
+        { TclExpressionNode first = $subExpression.result; }
+        STRING_VALUE
+        { TclExpressionNode second = factory.createStringLiteral($STRING_VALUE, false); }
+        { $result = factory.createConcat(first, second); }
+    |
+        STRING_VALUE
+        { $result = factory.createStringLiteral($STRING_VALUE, false); }
+    |
+        subExpression
+        { $result = $subExpression.result; }
+    )
+;
+
 member_expression
 [TclExpressionNode r, TclExpressionNode assignmentReceiver, TclExpressionNode assignmentName]
-returns [TclExpressionNode result]
+returns[TclExpressionNode result]
 :
 { TclExpressionNode receiver = r;
                                                   TclExpressionNode nestedAssignmentName = null; }
 
     (
-        '::'
+        NS
         { if (receiver == null) {
                                                        receiver = factory.createRead(assignmentName);
                                                   } }
@@ -330,7 +381,7 @@ returns [TclExpressionNode result]
             { $result = $member_expression.result; }
 
         )?
-        | '('
+        | OPEN_PARENTHESIS
         { if (receiver == null) {
                                                       receiver = factory.createRead(assignmentName);
                                                   } }
@@ -339,7 +390,7 @@ returns [TclExpressionNode result]
         { nestedAssignmentName = $expression.result;
                                                   $result = factory.createReadProperty(receiver, nestedAssignmentName); }
 
-        ')'
+        CLOSE_PARENTHESIS
     )
 ;
 
@@ -359,113 +410,4 @@ command_parameters [Token start, TclExpressionNode assignmentName] returns
 
     )*
     { $result = factory.createCall(receiver, parameters, end); }
-
 ;
-
-// lexer
-
-COMMENT
-:
-    '#' ~[\r\n]* -> skip
-;
-
-WS
-:
-    [ \t\u000C]+ -> skip
-;
-
-NL
-:
-    [\r\n]+
-;
-
-fragment
-LETTER
-:
-    [A-Z]
-    | [a-z]
-    | '_'
-;
-
-fragment
-NON_ZERO_DIGIT
-:
-    [1-9]
-;
-
-fragment
-DIGIT
-:
-    [0-9]
-;
-
-fragment
-HEX_DIGIT
-:
-    [0-9]
-    | [a-f]
-    | [A-F]
-;
-
-fragment
-OCT_DIGIT
-:
-    [0-7]
-;
-
-fragment
-BINARY_DIGIT
-:
-    '0'
-    | '1'
-;
-
-fragment
-TAB
-:
-    '\t'
-;
-
-fragment
-STRING_CHAR
-:
-    ~( '"' | '\\' | '\r' | '\n' )
-;
-
-STRING_LITERAL
-:
-    '"' STRING_CHAR* '"'
-;
-
-IDENTIFIER
-:
-    (
-        LETTER+ DIGIT+
-        | DIGIT+ LETTER+
-        | LETTER+
-    )+
-;
-
-INTEGER_LITERAL
-:
-    DIGIT+
-;
-
-DOUBLE_LITERAL
-:
-    DIGIT+ '.' DIGIT+
-;
-
-BOOLEAN_LITERAL
-:
-    'false'
-    | 'no'
-    | 'n'
-    | 'off'
-    | 'true'
-    | 'yes'
-    | 'y'
-    | 'on'
-;
-
-
