@@ -294,7 +294,9 @@ term returns [TclExpressionNode result]
 
 subExpression returns [TclExpressionNode result]
 :
-    s = OPEN_BRACKET NL* exp = command [false] NL* e = CLOSE_BRACKET
+    s = (OPEN_BRACKET | OPEN_BRACKET_IN_STRING) NL*
+    exp = command [false] NL*
+    e = CLOSE_BRACKET
     { $result = factory.createParentExpression($exp.result, $s.getStartIndex(), $e.getStopIndex() - $s.getStartIndex() + 1); }
 ;
 
@@ -319,9 +321,14 @@ word returns [TclExpressionNode result]
 string returns [TclExpressionNode result]
 :
     OPEN_STRING
-    stringContent
-    { $result = $stringContent.result; }
-    CLOSE_STRING
+    (
+        stringContent
+        { $result = $stringContent.result; }
+        CLOSE_STRING
+    |
+        CLOSE_STRING
+        { $result = factory.createEmptyStringLiteral($OPEN_STRING, $CLOSE_STRING); }
+    )
 ;
 
 stringContent returns [TclExpressionNode result]

@@ -643,6 +643,15 @@ public class TclNodeFactory {
         return result;
     }
 
+    public TclExpressionNode createEmptyStringLiteral(Token startToken, Token endToken) {
+        /* Remove the trailing and ending " */
+
+        final TclStringLiteralNode result = new TclStringLiteralNode("".intern());
+        result.setSourceSection(startToken.getStartIndex(), 2);
+        result.addExpressionTag();
+        return result;
+    }
+
     public TclExpressionNode createIntegerLiteral(Token literalToken) {
         TclExpressionNode result;
         try {

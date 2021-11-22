@@ -156,4 +156,4 @@ STRING_NEWLINE:   '\\' '\r'? '\n'         ;
 STRING_ESCAPE:    EscapeSequence          -> type(STRING_VALUE);
 CLOSE_STRING:     '"'                     -> popMode;
 OPEN_BRACKET_IN_STRING: '['               -> pushMode(DEFAULT_MODE);
-STRING_VALUE:     ~["\\[]+                 ;
+STRING_VALUE:     ~["[]+                 ;
