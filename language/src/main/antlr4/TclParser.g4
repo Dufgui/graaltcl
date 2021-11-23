@@ -334,18 +334,6 @@ string returns [TclExpressionNode result]
 stringContent returns [TclExpressionNode result]
 :
     (
-        subExpression
-        { TclExpressionNode first = $subExpression.result; }
-        stringContent
-        { TclExpressionNode second = $stringContent.result; }
-        { $result = factory.createConcat(first, second); }
-    |
-        STRING_VALUE
-        { TclExpressionNode first = factory.createStringLiteral($STRING_VALUE, false); }
-        stringContent
-        { TclExpressionNode second = $stringContent.result; }
-        { $result = factory.createConcat(first, second); }
-    |
         STRING_VALUE
         { TclExpressionNode first = factory.createStringLiteral($STRING_VALUE, false); }
         subExpression
@@ -363,6 +351,19 @@ stringContent returns [TclExpressionNode result]
     |
         subExpression
         { $result = $subExpression.result; }
+    |
+        subExpression
+        { TclExpressionNode first = $subExpression.result; }
+        stringContent
+        { TclExpressionNode second = $stringContent.result; }
+        { $result = factory.createConcat(first, second); }
+    |
+        STRING_VALUE
+        { TclExpressionNode first = factory.createStringLiteral($STRING_VALUE, false); }
+        stringContent
+        { TclExpressionNode second = $stringContent.result; }
+        { $result = factory.createConcat(first, second); }
+
     )
 ;
 

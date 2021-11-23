@@ -174,6 +174,7 @@ public class TclTestRunner extends ParentRunner<TestCase> {
             @Override
             public FileVisitResult visitFile(Path sourceFile, BasicFileAttributes attrs) throws IOException {
                 String sourceName = sourceFile.getFileName().toString();
+                // if (sourceName.endsWith(SOURCE_SUFFIX) && sourceName.contains( "String" )) {
                 if (sourceName.endsWith(SOURCE_SUFFIX)) {
                     String baseName = sourceName.substring(0, sourceName.length() - SOURCE_SUFFIX.length());
 

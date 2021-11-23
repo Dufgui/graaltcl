@@ -58,6 +58,7 @@ import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 import com.oracle.truffle.tcl.TclLanguage;
+import com.oracle.truffle.tcl.builtins.TclConcatBuiltin;
 import com.oracle.truffle.tcl.builtins.TclConcatBuiltinFactory;
 import com.oracle.truffle.tcl.nodes.TclExpressionNode;
 import com.oracle.truffle.tcl.nodes.TclRootNode;
@@ -782,6 +783,9 @@ public class TclNodeFactory {
     }
 
     public TclExpressionNode createConcat(TclExpressionNode first, TclExpressionNode second) {
-        return TclConcatBuiltinFactory.create(new TclExpressionNode[] { first, second });
+        TclConcatBuiltin tclConcatBuiltin = TclConcatBuiltinFactory.create(new TclExpressionNode[] { first, second });
+        tclConcatBuiltin.setSourceSection(first.getSourceCharIndex(),
+                first.getSourceLength() + second.getSourceLength());
+        return tclConcatBuiltin;
     }
 }

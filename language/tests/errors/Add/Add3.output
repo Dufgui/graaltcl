@@ -1,2 +1,2 @@
 Error(s) parsing script:
--- line 4 col 20: mismatched input '}' expecting {'{', '$', '(', '[', NL, STRING_LITERAL, IDENTIFIER, INTEGER_LITERAL, DOUBLE_LITERAL, BOOLEAN_LITERAL}
+-- line 4 col 20: mismatched input '}' expecting {NL, '$', '{', '(', OPEN_BRACKET, OPEN_STRING, IDENTIFIER, INTEGER_LITERAL, DOUBLE_LITERAL, BOOLEAN_LITERAL, OPEN_BRACKET_IN_STRING}

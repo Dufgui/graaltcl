@@ -51,6 +51,13 @@ public abstract class TclConcatBuiltin extends TclBuiltinNode {
 
     @Specialization(limit = "3")
     public String concat(Object s1, Object s2) {
-        return s1.toString() + s2.toString();
+        return toDisplayString(s1) + toDisplayString(s2);
+    }
+
+    protected String toDisplayString(Object s) {
+        if (s instanceof Boolean) {
+            return ((Boolean) s).booleanValue() ? "1" : "0";
+        }
+        return s.toString();
     }
 }
