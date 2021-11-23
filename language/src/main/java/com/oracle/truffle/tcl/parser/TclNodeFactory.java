@@ -705,6 +705,14 @@ public class TclNodeFactory {
         throw new IllegalArgumentException(text + " is not a boolean.");
     }
 
+    public TclExpressionNode createList(List<TclExpressionNode> expressionNodes, int start, int length) {
+        // TclExpressionNode result = new TclListBuiltin(expressionNodes.toArray(new
+        // TclExpressionNode[0]));
+        // result.setSourceSection(start, length);
+        // return result;
+        return null;
+    }
+
     public TclExpressionNode createParentExpression(TclExpressionNode expressionNode, int start, int length) {
         if (expressionNode == null) {
             return null;
