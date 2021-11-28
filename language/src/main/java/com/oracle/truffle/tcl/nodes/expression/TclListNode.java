@@ -38,30 +38,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.oracle.truffle.tcl.builtins;
+package com.oracle.truffle.tcl.nodes.expression;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import com.oracle.truffle.tcl.nodes.TclExpressionNode;
+import com.oracle.truffle.tcl.runtime.TclList;
 
 /**
  * Constant literal for a primitive {@code long} value. The unboxed value can be
  * returned when the parent expects a long value and calls
- * {@link TclListBuiltin#executeLong}. In the generic case, the primitive value
- * is automatically boxed by Java.
+ * {@link TclListNode#executeLong}. In the generic case, the primitive value is
+ * automatically boxed by Java.
  */
 @NodeInfo(shortName = "list")
-public abstract class TclListBuiltin extends TclBuiltinNode {
+public final class TclListNode extends TclExpressionNode {
 
-    @Fallback
-    public Object executeWithArguments(VirtualFrame frame, Object... arguments) {
+    private final List<TclExpressionNode> nodes;
+
+    public TclListNode(List<TclExpressionNode> nodes) {
+        this.nodes = nodes;
+    }
+
+    @Override
+    public Object executeGeneric(VirtualFrame frame) {
         List<Object> results = new ArrayList<>();
-        for (Object argument : arguments) {
-            results.add(argument);
+        for (TclExpressionNode node : nodes) {
+            results.add(node.executeGeneric(frame));
         }
-        return results;
+        return new TclList(results);
     }
 }

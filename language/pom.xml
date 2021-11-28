@@ -64,6 +64,7 @@
         <test.argLine>--upgrade-module-path='${jar.dir}/truffle-api.jar'
           --add-opens org.graalvm.sdk/org.graalvm.polyglot=ALL-UNNAMED
           --add-exports java.base/jdk.internal.module=ALL-UNNAMED</test.argLine>
+        <antlr.version>4.9.2</antlr.version>
       </properties>
       <build>
         <plugins>
@@ -164,7 +165,7 @@
       <plugin>
         <groupId>org.antlr</groupId>
         <artifactId>antlr4-maven-plugin</artifactId>
-        <version>4.7.2</version>
+        <version>${antlr.version}</version>
         <configuration>
           <outputDirectory>${project.build.directory}/generated-sources/antlr4/com/oracle/truffle/tcl/parser</outputDirectory>
           <arguments>
@@ -294,7 +295,7 @@
     <dependency>
       <groupId>org.antlr</groupId>
       <artifactId>antlr4-runtime</artifactId>
-      <version>4.7.2</version>
+      <version>${antlr.version}</version>
     </dependency>
   </dependencies>
 </project>

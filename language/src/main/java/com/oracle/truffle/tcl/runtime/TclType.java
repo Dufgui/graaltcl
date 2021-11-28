@@ -90,6 +90,7 @@ public final class TclType implements TruffleObject {
     public static final TclType BOOLEAN = new TclType("Boolean", (l, v) -> l.isBoolean(v));
     public static final TclType OBJECT = new TclType("Object", (l, v) -> l.hasMembers(v));
     public static final TclType FUNCTION = new TclType("Function", (l, v) -> l.isExecutable(v));
+    public static final TclType LIST = new TclType("List", (l, v) -> v instanceof TclList);
 
     /*
      * This array is used when all types need to be checked in a certain order.
@@ -98,7 +99,7 @@ public final class TclType implements TruffleObject {
      * we decided to make functions, functions and not objects.
      */
     @CompilationFinal(dimensions = 1)
-    public static final TclType[] PRECEDENCE = new TclType[] { NULL, NUMBER, STRING, BOOLEAN, FUNCTION, OBJECT };
+    public static final TclType[] PRECEDENCE = new TclType[] { NULL, NUMBER, STRING, BOOLEAN, FUNCTION, OBJECT, LIST };
 
     private final String name;
     private final TypeCheck isInstance;

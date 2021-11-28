@@ -141,6 +141,9 @@ command [boolean inLoop] returns [TclExpressionNode result]
         | set_command
         { $result = $set_command.result; }
 
+        | list_command
+        { $result = $list_command.result; }
+
         | DOLLAR var =
         (
             IDENTIFIER
@@ -216,6 +219,19 @@ set_command returns [TclExpressionNode result]
     value = expression
     { TclExpressionNode value = $value.result; }
     { $result = factory.createAssignment(name, value); }
+;
+
+list_command returns [TclExpressionNode result]
+:
+    LIST
+    { List<TclExpressionNode> parameters = new ArrayList<>(); }
+    { Token end = $LIST; }
+    (
+        end = expression
+        { parameters.add($expression.result); }
+
+    )*
+    { $result = factory.createList(parameters, $LIST.getStartIndex(), end.getStopIndex()); }
 ;
 
 expression returns [TclExpressionNode result]
@@ -405,8 +421,6 @@ returns[TclExpressionNode result]
 command_parameters [Token start, TclExpressionNode assignmentName] returns
 [TclExpressionNode result]
 :
-    { TclExpressionNode nestedAssignmentName = null; }
-
     { List<TclExpressionNode> parameters = new ArrayList<>();
                                                   Token end = start;
                                                   TclExpressionNode receiver = factory.createCommand(assignmentName);

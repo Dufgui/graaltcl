@@ -706,11 +706,9 @@ public class TclNodeFactory {
     }
 
     public TclExpressionNode createList(List<TclExpressionNode> expressionNodes, int start, int length) {
-        // TclExpressionNode result = new TclListBuiltin(expressionNodes.toArray(new
-        // TclExpressionNode[0]));
-        // result.setSourceSection(start, length);
-        // return result;
-        return null;
+        TclExpressionNode result = new TclListNode(expressionNodes);
+        result.setSourceSection(start, length);
+        return result;
     }
 
     public TclExpressionNode createParentExpression(TclExpressionNode expressionNode, int start, int length) {

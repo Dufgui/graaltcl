@@ -85,6 +85,7 @@ ELSEIF: 'elseif';
 ELSE: 'else';
 RETURN: 'return';
 SET: 'set';
+LIST: 'list';
 
 // Operators
 
