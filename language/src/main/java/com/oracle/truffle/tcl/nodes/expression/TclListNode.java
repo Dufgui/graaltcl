@@ -41,8 +41,10 @@
 package com.oracle.truffle.tcl.nodes.expression;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.tcl.nodes.TclExpressionNode;
@@ -66,9 +68,15 @@ public final class TclListNode extends TclExpressionNode {
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         List<Object> results = new ArrayList<>();
-        for (TclExpressionNode node : nodes) {
+        for (Iterator<TclExpressionNode> i = nodes.iterator(); i.hasNext();) {
+            TclExpressionNode node = next(i);
             results.add(node.executeGeneric(frame));
         }
         return new TclList(results);
+    }
+
+    @CompilerDirectives.TruffleBoundary
+    private TclExpressionNode next(Iterator<TclExpressionNode> i) {
+        return i.next();
     }
 }

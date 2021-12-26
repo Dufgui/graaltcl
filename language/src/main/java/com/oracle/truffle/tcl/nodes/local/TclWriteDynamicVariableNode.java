@@ -42,6 +42,7 @@ package com.oracle.truffle.tcl.nodes.local;
 
 import java.util.Objects;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeField;
@@ -86,11 +87,21 @@ public abstract class TclWriteDynamicVariableNode extends TclExpressionNode {
     }
 
     private FrameSlot createFrameSlot(VirtualFrame frame, Object name) {
-        String nameString = Objects.toString(name);
-        FrameSlot frameSlot = getFrameDescriptor().findOrAddFrameSlot(name, getArgumentIndex(), FrameSlotKind.Illegal);
+        String nameString = toNameString(name);
+        FrameSlot frameSlot = getOrAddFrameSlot(name);
         FrameSlot existingSlot = getLexicalScope().putLocal(nameString, frameSlot);
         isDeclaration = existingSlot == null;
         return frameSlot;
+    }
+
+    @CompilerDirectives.TruffleBoundary
+    private FrameSlot getOrAddFrameSlot(Object name) {
+        return getFrameDescriptor().findOrAddFrameSlot(name, getArgumentIndex(), FrameSlotKind.Illegal);
+    }
+
+    @CompilerDirectives.TruffleBoundary
+    private String toNameString(Object name) {
+        return Objects.toString(name);
     }
 
     /**

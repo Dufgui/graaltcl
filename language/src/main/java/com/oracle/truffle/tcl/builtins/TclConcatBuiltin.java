@@ -40,6 +40,9 @@
  */
 package com.oracle.truffle.tcl.builtins;
 
+import java.util.Objects;
+
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 
@@ -54,10 +57,11 @@ public abstract class TclConcatBuiltin extends TclBuiltinNode {
         return toDisplayString(s1) + toDisplayString(s2);
     }
 
+    @CompilerDirectives.TruffleBoundary
     protected String toDisplayString(Object s) {
         if (s instanceof Boolean) {
             return ((Boolean) s).booleanValue() ? "1" : "0";
         }
-        return s.toString();
+        return Objects.toString(s);
     }
 }

@@ -41,7 +41,9 @@
 package com.oracle.truffle.tcl.nodes.expression;
 
 import java.math.BigInteger;
+import java.util.Objects;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -72,12 +74,17 @@ public abstract class TclLessThanNode extends TclBinaryNode {
     @Fallback
     protected boolean typeError(Object left, Object right) {
         try {
-            BigInteger bigLeft = new BigInteger(String.valueOf(left));
-            BigInteger bigRight = new BigInteger(String.valueOf(right));
-            return bigLeft.compareTo(bigRight) < 0;
+            return compareTo(left, right);
         } catch (Exception e) {
             throw TclException.typeError(this, left, right);
         }
+    }
+
+    @CompilerDirectives.TruffleBoundary
+    private boolean compareTo(Object left, Object right) {
+        BigInteger bigLeft = new BigInteger(Objects.toString(left));
+        BigInteger bigRight = new BigInteger(Objects.toString(right));
+        return bigLeft.compareTo(bigRight) < 0;
     }
 
 }

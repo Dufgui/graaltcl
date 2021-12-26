@@ -40,6 +40,8 @@
  */
 package com.oracle.truffle.tcl.nodes.expression;
 
+import java.util.Objects;
+
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
@@ -89,8 +91,13 @@ public final class TclFunctionDynamicNode extends TclExpressionNode {
         TclFunction function;
         Object localVariableValue = localVariable.executeGeneric(frame);
         /* First execution of the node: lookup the function in the function registry. */
-        function = contextReference.get().getFunctionRegistry().lookup(localVariableValue.toString(), true);
+        function = lookupFunction(contextReference, localVariableValue);
         return function;
+    }
+
+    @CompilerDirectives.TruffleBoundary
+    private TclFunction lookupFunction(ContextReference<TclContext> contextReference, Object localVariableValue) {
+        return contextReference.get().getFunctionRegistry().lookup(Objects.toString(localVariableValue), true);
     }
 
 }

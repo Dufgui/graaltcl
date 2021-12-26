@@ -50,6 +50,7 @@ import java.util.Objects;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -105,10 +106,12 @@ public class TclNodeFactory {
             }
         }
 
+        @CompilerDirectives.TruffleBoundary
         public FrameSlot putLocal(String key, FrameSlot slot) {
             return locals.put(key, slot);
         }
 
+        @CompilerDirectives.TruffleBoundary
         public FrameSlot getLocal(String key) {
             return locals.get(key);
         }
