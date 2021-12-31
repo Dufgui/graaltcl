@@ -59,6 +59,7 @@ import com.oracle.truffle.api.instrumentation.AllocationReporter;
 import com.oracle.truffle.api.instrumentation.ProvidedTags;
 import com.oracle.truffle.api.instrumentation.StandardTags;
 import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.object.DynamicObject;
@@ -217,6 +218,12 @@ public final class TclLanguage extends TruffleLanguage<TclContext> {
 
     private final Shape rootShape;
 
+    private static final LanguageReference<TclLanguage> REFERENCE = LanguageReference.create(TclLanguage.class);
+
+    public static TclLanguage get(Node node) {
+        return REFERENCE.get(node);
+    }
+
     public TclLanguage() {
         counter++;
         this.rootShape = Shape.newBuilder().layout(TclObject.class).build();
@@ -260,7 +267,8 @@ public final class TclLanguage extends TruffleLanguage<TclContext> {
          * extracts a parameter from this array.
          */
         for (int i = 0; i < argumentCount; i++) {
-            argumentNodes[i] = new TclReadArgumentNode(i);
+            // builtin have no default value, only optional.
+            argumentNodes[i] = new TclReadArgumentNode(i, null);
         }
         /* Instantiate the builtin node. This node performs the actual functionality. */
         TclBuiltinNode builtinBodyNode = factory.createNode((Object) argumentNodes);
@@ -321,11 +329,11 @@ public final class TclLanguage extends TruffleLanguage<TclContext> {
             for (String argumentName : request.getArgumentNames()) {
                 sb.append(sep);
                 sb.append(argumentName);
-                sep = ",";
+                sep = " ";
             }
-            sb.append("} { return ");
+            sb.append("} { return [");
             sb.append(source.getCharacters() + "\n");
-            sb.append("}");
+            sb.append("]}");
 
             String language = source.getLanguage() == null ? ID : source.getLanguage();
             Source decoratedSource = Source.newBuilder(language, sb.toString(), source.getName()).build();
@@ -420,10 +428,6 @@ public final class TclLanguage extends TruffleLanguage<TclContext> {
         TclObject object = new TclObject(rootShape);
         reporter.onReturnValue(object, 0, AllocationReporter.SIZE_UNKNOWN);
         return object;
-    }
-
-    public static TclContext getCurrentContext() {
-        return getCurrentContext(TclLanguage.class);
     }
 
     private static final List<NodeFactory<? extends TclBuiltinNode>> EXTERNAL_BUILTINS = Collections

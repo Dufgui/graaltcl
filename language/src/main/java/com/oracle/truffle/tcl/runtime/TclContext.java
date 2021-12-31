@@ -55,6 +55,7 @@ import com.oracle.truffle.api.TruffleLanguage.Env;
 import com.oracle.truffle.api.dsl.NodeFactory;
 import com.oracle.truffle.api.instrumentation.AllocationReporter;
 import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.tcl.TclLanguage;
 import com.oracle.truffle.tcl.builtins.TclBuiltinNode;
@@ -187,17 +188,11 @@ public final class TclContext {
         return env.parsePublic(source);
     }
 
-    /**
-     * Returns an object that contains bindings that were exported across all used
-     * languages. To read or write from this object the {@link TruffleObject
-     * interop} API can be used.
-     */
-    public TruffleObject getPolyglotBindings() {
-        return (TruffleObject) env.getPolyglotBindings();
-    }
+    private static final TruffleLanguage.ContextReference<TclContext> REFERENCE = TruffleLanguage.ContextReference
+            .create(TclLanguage.class);
 
-    public static TclContext getCurrent() {
-        return TclLanguage.getCurrentContext();
+    public static TclContext get(Node node) {
+        return REFERENCE.get(node);
     }
 
 }

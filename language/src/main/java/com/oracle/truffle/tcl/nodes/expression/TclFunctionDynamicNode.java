@@ -49,7 +49,6 @@ import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.tcl.TclLanguage;
-import com.oracle.truffle.tcl.nodes.TclExpressionNode;
 import com.oracle.truffle.tcl.nodes.local.TclReadLocalVariableNode;
 import com.oracle.truffle.tcl.runtime.TclContext;
 import com.oracle.truffle.tcl.runtime.TclFunction;
@@ -63,7 +62,7 @@ import com.oracle.truffle.tcl.runtime.TclFunctionRegistry;
  * changes. This is guaranteed by the {@link TclFunctionRegistry}.
  */
 @NodeInfo(shortName = "func")
-public final class TclFunctionDynamicNode extends TclExpressionNode {
+public final class TclFunctionDynamicNode extends TclFunctionNode {
 
     /** The name of the function. */
     private final TclReadLocalVariableNode localVariable;

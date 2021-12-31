@@ -44,11 +44,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
-import com.oracle.truffle.api.dsl.CachedContext;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.tcl.TclException;
-import com.oracle.truffle.tcl.TclLanguage;
 import com.oracle.truffle.tcl.runtime.TclContext;
 
 /**
@@ -59,8 +57,8 @@ import com.oracle.truffle.tcl.runtime.TclContext;
 public abstract class TclGetsBuiltin extends TclBuiltinNode {
 
     @Specialization
-    public String gets(@CachedContext(TclLanguage.class) TclContext context) {
-        String result = doRead(context.getInput());
+    public String gets() {
+        String result = doRead(getContext().getInput());
         if (result == null) {
             /*
              * We do not have a sophisticated end of file handling, so returning an empty
@@ -71,6 +69,10 @@ public abstract class TclGetsBuiltin extends TclBuiltinNode {
             result = "";
         }
         return result;
+    }
+
+    public final TclContext getContext() {
+        return TclContext.get(this);
     }
 
     @TruffleBoundary

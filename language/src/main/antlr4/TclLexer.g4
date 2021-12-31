@@ -126,6 +126,7 @@ IDENTIFIER
         LETTER+ DIGIT+
         | DIGIT+ LETTER+
         | LETTER+
+        | [-_.]
     )+
 ;
 

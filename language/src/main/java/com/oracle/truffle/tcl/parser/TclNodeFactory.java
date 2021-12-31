@@ -167,12 +167,17 @@ public class TclNodeFactory {
     }
 
     public void addFormalParameter(Token nameToken) {
+        addFormalParameter(nameToken, null);
+    }
+
+    public void addFormalParameter(Token nameToken, TclExpressionNode defaultValueNode) {
+        // TODO manage default value
         /*
          * Method parameters are assigned to local variables at the beginning of the
          * method. This ensures that accesses to parameters are specialized the same way
          * as local variables are specialized.
          */
-        final TclReadArgumentNode readArg = new TclReadArgumentNode(parameterCount);
+        final TclReadArgumentNode readArg = new TclReadArgumentNode(parameterCount, defaultValueNode);
         readArg.setSourceSection(nameToken.getStartIndex(), nameToken.getText().length());
         TclExpressionNode assignment = createAssignment(createStringLiteral(nameToken, false), readArg, parameterCount);
         methodNodes.add(assignment);
@@ -443,7 +448,7 @@ public class TclNodeFactory {
      * @return An TclInvokeNode for the given parameters. null if functionNode or
      *         any of the parameterNodes are null.
      */
-    public TclExpressionNode createCall(TclExpressionNode functionNode, List<TclExpressionNode> parameterNodes,
+    public TclExpressionNode createCall(TclFunctionNode functionNode, List<TclExpressionNode> parameterNodes,
             Token finalToken) {
         if (functionNode == null || containsNull(parameterNodes)) {
             return null;
@@ -571,13 +576,13 @@ public class TclNodeFactory {
      *         <li>null if nameNode is null.</li>
      *         </ul>
      */
-    public TclExpressionNode createCommand(TclExpressionNode nameNode) {
+    public TclFunctionNode createCommand(TclExpressionNode nameNode) {
         if (nameNode == null) {
             return null;
         }
 
         String name = (String) (nameNode.executeGeneric(null));
-        final TclExpressionNode result;
+        final TclFunctionNode result;
         final FrameSlot frameSlot = lexicalScope.locals.get(name);
         if (frameSlot != null) {
             /* Read of a local variable. */
@@ -633,7 +638,7 @@ public class TclNodeFactory {
         return result;
     }
 
-    public TclExpressionNode createStringLiteral(Token literalToken, boolean removeQuotes) {
+    public static TclExpressionNode createStringLiteral(Token literalToken, boolean removeQuotes) {
         /* Remove the trailing and ending " */
         String literal = literalToken.getText();
         if (removeQuotes) {

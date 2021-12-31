@@ -16,6 +16,7 @@ import com.oracle.truffle.tcl.TclLanguage;
 import com.oracle.truffle.tcl.nodes.TclExpressionNode;
 import com.oracle.truffle.tcl.nodes.TclRootNode;
 import com.oracle.truffle.tcl.nodes.TclStatementNode;
+import com.oracle.truffle.tcl.nodes.expression.TclFunctionNode;
 import com.oracle.truffle.tcl.parser.TclParseError;
 }
 
@@ -74,29 +75,46 @@ tcl
         function
         | command [false]
         { factory.addModuleStatement($command.result); }
-        (NL+ | EOC)
-    )* NL* EOF
+        (NL+ | EOC | EOF)
+    )* NL* EOF?
     { factory.finishModule(); }
 
 ;
 
 function
 :
-    PROC IDENTIFIER s = OPEN_BRACE
-    { factory.startFunction($IDENTIFIER, $s); }
-
+    PROC IDENTIFIER
     (
-        IDENTIFIER
-        { factory.addFormalParameter($IDENTIFIER); }
-
-        (
-            IDENTIFIER
-            { factory.addFormalParameter($IDENTIFIER); }
-
-        )*
-    )? CLOSE_BRACE body = block [false]
+    (
+    s = OPEN_BRACE
+    { factory.startFunction($IDENTIFIER, $s); }
+    (
+        functionArgument [$IDENTIFIER, false]
+    )*
+    CLOSE_BRACE
+    )
+    |
+        functionArgument [$IDENTIFIER, true]
+    )
+    body = block [false]
     { factory.finishFunction($body.result); }
 
+;
+
+functionArgument [Token functionName, boolean createFunction]
+:
+    (
+    arg = IDENTIFIER
+    { if(createFunction) factory.startFunction($functionName, $arg); }
+    { factory.addFormalParameter($arg); }
+    |
+    s = OPEN_BRACE
+    arg = IDENTIFIER
+    { if(createFunction) factory.startFunction($functionName, $arg); }
+    defaultValue = term
+    { factory.addFormalParameter($arg, $defaultValue.result); }
+    CLOSE_BRACE
+    )
 ;
 
 block [boolean inLoop] returns [TclExpressionNode result]
@@ -423,7 +441,7 @@ command_parameters [Token start, TclExpressionNode assignmentName] returns
 :
     { List<TclExpressionNode> parameters = new ArrayList<>();
                                                   Token end = start;
-                                                  TclExpressionNode receiver = factory.createCommand(assignmentName);
+                                                  TclFunctionNode receiver = factory.createCommand(assignmentName);
                                              }
 
     (

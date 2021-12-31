@@ -59,14 +59,18 @@ public class TclReadArgumentNode extends TclExpressionNode {
     /** The argument number, i.e., the index into the array of arguments. */
     private final int index;
 
+    /** The default value, can be null if not defined */
+    private final TclExpressionNode defaultValueNode;
+
     /**
      * Profiling information, collected by the interpreter, capturing whether the
      * function was called with fewer actual arguments than formal arguments.
      */
     private final BranchProfile outOfBoundsTaken = BranchProfile.create();
 
-    public TclReadArgumentNode(int index) {
+    public TclReadArgumentNode(int index, TclExpressionNode defaultValueNode) {
         this.index = index;
+        this.defaultValueNode = defaultValueNode;
     }
 
     @Override
@@ -74,6 +78,8 @@ public class TclReadArgumentNode extends TclExpressionNode {
         Object[] args = frame.getArguments();
         if (index < args.length) {
             return args[index];
+        } else if (defaultValueNode != null) {
+            return defaultValueNode.executeGeneric(frame);
         } else {
             /* In the interpreter, record profiling information that the branch was used. */
             outOfBoundsTaken.enter();

@@ -67,13 +67,13 @@ import com.oracle.truffle.tcl.runtime.TclUndefinedNameException;
 public final class TclInvokeNode extends TclExpressionNode {
 
     @Child
-    private TclExpressionNode functionNode;
+    private TclFunctionNode functionNode;
     @Children
     private final TclExpressionNode[] argumentNodes;
     @Child
     private InteropLibrary library;
 
-    public TclInvokeNode(TclExpressionNode functionNode, TclExpressionNode[] argumentNodes) {
+    public TclInvokeNode(TclFunctionNode functionNode, TclExpressionNode[] argumentNodes) {
         this.functionNode = functionNode;
         this.argumentNodes = argumentNodes;
         this.library = InteropLibrary.getFactory().createDispatched(3);
@@ -82,7 +82,7 @@ public final class TclInvokeNode extends TclExpressionNode {
     @ExplodeLoop
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        Object function = functionNode.executeGeneric(frame);
+        TclFunction function = functionNode.executeGeneric(frame);
 
         /*
          * The number of arguments is constant for one invoke node. During compilation,
